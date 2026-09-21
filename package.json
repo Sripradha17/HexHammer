@@ -1,0 +1,33 @@
+{
+  "name": "hexhammer",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Learn to code by hand. A free, local, open-source classroom.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
+    "seed": "npm run seed -w apps/api",
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "prisma": {
+    "schema": "apps/api/prisma/schema.prisma",
+    "seed": "npm run seed -w apps/api"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0"
+  }
+}

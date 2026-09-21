@@ -1,0 +1,206 @@
+/* Styles for the plain components. Only tokens (var(--hh-...)) are used. Hand-drawn style: wobbly, hard shadows. */
+
+/* ---------- Button ---------- */
+.hh-button {
+  font-family: var(--hh-font-body);
+  font-size: var(--hh-text-lg);
+  min-height: 48px; /* big enough to tap */
+  padding: var(--hh-space-2) var(--hh-space-5);
+  background: var(--hh-surface);
+  color: var(--hh-text);
+  border: var(--hh-border-thick) solid var(--hh-border);
+  border-radius: var(--hh-wobbly);
+  box-shadow: var(--hh-shadow);
+  cursor: pointer;
+  transition:
+    transform var(--hh-speed),
+    box-shadow var(--hh-speed),
+    background var(--hh-speed),
+    color var(--hh-speed);
+}
+/* A button that belongs to a level is filled with a pale version of that marker color. */
+.hh-button[data-level] {
+  background: var(--hh-tint);
+}
+/* Hover: fills marker purple, sinks a little toward the page. */
+.hh-button:hover:not(:disabled) {
+  background: var(--hh-purple);
+  color: var(--hh-ink-light);
+  box-shadow: var(--hh-shadow-hover);
+  transform: translate(2px, 2px);
+}
+/* Active: presses flat. */
+.hh-button:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(4px, 4px);
+}
+.hh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.hh-button:focus-visible {
+  outline: 3px dashed var(--hh-focus);
+  outline-offset: 4px;
+}
+
+.hh-button--secondary {
+  background: var(--hh-eraser);
+}
+.hh-button--secondary[data-level] {
+  background: var(--hh-eraser);
+}
+.hh-button--secondary:hover:not(:disabled) {
+  background: var(--hh-cyan);
+  color: var(--hh-ink-dark);
+}
+.hh-button--danger {
+  background: var(--hh-danger);
+  color: var(--hh-ink-light);
+}
+.hh-button--danger:hover:not(:disabled) {
+  background: var(--hh-ink);
+}
+.hh-button--small {
+  font-size: var(--hh-text-md);
+  min-height: 44px;
+  padding: var(--hh-space-1) var(--hh-space-4);
+}
+
+/* ---------- Card ---------- */
+.hh-card {
+  position: relative;
+  background: var(--hh-surface);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  padding: var(--hh-space-5);
+  box-shadow: var(--hh-shadow-soft);
+}
+/* Cards that belong to a level get a colored "highlighter" stripe under the title. */
+.hh-card__title {
+  display: block; /* its own line, so buttons and text never sit beside it */
+  width: fit-content; /* but the highlighter only covers the words */
+  margin: 0 0 var(--hh-space-3);
+  font-family: var(--hh-font-heading);
+  font-size: var(--hh-text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+  background: linear-gradient(transparent 60%, var(--hh-accent, var(--hh-eraser)) 60%);
+}
+.hh-card--postit {
+  background: var(--hh-postit);
+}
+.hh-card--locked {
+  background: var(--hh-surface-soft);
+  border-style: dashed;
+}
+/* Decorations: tape strip and thumbtack, sticking out over the top edge. */
+.hh-card--tape::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 90px;
+  height: 26px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: color-mix(in srgb, var(--hh-accent, var(--hh-eraser)) 45%, transparent);
+  border: var(--hh-border-thin) dashed var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.hh-card--tack::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translateX(-50%);
+  background: var(--hh-purple);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly);
+  box-shadow: 2px 2px 0 0 var(--hh-ink);
+}
+
+/* ---------- Badge (a little sticky-note tag) ---------- */
+.hh-badge {
+  display: inline-block;
+  font-family: var(--hh-font-body);
+  font-size: var(--hh-text-sm);
+  padding: 0 var(--hh-space-3);
+  background: var(--hh-tint, var(--hh-postit));
+  color: var(--hh-text);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  transform: rotate(-2deg);
+}
+.hh-badge--soft {
+  background: var(--hh-eraser);
+}
+.hh-badge--success {
+  background: var(--hh-success-soft);
+  color: var(--hh-success);
+}
+.hh-badge--danger {
+  background: var(--hh-danger-soft);
+  color: var(--hh-danger);
+}
+
+/* ---------- ProgressBar (pencil-hatched fill) ---------- */
+.hh-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--hh-space-3);
+}
+.hh-progress__track {
+  flex: 1;
+  height: 22px;
+  background: var(--hh-surface);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly);
+  overflow: hidden;
+}
+.hh-progress__fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--hh-accent, var(--hh-focus)),
+    var(--hh-accent, var(--hh-focus)) 6px,
+    var(--hh-tint, var(--hh-eraser)) 6px,
+    var(--hh-tint, var(--hh-eraser)) 12px
+  );
+  border-right: var(--hh-border-thin) solid var(--hh-border);
+  transition: width 0.4s;
+}
+.hh-progress__label {
+  font-family: var(--hh-font-heading);
+  font-weight: 700;
+  min-width: 4ch;
+  text-align: right;
+}
+
+/* ---------- TextArea (a full wobbly box, like a note) ---------- */
+.hh-textarea {
+  width: 100%;
+  font-family: var(--hh-font-body);
+  font-size: var(--hh-text-md);
+  color: var(--hh-text);
+  padding: var(--hh-space-3);
+  background: var(--hh-surface);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.hh-textarea::placeholder {
+  color: color-mix(in srgb, var(--hh-ink) 45%, transparent);
+}
+.hh-textarea:focus {
+  outline: none; /* replaced by the blue border and ring below (still clearly visible) */
+  border-color: var(--hh-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hh-focus) 25%, transparent);
+}
+
+/* People who ask their computer for less motion get less wiggle. */
+@media (prefers-reduced-motion: reduce) {
+  .hh-button,
+  .hh-progress__fill {
+    transition: none;
+  }
+}

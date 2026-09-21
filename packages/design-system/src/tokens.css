@@ -1,0 +1,148 @@
+/*
+  Hexhammer design tokens: HAND-DRAWN style.
+  Named values (CSS variables) used by the WHOLE app.
+  Rule: the app never writes a raw color, size, radius or shadow. It always uses a token from here.
+  Idea: cream paper, thick ink outlines, and the lime, purple, cyan and sunny-yellow markers from the mascot art.
+*/
+:root {
+  /* ---- Palette: taken straight from the Hexhammer mascot art ---- */
+  --hh-paper: #fbf8f1; /* cream paper (page background) */
+  --hh-ink: #1c1a22; /* the thick outline color of the drawings, never pure black */
+  --hh-eraser: #e8e4d8; /* old paper / erased pencil */
+  --hh-lime: #d5ea2e; /* highlighter lime (the big splashes behind the mascots) */
+  --hh-purple: #7b3cf0; /* marker purple (hover, focus, tack) */
+  --hh-purple-deep: #5b21b6; /* darker purple for small text and links */
+  --hh-cyan: #02c7d3; /* cyan */
+  --hh-sun: #fdc602; /* sunny yellow (the hexagon) */
+  --hh-postit: #fff4b8; /* post-it: pale sunny yellow */
+  --hh-night: #22076b; /* deep space navy (astronaut poster) */
+
+  /* ---- The 8 level colors: crayon-bright, in the same family as the art ---- */
+  --hh-level-1: #ff4d5e; /* Red */
+  --hh-level-2: #ff8a1f; /* Orange */
+  --hh-level-3: #fdc602; /* Yellow (the art's sunny yellow) */
+  --hh-level-4: #d5ea2e; /* Green (the art's lime) */
+  --hh-level-5: #02c7d3; /* Blue (the art's cyan) */
+  --hh-level-6: #5b4bd8; /* Indigo */
+  --hh-level-7: #7b3cf0; /* Violet (the art's purple) */
+  --hh-level-8: #f0a800; /* Gold */
+
+  /* Text that sits ON a full level color. Only red, indigo and violet are dark enough for white text. */
+  --hh-ink-light: #ffffff;
+  --hh-ink-dark: #1c1a22;
+
+  /* ---- Names the components use (built from the palette above) ---- */
+  --hh-bg: var(--hh-paper);
+  --hh-surface: #ffffff;
+  --hh-surface-soft: var(--hh-eraser);
+  --hh-text: var(--hh-ink);
+  --hh-text-muted: #5c5c5c; /* darker than "eraser" so small text stays readable */
+  --hh-border: var(--hh-ink);
+  --hh-code-bg: #16131f;
+  --hh-code-text: #f8f8f2;
+
+  /* Feedback colors. */
+  --hh-success: #1f7a3d;
+  --hh-success-soft: #d9f2df;
+  --hh-danger: #c62828;
+  --hh-danger-soft: #ffe0e0;
+  --hh-info-soft: var(--hh-postit);
+  --hh-focus: var(--hh-purple-deep); /* focus rings and links */
+
+  /* ---- Spacing scale ---- */
+  --hh-space-1: 4px;
+  --hh-space-2: 8px;
+  --hh-space-3: 12px;
+  --hh-space-4: 16px;
+  --hh-space-5: 24px;
+  --hh-space-6: 32px;
+  --hh-space-7: 48px;
+
+  /*
+    ---- Wobbly borders (the heart of this style) ----
+    Eight numbers = four different corners, each an oval. That makes an edge that looks drawn by hand.
+    Use these instead of a plain rounded corner. Big numbers are fine: the browser scales them down to fit.
+  */
+  --hh-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px; /* buttons, pills */
+  --hh-wobbly-md: 15px 225px 15px 255px / 225px 15px 255px 15px; /* cards */
+  --hh-wobbly-sm: 8px 22px 10px 24px / 24px 10px 22px 8px; /* inputs, code, small boxes */
+
+  /* Old names, pointing at the wobbly values so older CSS keeps working. */
+  --hh-radius-sm: var(--hh-wobbly-sm);
+  --hh-radius-md: var(--hh-wobbly-md);
+  --hh-radius-lg: var(--hh-wobbly-md);
+  --hh-radius-pill: var(--hh-wobbly);
+
+  /* ---- Border widths ---- */
+  --hh-border-thin: 2px;
+  --hh-border-thick: 3px;
+
+  /* ---- Hard offset shadows: solid, no blur, like cut paper ---- */
+  --hh-shadow: 4px 4px 0 0 var(--hh-ink);
+  --hh-shadow-hover: 2px 2px 0 0 var(--hh-ink);
+  --hh-shadow-lift: 8px 8px 0 0 var(--hh-ink);
+  --hh-shadow-soft: 3px 3px 0 0 rgba(28, 26, 34, 0.12);
+
+  /* ---- Type scale ---- */
+  --hh-font-heading: "Kalam", "Comic Sans MS", cursive;
+  --hh-font-body: "Patrick Hand", "Comic Sans MS", cursive;
+  --hh-font: var(--hh-font-body);
+  --hh-font-mono: "Cascadia Code", "Fira Code", Consolas, monospace;
+  --hh-text-sm: 1rem;
+  --hh-text-md: 1.15rem;
+  --hh-text-lg: 1.4rem;
+  --hh-text-xl: 2rem;
+  --hh-text-2xl: 2.75rem;
+
+  /* ---- Paper texture: a grid of tiny dots ---- */
+  --hh-dots: radial-gradient(var(--hh-eraser) 1px, transparent 1px);
+  --hh-dots-size: 24px 24px;
+
+  /* ---- Motion (fast and snappy) ---- */
+  --hh-speed: 100ms;
+}
+
+/*
+  Put data-level="3" on any element and everything inside uses that level's marker color.
+  Components read --hh-accent (the marker) and --hh-accent-ink (readable text on it).
+  --hh-tint is the marker color faded into paper, for big soft areas.
+*/
+[data-level] {
+  --hh-accent: var(--hh-level-1);
+  --hh-accent-ink: var(--hh-ink-light);
+}
+[data-level="1"] {
+  --hh-accent: var(--hh-level-1);
+  --hh-accent-ink: var(--hh-ink-light);
+}
+[data-level="2"] {
+  --hh-accent: var(--hh-level-2);
+  --hh-accent-ink: var(--hh-ink-dark);
+}
+[data-level="3"] {
+  --hh-accent: var(--hh-level-3);
+  --hh-accent-ink: var(--hh-ink-dark);
+}
+[data-level="4"] {
+  --hh-accent: var(--hh-level-4);
+  --hh-accent-ink: var(--hh-ink-dark);
+}
+[data-level="5"] {
+  --hh-accent: var(--hh-level-5);
+  --hh-accent-ink: var(--hh-ink-dark);
+}
+[data-level="6"] {
+  --hh-accent: var(--hh-level-6);
+  --hh-accent-ink: var(--hh-ink-light);
+}
+[data-level="7"] {
+  --hh-accent: var(--hh-level-7);
+  --hh-accent-ink: var(--hh-ink-light);
+}
+[data-level="8"] {
+  --hh-accent: var(--hh-level-8);
+  --hh-accent-ink: var(--hh-ink-dark);
+}
+[data-level] {
+  --hh-tint: color-mix(in srgb, var(--hh-accent) 30%, white);
+}

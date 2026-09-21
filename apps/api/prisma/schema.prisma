@@ -1,0 +1,83 @@
+// Hexhammer database (PostgreSQL 16). Single local user, so no User table.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// One row per level (1..8). Levels 2-8 only have metadata in Phase 1.
+model Level {
+  number         Int      @id
+  name           String // "Red"
+  color          String // "red" (matches a design-system token)
+  title          String // "Words and boxes"
+  description    String
+  runner         String
+  isOpen         Boolean  @default(false)
+  plannedStrikes Json // array of strike titles
+  strikes        Strike[]
+}
+
+// One row per lesson.
+model Strike {
+  id          String    @id // "l1-s01"
+  // A strike belongs to a LEVEL, or to a TRACK (like "dsa"), never both.
+  levelNumber Int?
+  level       Level?    @relation(fields: [levelNumber], references: [number])
+  trackId     String?
+  order       Int
+  title       String
+  lookText    String
+  typeText    String
+  breakText   String
+  sayText     String
+  starterCode String
+  tests       String
+  hints       Json // array of exactly 3 strings
+  solution    String // hidden until "reveal" (see the solution route)
+  progress    Progress?
+  sayNote     SayNote?
+
+  @@unique([levelNumber, order])
+  @@unique([trackId, order])
+}
+
+// My progress on one strike.
+model Progress {
+  strikeId  String    @id
+  strike    Strike    @relation(fields: [strikeId], references: [id])
+  status    String    @default("not_started") // not_started | in_progress | complete
+  savedCode String? // my last auto-saved code
+  attempts  Int       @default(0) // number of FAILED test runs (used to unlock "reveal")
+  passedAt  DateTime?
+}
+
+// My one-sentence explanation ("Say it").
+model SayNote {
+  strikeId  String   @id
+  strike    Strike   @relation(fields: [strikeId], references: [id])
+  text      String
+  updatedAt DateTime @updatedAt
+}
+
+// A Say-It flashcard with its spaced-repetition state.
+model InterviewCard {
+  id           Int      @id @default(autoincrement())
+  level        Int
+  question     String
+  answer       String
+  isPreview    Boolean  @default(false)
+  box          Int      @default(1) // 1, 2 or 3
+  nextReviewAt DateTime @default(now())
+
+  @@unique([level, question])
+}
+
+// One row for every day I did something. Used for the streak counter.
+model StreakDay {
+  date String @id // "YYYY-MM-DD" in local time
+}

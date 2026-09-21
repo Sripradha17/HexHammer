@@ -1,0 +1,519 @@
+/* App layout, hand-drawn style. Only design-system tokens are used for colors, spacing, radius, shadows and type. */
+* {
+  box-sizing: border-box;
+}
+
+/* Notebook paper: warm color with a grid of tiny dots. */
+body {
+  margin: 0;
+  background-color: var(--hh-bg);
+  background-image: var(--hh-dots);
+  background-size: var(--hh-dots-size);
+  color: var(--hh-text);
+  font-family: var(--hh-font-body);
+  font-size: var(--hh-text-md);
+  line-height: 1.5;
+}
+
+/* Headings look like thick felt-tip marker. */
+h1,
+h2,
+h3 {
+  font-family: var(--hh-font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+}
+h1 {
+  font-size: var(--hh-text-2xl);
+  margin: var(--hh-space-4) 0;
+}
+h2 {
+  font-size: var(--hh-text-xl);
+}
+
+a {
+  color: var(--hh-focus);
+}
+.muted {
+  color: var(--hh-text-muted);
+}
+
+/* One clear focus style everywhere: a dashed blue outline. */
+:focus-visible {
+  outline: 3px dashed var(--hh-focus);
+  outline-offset: 3px;
+}
+
+/* Wavy purple underline, like a marker. */
+.scribble {
+  text-decoration: underline wavy var(--hh-purple);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 10px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hh-space-4);
+  padding: var(--hh-space-3) var(--hh-space-5);
+  background: var(--hh-lime);
+  border-bottom: var(--hh-border-thick) solid var(--hh-border);
+}
+.topbar__logo {
+  display: inline-block;
+  font-family: var(--hh-font-heading);
+  font-weight: 700;
+  font-size: var(--hh-text-xl);
+  color: var(--hh-text);
+  text-decoration: none;
+  transform: rotate(-2deg);
+}
+.topbar__nav {
+  display: flex;
+  gap: var(--hh-space-5);
+  flex: 1;
+}
+.topbar__nav a {
+  color: var(--hh-text);
+  font-size: var(--hh-text-lg);
+  text-decoration: none;
+}
+.topbar__nav a:hover {
+  text-decoration: underline wavy var(--hh-purple);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.page {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: var(--hh-space-5) var(--hh-space-4);
+}
+
+/* ---------- Grids: cards tilt a little, and jiggle when you hover ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--hh-space-6);
+  margin-bottom: var(--hh-space-6);
+  /* Room above the first row, so the tape and the "start here!" doodle do not sit on the text above. */
+  padding-top: var(--hh-space-6);
+}
+/* Cards inside a link fill the grid cell, so a whole row has the same height. */
+.card-link > .hh-card {
+  height: 100%;
+}
+.card-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+.strike-list {
+  display: grid;
+  gap: var(--hh-space-5);
+  margin: var(--hh-space-5) 0;
+}
+.card-grid > *,
+.strike-list > * {
+  transition: transform var(--hh-speed);
+}
+.card-grid > :nth-child(odd),
+.strike-list > :nth-child(odd) {
+  transform: rotate(-1deg);
+}
+.card-grid > :nth-child(even),
+.strike-list > :nth-child(even) {
+  transform: rotate(1deg);
+}
+.card-grid > :nth-child(3n),
+.strike-list > :nth-child(3n) {
+  transform: rotate(-0.5deg);
+}
+.card-grid > :nth-child(odd):hover,
+.strike-list > :nth-child(odd):hover {
+  transform: rotate(1deg);
+}
+.card-grid > :nth-child(even):hover,
+.strike-list > :nth-child(even):hover {
+  transform: rotate(-1deg);
+}
+/* A link that wraps a card lifts its shadow on hover. */
+.card-link:hover .hh-card {
+  box-shadow: var(--hh-shadow);
+}
+.topics {
+  padding-left: var(--hh-space-5);
+  margin: var(--hh-space-3) 0 0;
+}
+
+/* The "start here!" doodle on the open level. Hidden on small screens. */
+.start-here {
+  display: none;
+}
+@media (min-width: 900px) {
+  .start-here {
+    display: flex;
+    align-items: flex-end;
+    position: absolute;
+    top: -40px;
+    right: 0;
+    z-index: 2;
+    color: var(--hh-purple);
+    font-family: var(--hh-font-heading);
+    font-weight: 700;
+    transform: rotate(6deg);
+  }
+}
+
+/* ---------- Strike page ---------- */
+.strike-header {
+  margin-bottom: var(--hh-space-6); /* room for the tape on the first card */
+}
+.strike-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: var(--hh-space-6);
+  align-items: start;
+  margin-bottom: var(--hh-space-6);
+}
+.strike-left,
+.strike-right {
+  display: grid;
+  gap: var(--hh-space-6);
+}
+@media (max-width: 900px) {
+  .strike-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lesson-text {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--hh-font-body);
+}
+.editor-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--hh-space-2);
+}
+/* The editor is pinned inside a wobbly frame. It is never tilted, so the code stays sharp. */
+.editor-frame {
+  overflow: hidden;
+  border: var(--hh-border-thick) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.run-bar {
+  display: flex;
+  gap: var(--hh-space-3);
+}
+
+.say-box {
+  margin-bottom: var(--hh-space-3);
+}
+
+.results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--hh-space-2);
+}
+.result {
+  padding: var(--hh-space-2) var(--hh-space-3);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.result--pass {
+  background: var(--hh-success-soft);
+}
+.result--fail {
+  background: var(--hh-danger-soft);
+}
+.result__message {
+  color: var(--hh-danger);
+  margin-left: var(--hh-space-5);
+}
+
+.message {
+  padding: var(--hh-space-3) var(--hh-space-4);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+}
+.message--bad {
+  background: var(--hh-danger-soft);
+  color: var(--hh-danger);
+}
+
+.console__lines,
+.solution__code {
+  margin: 0;
+  padding: var(--hh-space-3);
+  background: var(--hh-code-bg);
+  color: var(--hh-code-text);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  font-family: var(--hh-font-mono);
+  font-size: var(--hh-text-sm);
+  white-space: pre-wrap;
+}
+.solution__explain {
+  white-space: pre-wrap;
+}
+.hint {
+  background: var(--hh-postit);
+  padding: var(--hh-space-3);
+  border: var(--hh-border-thin) dashed var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.divider {
+  clear: both; /* stay below any floated picture */
+  border: 0;
+  border-top: var(--hh-border-thin) dashed var(--hh-border);
+  margin: var(--hh-space-4) 0;
+}
+
+/* ---------- Flashcards ---------- */
+.flashcard {
+  padding: var(--hh-space-5);
+  background: var(--hh-postit);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+}
+.flashcard__answer {
+  font-size: var(--hh-text-lg);
+}
+
+/* ---------- Celebration ---------- */
+.celebration {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: var(--hh-space-5);
+  background: var(--hh-success-soft);
+  border: var(--hh-border-thick) dashed var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+}
+.celebration__confetti span {
+  position: absolute;
+  top: calc(-1 * var(--hh-space-5));
+  font-size: var(--hh-text-xl);
+  animation: hh-fall 2.5s ease-in forwards;
+}
+@keyframes hh-fall {
+  to {
+    transform: translateY(260px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Less motion for people who ask for it: no tilting on hover, no falling confetti. */
+@media (prefers-reduced-motion: reduce) {
+  .card-grid > *,
+  .strike-list > * {
+    transition: none;
+  }
+  .card-grid > *,
+  .strike-list > * {
+    transform: none !important; /* beats the tilt rules above */
+  }
+  .celebration__confetti {
+    display: none;
+  }
+}
+
+/* ---------- Mascot pictures ---------- */
+.logo-img {
+  vertical-align: middle;
+  object-fit: cover;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  background: var(--hh-surface);
+}
+
+/* A page header: words on the left, a picture pinned on the right. */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hh-space-5);
+  margin-bottom: var(--hh-space-3);
+}
+.hero__art {
+  flex-shrink: 0;
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  background: var(--hh-surface);
+  border: var(--hh-border-thick) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+  transform: rotate(3deg);
+}
+@media (min-width: 700px) {
+  .hero__art {
+    width: 190px;
+    height: 190px;
+  }
+}
+
+/* Cards let a floated picture sit inside them without spilling out. */
+.card-grid .hh-card,
+.hh-card {
+  display: flow-root;
+}
+.level-art {
+  float: right;
+  width: 96px;
+  height: 96px;
+  margin: 0 0 var(--hh-space-3) var(--hh-space-3);
+  object-fit: cover;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  transform: rotate(3deg);
+}
+/* Locked levels: the picture is faded, like a sneak peek. */
+.level-art--locked {
+  filter: grayscale(0.6);
+  opacity: 0.85;
+}
+
+.hint-art {
+  float: right;
+  width: 120px;
+  height: 90px;
+  margin: 0 0 var(--hh-space-3) var(--hh-space-3);
+  object-fit: cover;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  transform: rotate(-3deg);
+}
+
+.celebration__art {
+  position: relative;
+  display: block;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto var(--hh-space-3);
+  object-fit: cover;
+  border: var(--hh-border-thick) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+  transform: rotate(-3deg);
+}
+
+/* A page whose cards sit one under another: keep a gap between them. */
+.stack > * + * {
+  margin-top: var(--hh-space-6);
+}
+
+/* A picture floated to the right inside a card (interview cards, Rebuild Lab). */
+.card-art {
+  float: right;
+  width: 150px;
+  height: 130px;
+  margin: 0 0 var(--hh-space-3) var(--hh-space-4);
+  object-fit: cover;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  transform: rotate(2deg);
+}
+@media (max-width: 600px) {
+  .card-art {
+    width: 100px;
+    height: 90px;
+  }
+}
+
+/* Banner shown on a strike you have already finished. */
+.done-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--hh-space-4);
+  margin-top: var(--hh-space-5);
+  padding: var(--hh-space-4);
+  background: var(--hh-postit);
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+}
+.done-banner p {
+  margin: 0;
+}
+.done-banner__art {
+  flex-shrink: 0;
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+  transform: rotate(-3deg);
+}
+
+/* Confetti: little paper scraps in the palette colors (no emoji). */
+.celebration__confetti span {
+  width: 14px;
+  height: 14px;
+  border: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-sm);
+}
+.confetti--0 {
+  background: var(--hh-lime);
+}
+.confetti--1 {
+  background: var(--hh-purple);
+}
+.confetti--2 {
+  background: var(--hh-cyan);
+}
+.confetti--3 {
+  background: var(--hh-sun);
+}
+
+/* Long, thin cards look best with the small wobble (the big one skews them into parallelograms). */
+.strike-list .hh-card {
+  border-radius: var(--hh-wobbly-sm);
+}
+/* The flashcard sits beside a floated picture instead of sliding under it. */
+.flashcard {
+  display: flow-root;
+}
+.rebuild-lab {
+  margin-top: var(--hh-space-6);
+}
+
+/* A smaller picture for the narrow lesson cards on the strike page. */
+.card-art--small {
+  width: 110px;
+  height: 96px;
+}
+
+/* Loading screen. */
+.loading {
+  display: grid;
+  justify-items: center;
+  gap: var(--hh-space-3);
+  padding: var(--hh-space-7) 0;
+  text-align: center;
+}
+.loading__art {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border: var(--hh-border-thick) solid var(--hh-border);
+  border-radius: var(--hh-wobbly-md);
+  box-shadow: var(--hh-shadow);
+  transform: rotate(-3deg);
+}
+
+/* The level switcher on the Interview page. */
+.level-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-4);
+}

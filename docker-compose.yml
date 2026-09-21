@@ -1,0 +1,17 @@
+# PostgreSQL 16 for Hexhammer. Local only. Start it with: docker compose up -d
+services:
+  db:
+    image: postgres:16
+    container_name: hexhammer-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hexhammer
+      POSTGRES_PASSWORD: hexhammer
+      POSTGRES_DB: hexhammer
+    ports:
+      - "5432:5432"
+    volumes:
+      - hexhammer-data:/var/lib/postgresql/data
+
+volumes:
+  hexhammer-data:
