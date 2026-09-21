@@ -65,6 +65,7 @@ function InterviewLevel({
 
   const [cards, setCards] = useState<FlashCard[]>([]);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [leaving, setLeaving] = useState(false); // true while the answered card slides away
   const [error, setError] = useState("");
 
   // Solve-It state (not saved to the database yet).
@@ -90,11 +91,16 @@ function InterviewLevel({
   const current = cards[0];
 
   async function review(knew: boolean) {
-    if (!current) return;
+    if (!current || leaving) return;
     await api.reviewCard(current.id, knew);
-    setCards(cards.slice(1)); // this card is done for today
-    setShowAnswer(false);
-    onProgress();
+    setLeaving(true);
+    // Let the card slide away, then show the next one.
+    setTimeout(() => {
+      setCards((list) => list.slice(1)); // this card is done for today
+      setShowAnswer(false);
+      setLeaving(false);
+      onProgress();
+    }, 320);
   }
 
   const minutes = secondsLeft === null ? solve.minutes : Math.floor(secondsLeft / 60);
@@ -112,11 +118,19 @@ function InterviewLevel({
         {!current && !error && <p>No cards due for this level. Come back tomorrow!</p>}
 
         {current && (
-          <div className="flashcard">
-            {current.isPreview && <Badge tone="soft">Preview of a later level</Badge>}
-            <h2>{current.question}</h2>
-            {showAnswer ? (
-              <>
+          <div
+            className={`flip ${showAnswer ? "flip--flipped" : ""} ${leaving ? "flip--leaving" : ""}`}
+          >
+            <div className="flip__inner">
+              <div className="flashcard flip__face flip__front">
+                {current.isPreview && <Badge tone="soft">Preview of a later level</Badge>}
+                <h2>{current.question}</h2>
+                <Button level={level} onClick={() => setShowAnswer(true)}>
+                  Show answer
+                </Button>
+              </div>
+              <div className="flashcard flip__face flip__back">
+                <p className="flip__question">{current.question}</p>
                 <p className="flashcard__answer">{current.answer}</p>
                 <p className="muted">Did you say it out loud before peeking?</p>
                 <Button level={4} onClick={() => review(true)}>
@@ -125,12 +139,8 @@ function InterviewLevel({
                 <Button variant="secondary" onClick={() => review(false)}>
                   Missed it
                 </Button>
-              </>
-            ) : (
-              <Button level={level} onClick={() => setShowAnswer(true)}>
-                Show answer
-              </Button>
-            )}
+              </div>
+            </div>
           </div>
         )}
       </Card>

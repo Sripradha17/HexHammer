@@ -57,8 +57,8 @@
 }
 
 .hh-button--secondary {
-  --face: #ffffff;
-  --wall: #c9c2dc;
+  --face: var(--hh-btn-face);
+  --wall: var(--hh-btn-wall);
   color: var(--hh-text);
 }
 .hh-button--danger {
@@ -76,13 +76,15 @@
 .hh-card {
   position: relative;
   padding: var(--hh-space-5);
-  background: linear-gradient(180deg, #ffffff, #fbf9ff);
+  background: linear-gradient(180deg, var(--hh-card-top), var(--hh-card-bottom));
   border: 1px solid var(--hh-border);
   border-radius: var(--hh-radius-lg);
   /* A colored top edge (the level color), a bright highlight, and layered soft shadows. */
   box-shadow:
     inset 0 6px 0 var(--hh-accent, transparent),
-    var(--hh-shadow-card);
+    var(--hh-shadow-card),
+    0 0 var(--hh-glow-size) -10px
+      color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, transparent);
 }
 /* A card you can lean toward the mouse. The Card component sets --hh-tilt-x and --hh-tilt-y. */
 .hh-card--tilt {
@@ -96,7 +98,9 @@
 .hh-card--tilt:hover {
   box-shadow:
     inset 0 6px 0 var(--hh-accent, transparent),
-    var(--hh-shadow-lift);
+    var(--hh-shadow-lift),
+    0 0 var(--hh-glow-size) -10px
+      color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, transparent);
 }
 .hh-card__title {
   display: block;
@@ -115,11 +119,11 @@
   border-radius: 4px;
 }
 .hh-card--postit {
-  background: linear-gradient(180deg, #fff9cf, #ffef9c);
+  background: linear-gradient(180deg, var(--hh-note-top), var(--hh-note-bottom));
 }
 /* Locked cards look pressed IN and dimmed: you cannot use them yet. */
 .hh-card--locked {
-  background: linear-gradient(180deg, #ece8f4, #e4dfee);
+  background: linear-gradient(180deg, var(--hh-locked-top), var(--hh-locked-bottom));
   box-shadow: var(--hh-shadow-inset);
   filter: saturate(0.75);
 }
@@ -168,7 +172,7 @@
   font-family: var(--hh-font-body);
   font-size: var(--hh-text-sm);
   font-weight: 700;
-  color: var(--hh-text);
+  color: var(--hh-badge-ink);
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--hh-tint, var(--hh-postit)) 55%, white),
@@ -180,14 +184,15 @@
     0 2px 0 rgba(28, 26, 34, 0.14);
 }
 .hh-badge--soft {
-  background: linear-gradient(180deg, #f5f2fb, var(--hh-eraser));
+  color: var(--hh-text);
+  background: linear-gradient(180deg, var(--hh-soft-top), var(--hh-soft-bottom));
 }
 .hh-badge--success {
-  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
+  background: linear-gradient(180deg, var(--hh-ok-top), var(--hh-ok-bottom));
   color: var(--hh-success);
 }
 .hh-badge--danger {
-  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
+  background: linear-gradient(180deg, var(--hh-bad-top), var(--hh-bad-bottom));
   color: var(--hh-danger);
 }
 
@@ -233,13 +238,13 @@
   font-family: var(--hh-font-body);
   font-size: var(--hh-text-md);
   color: var(--hh-text);
-  background: #ffffff;
+  background: var(--hh-input-bg);
   border: 2px solid transparent;
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-inset);
 }
 .hh-textarea::placeholder {
-  color: color-mix(in srgb, var(--hh-ink) 45%, transparent);
+  color: color-mix(in srgb, var(--hh-text) 45%, transparent);
 }
 .hh-textarea:focus {
   outline: none; /* replaced by the purple border and ring below (still clearly visible) */

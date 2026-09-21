@@ -1,4 +1,10 @@
-import { useRef, type HTMLAttributes, type MouseEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type HTMLAttributes,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 
 // I will rebuild this by hand later.
 // A raised, rounded panel that looks like it floats above the page.
@@ -56,11 +62,46 @@ export function Card({
     card.style.setProperty("--hh-tilt-x", `${-y * 2 * MAX_LEAN}deg`);
   }
 
-  // When the mouse leaves, remove the lean. The CSS transition eases it back to flat.
-  function handleLeave() {
+  // The lean goes away when the mouse really leaves. The CSS transition eases the card back to flat.
+  // A leaning card sits in a 3D scene, and the browser can report a "leave" while the pointer is still
+  // just inside the card. So we only flatten when the pointer is truly outside. If a leave report looks
+  // false, we keep a small watch on the mouse and flatten as soon as it really is outside.
+  const watcher = useRef<((event: globalThis.MouseEvent) => void) | null>(null);
+
+  function isOutside(x: number, y: number) {
+    const box = ref.current?.getBoundingClientRect();
+    return !box || x < box.left || x > box.right || y < box.top || y > box.bottom;
+  }
+
+  function stopWatching() {
+    if (watcher.current) document.removeEventListener("mousemove", watcher.current);
+    watcher.current = null;
+  }
+
+  function flatten() {
     ref.current?.style.removeProperty("--hh-tilt-x");
     ref.current?.style.removeProperty("--hh-tilt-y");
+    stopWatching();
   }
+
+  function handleLeave(event: MouseEvent<HTMLElement>) {
+    if (isOutside(event.clientX, event.clientY)) {
+      flatten();
+      return;
+    }
+    if (watcher.current) return;
+    watcher.current = (moveEvent) => {
+      if (isOutside(moveEvent.clientX, moveEvent.clientY)) flatten();
+    };
+    document.addEventListener("mousemove", watcher.current);
+  }
+
+  // If the card goes away while we are watching, stop.
+  useEffect(() => {
+    return () => {
+      if (watcher.current) document.removeEventListener("mousemove", watcher.current);
+    };
+  }, []);
 
   return (
     <section

@@ -61,7 +61,7 @@ export function LevelMapPage() {
         <img className="hero__art" src={art.hero} alt="" />
       </div>
 
-      <div className="card-grid">
+      <div className="card-grid card-grid--board">
         {levels.map((level) =>
           level.isOpen ? (
             <Link key={level.number} to={`/level/${level.number}`} className="card-link">

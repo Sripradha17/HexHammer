@@ -50,6 +50,37 @@
   --hh-info-soft: var(--hh-postit);
   --hh-focus: var(--hh-purple-deep); /* focus rings and links */
 
+  /* ---- Surfaces (these change in dark mode) ---- */
+  color-scheme: light;
+  --hh-card-top: #ffffff;
+  --hh-card-bottom: #fbf9ff;
+  --hh-note-top: #fff9cf; /* sticky-note yellow */
+  --hh-note-bottom: #ffef9c;
+  --hh-locked-top: #ece8f4; /* pressed-in "coming soon" */
+  --hh-locked-bottom: #e4dfee;
+  --hh-ok-top: #ecfaef;
+  --hh-ok-bottom: var(--hh-success-soft);
+  --hh-bad-top: #fff1f1;
+  --hh-bad-bottom: var(--hh-danger-soft);
+  --hh-soft-top: #f5f2fb;
+  --hh-soft-bottom: var(--hh-eraser);
+  --hh-input-bg: #ffffff;
+  --hh-frame: #ffffff; /* the white border around pictures */
+  --hh-btn-face: #ffffff; /* secondary buttons */
+  --hh-btn-wall: #c9c2dc;
+  --hh-badge-ink: var(--hh-ink); /* text on the pale level-colored badges */
+  --hh-nav-hover: linear-gradient(180deg, #ffffff, #f1efe6);
+  --hh-topbar-top: #e6f65f;
+  --hh-topbar-bottom: var(--hh-lime);
+  --hh-topbar-wall: #98ab16;
+  --hh-glow-a: color-mix(
+    in srgb,
+    var(--hh-lime) 38%,
+    transparent
+  ); /* soft light behind the page */
+  --hh-glow-b: color-mix(in srgb, var(--hh-purple) 16%, transparent);
+  --hh-glow-size: 0px; /* how far a card glows in its own color (only in dark mode) */
+
   /* ---- Spacing scale ---- */
   --hh-space-1: 4px;
   --hh-space-2: 8px;
@@ -138,4 +169,59 @@
 [data-level] {
   --hh-accent-deep: color-mix(in srgb, var(--hh-accent) 58%, black);
   --hh-tint: color-mix(in srgb, var(--hh-accent) 28%, white);
+}
+
+/*
+  DARK THEME. The same tokens with night values. Turn it on with data-theme="dark" on the <html> tag.
+  Glow replaces the soft daylight shadows, so raised things still look raised in the dark.
+*/
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --hh-paper: #14111d;
+  --hh-ink: #f2effa; /* "ink" is the text color, so it turns light */
+  --hh-eraser: #2a2440;
+  --hh-surface: #1d1830;
+  --hh-text-muted: #b5aec8;
+  --hh-border: rgba(255, 255, 255, 0.12);
+  --hh-success: #6fe08f;
+  --hh-success-soft: #143a22;
+  --hh-danger: #ff8a8f;
+  --hh-danger-soft: #4a1a1f;
+  --hh-focus: #b99aff;
+
+  --hh-card-top: #272040;
+  --hh-card-bottom: #1e1930;
+  --hh-note-top: #574a12;
+  --hh-note-bottom: #463b0d;
+  --hh-locked-top: #221d33;
+  --hh-locked-bottom: #1b172a;
+  --hh-ok-top: #17442a;
+  --hh-bad-top: #55202a;
+  --hh-soft-top: #3a3355;
+  --hh-input-bg: #120f1c;
+  --hh-frame: #e9e4f2;
+  --hh-btn-face: #3a3355;
+  --hh-btn-wall: #191427;
+  --hh-badge-ink: #1c1a22; /* pale badges keep dark text */
+  --hh-nav-hover: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.08)
+  );
+  --hh-topbar-top: #44530c;
+  --hh-topbar-bottom: #34410a;
+  --hh-topbar-wall: #141a04;
+  --hh-glow-a: color-mix(in srgb, var(--hh-lime) 10%, transparent);
+  --hh-glow-b: color-mix(in srgb, var(--hh-purple) 34%, transparent);
+  --hh-glow-size: 34px;
+
+  --hh-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --hh-shadow-card:
+    0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 22px -6px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  --hh-shadow-lift:
+    0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 32px -8px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  --hh-shadow-inset:
+    inset 0 3px 8px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }

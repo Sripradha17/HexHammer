@@ -28,6 +28,17 @@ export function Celebration({
           />
         ))}
       </div>
+      {/* A hexagon coin made of stacked layers, so it has real thickness when it spins. */}
+      <div className="coin" aria-hidden="true">
+        {[-6, -4, -2, 0, 2, 4].map((depth) => (
+          <span
+            key={depth}
+            className="coin__layer"
+            style={{ transform: `translateZ(${depth}px)` }}
+          />
+        ))}
+        <span className="coin__face">H</span>
+      </div>
       <img className="celebration__art" src={art.celebrate} alt="" />
       <h2>All tests passed! Strike complete!</h2>
       <p>Now write your one-sentence explanation in the Say card, then keep going.</p>

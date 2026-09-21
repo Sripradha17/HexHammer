@@ -8,16 +8,8 @@ body {
   margin: 0;
   background-color: var(--hh-bg);
   background-image:
-    radial-gradient(
-      1100px 520px at 6% -8%,
-      color-mix(in srgb, var(--hh-lime) 38%, transparent),
-      transparent 62%
-    ),
-    radial-gradient(
-      900px 620px at 100% 104%,
-      color-mix(in srgb, var(--hh-purple) 16%, transparent),
-      transparent 62%
-    );
+    radial-gradient(1100px 520px at 6% -8%, var(--hh-glow-a), transparent 62%),
+    radial-gradient(900px 620px at 100% 104%, var(--hh-glow-b), transparent 62%);
   background-attachment: fixed;
   color: var(--hh-text);
   font-family: var(--hh-font-body);
@@ -73,10 +65,10 @@ a {
   justify-content: space-between;
   gap: var(--hh-space-4);
   padding: var(--hh-space-3) var(--hh-space-5);
-  background: linear-gradient(180deg, #e6f65f, var(--hh-lime));
+  background: linear-gradient(180deg, var(--hh-topbar-top), var(--hh-topbar-bottom));
   box-shadow:
     var(--hh-highlight),
-    0 5px 0 #98ab16,
+    0 5px 0 var(--hh-topbar-wall),
     0 14px 24px -6px rgba(28, 26, 34, 0.3);
 }
 .topbar__logo {
@@ -105,7 +97,7 @@ a {
 }
 /* Nav links become little raised pills when you point at them. */
 .topbar__nav a:hover {
-  background: linear-gradient(180deg, #ffffff, #f1efe6);
+  background: var(--hh-nav-hover);
   box-shadow:
     var(--hh-highlight),
     0 3px 0 rgba(28, 26, 34, 0.18);
@@ -250,10 +242,10 @@ a {
     0 2px 0 rgba(28, 26, 34, 0.1);
 }
 .result--pass {
-  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
+  background: linear-gradient(180deg, var(--hh-ok-top), var(--hh-ok-bottom));
 }
 .result--fail {
-  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
+  background: linear-gradient(180deg, var(--hh-bad-top), var(--hh-bad-bottom));
 }
 .result__message {
   color: var(--hh-danger);
@@ -266,7 +258,7 @@ a {
   box-shadow: var(--hh-highlight);
 }
 .message--bad {
-  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
+  background: linear-gradient(180deg, var(--hh-bad-top), var(--hh-bad-bottom));
   color: var(--hh-danger);
 }
 
@@ -287,7 +279,7 @@ a {
 }
 .hint {
   padding: var(--hh-space-3);
-  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  background: linear-gradient(180deg, var(--hh-note-top), var(--hh-note-bottom));
   border-radius: var(--hh-radius-sm);
   box-shadow:
     var(--hh-highlight),
@@ -307,7 +299,7 @@ a {
 .flashcard {
   display: flow-root;
   padding: var(--hh-space-5);
-  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  background: linear-gradient(180deg, var(--hh-note-top), var(--hh-note-bottom));
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
@@ -321,7 +313,7 @@ a {
   overflow: hidden;
   text-align: center;
   padding: var(--hh-space-5);
-  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
+  background: linear-gradient(180deg, var(--hh-ok-top), var(--hh-ok-bottom));
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
@@ -344,7 +336,7 @@ a {
   border-radius: var(--hh-radius-sm);
   background: var(--hh-surface);
   box-shadow:
-    0 0 0 2px #ffffff,
+    0 0 0 2px var(--hh-frame),
     0 4px 8px rgba(28, 26, 34, 0.3);
 }
 
@@ -362,7 +354,7 @@ a {
   height: 110px;
   object-fit: cover;
   background: var(--hh-surface);
-  border: 4px solid #ffffff;
+  border: 4px solid var(--hh-frame);
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-shadow-lift);
   transform: perspective(var(--hh-perspective)) rotateY(-12deg) rotateX(5deg);
@@ -389,7 +381,7 @@ a {
   height: 96px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-3);
   object-fit: cover;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--hh-frame);
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-card);
   transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(3deg);
@@ -406,7 +398,7 @@ a {
   height: 90px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-3);
   object-fit: cover;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--hh-frame);
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-card);
   transform: perspective(var(--hh-perspective)) rotateY(10deg) rotateX(3deg);
@@ -419,7 +411,7 @@ a {
   height: 130px;
   margin: 0 auto var(--hh-space-3);
   object-fit: cover;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--hh-frame);
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-shadow-lift);
   transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(4deg);
@@ -437,7 +429,7 @@ a {
   height: 130px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-4);
   object-fit: cover;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--hh-frame);
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-card);
   transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(3deg);
@@ -461,7 +453,7 @@ a {
   gap: var(--hh-space-4);
   margin-top: var(--hh-space-5);
   padding: var(--hh-space-4);
-  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  background: linear-gradient(180deg, var(--hh-note-top), var(--hh-note-bottom));
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
@@ -473,7 +465,7 @@ a {
   width: 110px;
   height: 110px;
   object-fit: cover;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--hh-frame);
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-card);
   transform: perspective(var(--hh-perspective)) rotateY(10deg) rotateX(3deg);
@@ -520,7 +512,7 @@ a {
   width: 180px;
   height: 180px;
   object-fit: cover;
-  border: 4px solid #ffffff;
+  border: 4px solid var(--hh-frame);
   border-radius: var(--hh-radius-lg);
   box-shadow: var(--hh-shadow-lift);
   animation: hh-bob 2.4s ease-in-out infinite;
@@ -546,6 +538,184 @@ a {
   }
   .start-here,
   .loading__art {
+    animation: none;
+  }
+  .celebration__confetti {
+    display: none;
+  }
+}
+
+/* ============ MORE 3D ============ */
+
+/* The top bar's right side: the streak and the theme button. */
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--hh-space-4);
+}
+.topbar__right .hh-button {
+  margin-bottom: 0;
+}
+
+/* ---------- Mascot parallax: pictures lean a little with the mouse (App.tsx sets --mouse-x and --mouse-y) ---------- */
+.hero__art {
+  transform: perspective(var(--hh-perspective))
+    rotateY(calc(-12deg + var(--mouse-x, 0) * 9deg))
+    rotateX(calc(5deg + var(--mouse-y, 0) * -7deg));
+  transition: transform 140ms ease-out;
+}
+.hero__art:hover {
+  transform: perspective(var(--hh-perspective)) rotateY(0deg) rotateX(0deg)
+    translateY(-4px);
+}
+.level-art,
+.card-art {
+  transform: perspective(var(--hh-perspective))
+    rotateY(calc(-10deg + var(--mouse-x, 0) * 7deg))
+    rotateX(calc(3deg + var(--mouse-y, 0) * -5deg));
+  transition: transform 140ms ease-out;
+}
+
+/* ---------- The Level Map board: a slanted board where open levels stand taller than locked ones ---------- */
+.card-grid--board {
+  transform-style: preserve-3d;
+  transform: perspective(1700px) rotateX(calc(7deg + var(--mouse-y, 0) * -3deg))
+    rotateY(calc(var(--mouse-x, 0) * 4deg));
+  transition: transform 140ms ease-out;
+}
+.card-grid--board > .card-link {
+  transform: translateZ(46px);
+  transform-style: preserve-3d;
+}
+.card-grid--board > .hh-card--locked {
+  transform: translateZ(0);
+}
+
+/* ---------- Flip flashcards: a real front and back that turn over ---------- */
+.flip {
+  perspective: 1200px;
+}
+.flip__inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.flip--flipped .flip__inner {
+  transform: rotateY(180deg);
+}
+/* Both faces sit in the same spot, so the card is as tall as the taller face. */
+.flip__face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: visibility 0s;
+}
+.flip__back {
+  transform: rotateY(180deg);
+}
+/* After the turn, the face you cannot see is fully hidden: no clicks, no tabbing, no screen reader. */
+.flip--flipped .flip__front,
+.flip:not(.flip--flipped) .flip__back {
+  visibility: hidden;
+  transition: visibility 0s 260ms;
+}
+.flip__question {
+  margin: 0 0 var(--hh-space-2);
+  color: var(--hh-text-muted);
+  font-weight: 700;
+}
+/* After you answer, the card slides away and tips over. */
+.flip--leaving {
+  animation: hh-away 320ms ease-in forwards;
+}
+@keyframes hh-away {
+  to {
+    transform: translate3d(90px, 40px, 0) rotateZ(9deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- 3D celebration: a spinning hexagon coin and tumbling confetti ---------- */
+.celebration {
+  perspective: 700px;
+}
+.coin {
+  position: relative;
+  width: 84px;
+  height: 96px;
+  margin: 0 auto var(--hh-space-3);
+  transform-style: preserve-3d;
+  animation:
+    hh-pop 700ms cubic-bezier(0.2, 1.4, 0.3, 1) both,
+    hh-spin 3.2s linear 700ms infinite;
+}
+.coin__layer,
+.coin__face {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+/* The coin's thick edge: a stack of darker hexagons behind the face. */
+.coin__layer {
+  background: linear-gradient(180deg, #c99700, #8a6700);
+}
+.coin__face {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #fff2a6, var(--hh-sun) 45%, #d9a300);
+  color: #7a5a00;
+  font-family: var(--hh-font-heading);
+  font-size: 2.6rem;
+  font-weight: 700;
+  transform: translateZ(7px);
+}
+@keyframes hh-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes hh-spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+/* Confetti are little paper chips that flip over as they fall (every third one is a ball). */
+.celebration__confetti span {
+  width: 14px;
+  height: 20px;
+  border-radius: 3px;
+  animation: hh-tumble 2.6s ease-in forwards;
+}
+.celebration__confetti span:nth-child(3n) {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+@keyframes hh-tumble {
+  to {
+    transform: translateY(300px) rotateX(720deg) rotateY(540deg) rotateZ(200deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- Less motion for people who ask for it (this must stay LAST) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero__art,
+  .level-art,
+  .card-art,
+  .card-grid--board,
+  .card-grid--board > .card-link {
+    transform: none;
+    transition: none;
+  }
+  .flip__inner {
+    transition: none;
+  }
+  .flip--leaving,
+  .coin {
     animation: none;
   }
   .celebration__confetti {
