@@ -66,6 +66,7 @@ export function LevelMapPage() {
           level.isOpen ? (
             <Link key={level.number} to={`/level/${level.number}`} className="card-link">
               <Card
+                tilt
                 level={level.number}
                 decoration="tack"
                 title={`Level ${level.number}: ${level.name}`}
@@ -73,23 +74,7 @@ export function LevelMapPage() {
                 {/* Hand-drawn note and arrow. Decoration only, so hidden from screen readers and small screens. */}
                 {level.number === 1 && (
                   <div className="start-here" aria-hidden="true">
-                    <span>start here!</span>
-                    <svg width="70" height="40" viewBox="0 0 70 40" fill="none">
-                      <path
-                        d="M4 6 C 25 2, 45 10, 60 30"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeDasharray="6 5"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M48 28 L61 32 L59 18"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    Start here!
                   </div>
                 )}
                 <img className="level-art" src={levelArt[level.number]} alt="" />
@@ -134,7 +119,7 @@ export function LevelMapPage() {
         {tracks.map((track) =>
           track.isOpen ? (
             <Link key={track.id} to={`/track/${track.id}`} className="card-link">
-              <Card level={track.accent} decoration="tack" title={track.title}>
+              <Card tilt level={track.accent} decoration="tack" title={track.title}>
                 <img className="level-art" src={trackArt[track.id]} alt="" />
                 <p className="muted">{track.description}</p>
                 <ProgressBar level={track.accent} percent={track.percentComplete} />

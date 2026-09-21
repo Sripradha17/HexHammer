@@ -1,43 +1,44 @@
 /*
-  Hexhammer design tokens: HAND-DRAWN style.
+  Hexhammer design tokens: clean 3D style.
   Named values (CSS variables) used by the WHOLE app.
   Rule: the app never writes a raw color, size, radius or shadow. It always uses a token from here.
-  Idea: cream paper, thick ink outlines, and the lime, purple, cyan and sunny-yellow markers from the mascot art.
+  Idea: smooth, chunky shapes that look raised off the page, lit from above, with soft layered shadows.
+  The colors come straight from the mascot art: lime, purple, cyan and sunny yellow.
 */
 :root {
-  /* ---- Palette: taken straight from the Hexhammer mascot art ---- */
-  --hh-paper: #fbf8f1; /* cream paper (page background) */
-  --hh-ink: #1c1a22; /* the thick outline color of the drawings, never pure black */
-  --hh-eraser: #e8e4d8; /* old paper / erased pencil */
-  --hh-lime: #d5ea2e; /* highlighter lime (the big splashes behind the mascots) */
-  --hh-purple: #7b3cf0; /* marker purple (hover, focus, tack) */
+  /* ---- Palette (taken from the mascot art) ---- */
+  --hh-paper: #f7f4ee; /* warm off-white page */
+  --hh-ink: #1c1a22; /* text and the darkest edges, never pure black */
+  --hh-eraser: #e9e4f2; /* soft lavender grey for pressed-in areas */
+  --hh-lime: #d5ea2e; /* highlighter lime */
+  --hh-purple: #7b3cf0; /* marker purple */
   --hh-purple-deep: #5b21b6; /* darker purple for small text and links */
   --hh-cyan: #02c7d3; /* cyan */
-  --hh-sun: #fdc602; /* sunny yellow (the hexagon) */
-  --hh-postit: #fff4b8; /* post-it: pale sunny yellow */
-  --hh-night: #22076b; /* deep space navy (astronaut poster) */
+  --hh-sun: #fdc602; /* sunny yellow */
+  --hh-postit: #fff4b8; /* pale sunny yellow note */
+  --hh-night: #22076b; /* deep space navy */
 
-  /* ---- The 8 level colors: crayon-bright, in the same family as the art ---- */
+  /* ---- The 8 level colors: one per level ---- */
   --hh-level-1: #ff4d5e; /* Red */
   --hh-level-2: #ff8a1f; /* Orange */
-  --hh-level-3: #fdc602; /* Yellow (the art's sunny yellow) */
+  --hh-level-3: #fdc602; /* Yellow */
   --hh-level-4: #d5ea2e; /* Green (the art's lime) */
   --hh-level-5: #02c7d3; /* Blue (the art's cyan) */
   --hh-level-6: #5b4bd8; /* Indigo */
-  --hh-level-7: #7b3cf0; /* Violet (the art's purple) */
+  --hh-level-7: #7b3cf0; /* Violet */
   --hh-level-8: #f0a800; /* Gold */
 
-  /* Text that sits ON a full level color. Only red, indigo and violet are dark enough for white text. */
+  /* Text that sits ON a full level color. Red, indigo and violet are dark enough for white text. */
   --hh-ink-light: #ffffff;
   --hh-ink-dark: #1c1a22;
 
-  /* ---- Names the components use (built from the palette above) ---- */
+  /* ---- Names the components use ---- */
   --hh-bg: var(--hh-paper);
   --hh-surface: #ffffff;
   --hh-surface-soft: var(--hh-eraser);
   --hh-text: var(--hh-ink);
-  --hh-text-muted: #5c5c5c; /* darker than "eraser" so small text stays readable */
-  --hh-border: var(--hh-ink);
+  --hh-text-muted: #5b5866; /* readable grey for small text */
+  --hh-border: rgba(28, 26, 34, 0.1); /* a faint edge, not a drawn outline */
   --hh-code-bg: #16131f;
   --hh-code-text: #f8f8f2;
 
@@ -58,54 +59,45 @@
   --hh-space-6: 32px;
   --hh-space-7: 48px;
 
-  /*
-    ---- Wobbly borders (the heart of this style) ----
-    Eight numbers = four different corners, each an oval. That makes an edge that looks drawn by hand.
-    Use these instead of a plain rounded corner. Big numbers are fine: the browser scales them down to fit.
-  */
-  --hh-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px; /* buttons, pills */
-  --hh-wobbly-md: 15px 225px 15px 255px / 225px 15px 255px 15px; /* cards */
-  --hh-wobbly-sm: 8px 22px 10px 24px / 24px 10px 22px 8px; /* inputs, code, small boxes */
+  /* ---- Smooth rounded corners ---- */
+  --hh-radius-sm: 12px;
+  --hh-radius-md: 20px;
+  --hh-radius-lg: 28px;
+  --hh-radius-pill: 999px;
 
-  /* Old names, pointing at the wobbly values so older CSS keeps working. */
-  --hh-radius-sm: var(--hh-wobbly-sm);
-  --hh-radius-md: var(--hh-wobbly-md);
-  --hh-radius-lg: var(--hh-wobbly-md);
-  --hh-radius-pill: var(--hh-wobbly);
-
-  /* ---- Border widths ---- */
-  --hh-border-thin: 2px;
-  --hh-border-thick: 3px;
-
-  /* ---- Hard offset shadows: solid, no blur, like cut paper ---- */
-  --hh-shadow: 4px 4px 0 0 var(--hh-ink);
-  --hh-shadow-hover: 2px 2px 0 0 var(--hh-ink);
-  --hh-shadow-lift: 8px 8px 0 0 var(--hh-ink);
-  --hh-shadow-soft: 3px 3px 0 0 rgba(28, 26, 34, 0.12);
+  /* ---- Depth: the light comes from above, so shadows fall downward ---- */
+  --hh-highlight: inset 0 2px 0 rgba(255, 255, 255, 0.9); /* the bright top edge of a raised shape */
+  --hh-shadow-card:
+    0 1px 2px rgba(28, 26, 34, 0.08), 0 8px 16px -4px rgba(28, 26, 34, 0.14),
+    0 22px 40px -14px rgba(60, 30, 120, 0.22);
+  --hh-shadow-lift:
+    0 2px 4px rgba(28, 26, 34, 0.1), 0 16px 28px -6px rgba(28, 26, 34, 0.2),
+    0 36px 60px -18px rgba(60, 30, 120, 0.3);
+  --hh-shadow-inset:
+    inset 0 3px 6px rgba(28, 26, 34, 0.18), inset 0 0 0 1px rgba(28, 26, 34, 0.06); /* pressed IN */
+  --hh-edge: 6px; /* thickness of the "side wall" of a chunky button */
 
   /* ---- Type scale ---- */
-  --hh-font-heading: "Kalam", "Comic Sans MS", cursive;
-  --hh-font-body: "Patrick Hand", "Comic Sans MS", cursive;
+  --hh-font-heading: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --hh-font-body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
   --hh-font: var(--hh-font-body);
   --hh-font-mono: "Cascadia Code", "Fira Code", Consolas, monospace;
-  --hh-text-sm: 1rem;
-  --hh-text-md: 1.15rem;
-  --hh-text-lg: 1.4rem;
-  --hh-text-xl: 2rem;
-  --hh-text-2xl: 2.75rem;
+  --hh-text-sm: 0.9rem;
+  --hh-text-md: 1.05rem;
+  --hh-text-lg: 1.3rem;
+  --hh-text-xl: 1.9rem;
+  --hh-text-2xl: 2.6rem;
 
-  /* ---- Paper texture: a grid of tiny dots ---- */
-  --hh-dots: radial-gradient(var(--hh-eraser) 1px, transparent 1px);
-  --hh-dots-size: 24px 24px;
-
-  /* ---- Motion (fast and snappy) ---- */
-  --hh-speed: 100ms;
+  /* ---- 3D motion ---- */
+  --hh-perspective: 900px; /* how strong the 3D tilt looks */
+  --hh-tilt: 9deg; /* the most a card leans toward the mouse */
+  --hh-speed: 140ms;
 }
 
 /*
-  Put data-level="3" on any element and everything inside uses that level's marker color.
-  Components read --hh-accent (the marker) and --hh-accent-ink (readable text on it).
-  --hh-tint is the marker color faded into paper, for big soft areas.
+  Put data-level="3" on any element and everything inside uses that level's color.
+  Components read --hh-accent (the color), --hh-accent-ink (readable text on it),
+  --hh-accent-deep (a darker shade for side walls and edges) and --hh-tint (a pale wash).
 */
 [data-level] {
   --hh-accent: var(--hh-level-1);
@@ -144,5 +136,6 @@
   --hh-accent-ink: var(--hh-ink-dark);
 }
 [data-level] {
-  --hh-tint: color-mix(in srgb, var(--hh-accent) 30%, white);
+  --hh-accent-deep: color-mix(in srgb, var(--hh-accent) 58%, black);
+  --hh-tint: color-mix(in srgb, var(--hh-accent) 28%, white);
 }

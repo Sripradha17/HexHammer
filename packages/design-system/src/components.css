@@ -1,64 +1,70 @@
-/* Styles for the plain components. Only tokens (var(--hh-...)) are used. Hand-drawn style: wobbly, hard shadows. */
+/* Styles for the plain components. Only tokens (var(--hh-...)) are used. Clean 3D style: raised, lit from above. */
 
-/* ---------- Button ---------- */
+/* ---------- Button (a chunky key you can press) ---------- */
 .hh-button {
+  /* The face color, and a darker "side wall" color under it. */
+  --face: var(--hh-accent, var(--hh-purple));
+  --wall: var(--hh-accent-deep, var(--hh-purple-deep));
   font-family: var(--hh-font-body);
+  font-weight: 700;
   font-size: var(--hh-text-lg);
   min-height: 48px; /* big enough to tap */
   padding: var(--hh-space-2) var(--hh-space-5);
-  background: var(--hh-surface);
-  color: var(--hh-text);
-  border: var(--hh-border-thick) solid var(--hh-border);
-  border-radius: var(--hh-wobbly);
-  box-shadow: var(--hh-shadow);
+  margin-bottom: var(--hh-edge); /* room for the side wall */
+  color: var(--hh-accent-ink, var(--hh-ink-light));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--face) 72%, white),
+    var(--face) 60%
+  );
+  border: 0;
+  border-radius: var(--hh-radius-pill);
+  box-shadow:
+    var(--hh-highlight),
+    0 var(--hh-edge) 0 var(--wall),
+    0 calc(var(--hh-edge) + 6px) 14px rgba(28, 26, 34, 0.28);
   cursor: pointer;
   transition:
     transform var(--hh-speed),
     box-shadow var(--hh-speed),
-    background var(--hh-speed),
-    color var(--hh-speed);
+    filter var(--hh-speed);
 }
-/* A button that belongs to a level is filled with a pale version of that marker color. */
-.hh-button[data-level] {
-  background: var(--hh-tint);
-}
-/* Hover: fills marker purple, sinks a little toward the page. */
+/* Hover: rises a little and gets brighter. */
 .hh-button:hover:not(:disabled) {
-  background: var(--hh-purple);
-  color: var(--hh-ink-light);
-  box-shadow: var(--hh-shadow-hover);
-  transform: translate(2px, 2px);
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow:
+    var(--hh-highlight),
+    0 calc(var(--hh-edge) + 2px) 0 var(--wall),
+    0 calc(var(--hh-edge) + 12px) 20px rgba(28, 26, 34, 0.3);
 }
-/* Active: presses flat. */
+/* Active: pushed down into the page until the side wall almost disappears. */
 .hh-button:active:not(:disabled) {
-  box-shadow: none;
-  transform: translate(4px, 4px);
+  transform: translateY(calc(var(--hh-edge) - 1px));
+  filter: brightness(0.98);
+  box-shadow:
+    var(--hh-highlight),
+    0 1px 0 var(--wall),
+    0 2px 6px rgba(28, 26, 34, 0.25);
 }
 .hh-button:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 .hh-button:focus-visible {
-  outline: 3px dashed var(--hh-focus);
-  outline-offset: 4px;
+  outline: 3px solid var(--hh-focus);
+  outline-offset: 3px;
 }
 
 .hh-button--secondary {
-  background: var(--hh-eraser);
-}
-.hh-button--secondary[data-level] {
-  background: var(--hh-eraser);
-}
-.hh-button--secondary:hover:not(:disabled) {
-  background: var(--hh-cyan);
-  color: var(--hh-ink-dark);
+  --face: #ffffff;
+  --wall: #c9c2dc;
+  color: var(--hh-text);
 }
 .hh-button--danger {
-  background: var(--hh-danger);
+  --face: #e5484d;
+  --wall: #9b1c22;
   color: var(--hh-ink-light);
-}
-.hh-button--danger:hover:not(:disabled) {
-  background: var(--hh-ink);
 }
 .hh-button--small {
   font-size: var(--hh-text-md);
@@ -66,85 +72,126 @@
   padding: var(--hh-space-1) var(--hh-space-4);
 }
 
-/* ---------- Card ---------- */
+/* ---------- Card (a raised panel) ---------- */
 .hh-card {
   position: relative;
-  background: var(--hh-surface);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
   padding: var(--hh-space-5);
-  box-shadow: var(--hh-shadow-soft);
+  background: linear-gradient(180deg, #ffffff, #fbf9ff);
+  border: 1px solid var(--hh-border);
+  border-radius: var(--hh-radius-lg);
+  /* A colored top edge (the level color), a bright highlight, and layered soft shadows. */
+  box-shadow:
+    inset 0 6px 0 var(--hh-accent, transparent),
+    var(--hh-shadow-card);
 }
-/* Cards that belong to a level get a colored "highlighter" stripe under the title. */
+/* A card you can lean toward the mouse. The Card component sets --hh-tilt-x and --hh-tilt-y. */
+.hh-card--tilt {
+  transform: perspective(var(--hh-perspective)) rotateX(var(--hh-tilt-x, 0deg))
+    rotateY(var(--hh-tilt-y, 0deg));
+  transition:
+    transform var(--hh-speed),
+    box-shadow 240ms;
+  will-change: transform;
+}
+.hh-card--tilt:hover {
+  box-shadow:
+    inset 0 6px 0 var(--hh-accent, transparent),
+    var(--hh-shadow-lift);
+}
 .hh-card__title {
-  display: block; /* its own line, so buttons and text never sit beside it */
-  width: fit-content; /* but the highlighter only covers the words */
+  display: block;
+  width: fit-content;
   margin: 0 0 var(--hh-space-3);
+  padding: 0 var(--hh-space-1);
   font-family: var(--hh-font-heading);
   font-size: var(--hh-text-lg);
-  font-weight: 700;
-  line-height: 1.2;
-  background: linear-gradient(transparent 60%, var(--hh-accent, var(--hh-eraser)) 60%);
+  font-weight: 600;
+  line-height: 1.25;
+  /* A soft glowing marker stripe under the words. */
+  background: linear-gradient(
+    transparent 62%,
+    color-mix(in srgb, var(--hh-accent, var(--hh-eraser)) 60%, transparent) 62%
+  );
+  border-radius: 4px;
 }
 .hh-card--postit {
-  background: var(--hh-postit);
+  background: linear-gradient(180deg, #fff9cf, #ffef9c);
 }
+/* Locked cards look pressed IN and dimmed: you cannot use them yet. */
 .hh-card--locked {
-  background: var(--hh-surface-soft);
-  border-style: dashed;
+  background: linear-gradient(180deg, #ece8f4, #e4dfee);
+  box-shadow: var(--hh-shadow-inset);
+  filter: saturate(0.75);
 }
-/* Decorations: tape strip and thumbtack, sticking out over the top edge. */
+/* Decorations: a glossy ribbon and a glossy pin, sitting on the top edge. */
 .hh-card--tape::before {
   content: "";
   position: absolute;
-  top: -14px;
+  top: -9px;
   left: 50%;
-  width: 90px;
-  height: 26px;
-  transform: translateX(-50%) rotate(-3deg);
-  background: color-mix(in srgb, var(--hh-accent, var(--hh-eraser)) 45%, transparent);
-  border: var(--hh-border-thin) dashed var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  width: 84px;
+  height: 18px;
+  transform: translateX(-50%);
+  border-radius: var(--hh-radius-pill);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, white),
+    var(--hh-accent, var(--hh-purple))
+  );
+  box-shadow:
+    var(--hh-highlight),
+    0 4px 8px rgba(28, 26, 34, 0.25);
 }
 .hh-card--tack::before {
   content: "";
   position: absolute;
-  top: -10px;
+  top: -12px;
   left: 50%;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   transform: translateX(-50%);
-  background: var(--hh-purple);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly);
-  box-shadow: 2px 2px 0 0 var(--hh-ink);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    #ffffff 0,
+    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 55%, white) 20%,
+    var(--hh-accent, var(--hh-purple)) 55%,
+    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 55%, black) 100%
+  );
+  box-shadow: 0 6px 8px rgba(28, 26, 34, 0.3);
 }
 
-/* ---------- Badge (a little sticky-note tag) ---------- */
+/* ---------- Badge (a small glossy pill) ---------- */
 .hh-badge {
   display: inline-block;
+  padding: 1px var(--hh-space-3);
   font-family: var(--hh-font-body);
   font-size: var(--hh-text-sm);
-  padding: 0 var(--hh-space-3);
-  background: var(--hh-tint, var(--hh-postit));
+  font-weight: 700;
   color: var(--hh-text);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
-  transform: rotate(-2deg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hh-tint, var(--hh-postit)) 55%, white),
+    var(--hh-tint, var(--hh-postit))
+  );
+  border-radius: var(--hh-radius-pill);
+  box-shadow:
+    var(--hh-highlight),
+    0 2px 0 rgba(28, 26, 34, 0.14);
 }
 .hh-badge--soft {
-  background: var(--hh-eraser);
+  background: linear-gradient(180deg, #f5f2fb, var(--hh-eraser));
 }
 .hh-badge--success {
-  background: var(--hh-success-soft);
+  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
   color: var(--hh-success);
 }
 .hh-badge--danger {
-  background: var(--hh-danger-soft);
+  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
   color: var(--hh-danger);
 }
 
-/* ---------- ProgressBar (pencil-hatched fill) ---------- */
+/* ---------- ProgressBar (a glossy fill in a pressed-in track) ---------- */
 .hh-progress {
   display: flex;
   align-items: center;
@@ -152,55 +199,64 @@
 }
 .hh-progress__track {
   flex: 1;
-  height: 22px;
-  background: var(--hh-surface);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly);
+  height: 20px;
   overflow: hidden;
+  background: var(--hh-eraser);
+  border-radius: var(--hh-radius-pill);
+  box-shadow: var(--hh-shadow-inset);
 }
 .hh-progress__fill {
   height: 100%;
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--hh-accent, var(--hh-focus)),
-    var(--hh-accent, var(--hh-focus)) 6px,
-    var(--hh-tint, var(--hh-eraser)) 6px,
-    var(--hh-tint, var(--hh-eraser)) 12px
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, white),
+    var(--hh-accent, var(--hh-purple)) 50%,
+    var(--hh-accent-deep, var(--hh-purple-deep))
   );
-  border-right: var(--hh-border-thin) solid var(--hh-border);
+  border-radius: var(--hh-radius-pill);
+  box-shadow:
+    var(--hh-highlight),
+    0 1px 3px rgba(28, 26, 34, 0.3);
   transition: width 0.4s;
 }
 .hh-progress__label {
-  font-family: var(--hh-font-heading);
-  font-weight: 700;
   min-width: 4ch;
+  font-family: var(--hh-font-heading);
+  font-weight: 600;
   text-align: right;
 }
 
-/* ---------- TextArea (a full wobbly box, like a note) ---------- */
+/* ---------- TextArea (a writing box pressed into the page) ---------- */
 .hh-textarea {
   width: 100%;
+  padding: var(--hh-space-3);
   font-family: var(--hh-font-body);
   font-size: var(--hh-text-md);
   color: var(--hh-text);
-  padding: var(--hh-space-3);
-  background: var(--hh-surface);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  background: #ffffff;
+  border: 2px solid transparent;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-inset);
 }
 .hh-textarea::placeholder {
   color: color-mix(in srgb, var(--hh-ink) 45%, transparent);
 }
 .hh-textarea:focus {
-  outline: none; /* replaced by the blue border and ring below (still clearly visible) */
+  outline: none; /* replaced by the purple border and ring below (still clearly visible) */
   border-color: var(--hh-focus);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hh-focus) 25%, transparent);
+  box-shadow:
+    var(--hh-shadow-inset),
+    0 0 0 4px color-mix(in srgb, var(--hh-focus) 25%, transparent);
 }
 
-/* People who ask their computer for less motion get less wiggle. */
+/* People who ask their computer for less motion get no lean and no slide. */
 @media (prefers-reduced-motion: reduce) {
   .hh-button,
-  .hh-progress__fill {
+  .hh-progress__fill,
+  .hh-card--tilt {
     transition: none;
+  }
+  .hh-card--tilt {
+    transform: none;
   }
 }

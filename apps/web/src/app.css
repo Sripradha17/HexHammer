@@ -1,26 +1,35 @@
-/* App layout, hand-drawn style. Only design-system tokens are used for colors, spacing, radius, shadows and type. */
+/* App layout, clean 3D style. Only design-system tokens are used for colors, spacing, radius, shadows and type. */
 * {
   box-sizing: border-box;
 }
 
-/* Notebook paper: warm color with a grid of tiny dots. */
+/* The page: warm off-white with two soft colored glows, like light bouncing off lime and purple walls. */
 body {
   margin: 0;
   background-color: var(--hh-bg);
-  background-image: var(--hh-dots);
-  background-size: var(--hh-dots-size);
+  background-image:
+    radial-gradient(
+      1100px 520px at 6% -8%,
+      color-mix(in srgb, var(--hh-lime) 38%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 620px at 100% 104%,
+      color-mix(in srgb, var(--hh-purple) 16%, transparent),
+      transparent 62%
+    );
+  background-attachment: fixed;
   color: var(--hh-text);
   font-family: var(--hh-font-body);
   font-size: var(--hh-text-md);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-/* Headings look like thick felt-tip marker. */
 h1,
 h2,
 h3 {
   font-family: var(--hh-font-heading);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
 }
 h1 {
@@ -38,69 +47,84 @@ a {
   color: var(--hh-text-muted);
 }
 
-/* One clear focus style everywhere: a dashed blue outline. */
+/* One clear focus style everywhere: a solid purple ring. */
 :focus-visible {
-  outline: 3px dashed var(--hh-focus);
+  outline: 3px solid var(--hh-focus);
   outline-offset: 3px;
 }
 
-/* Wavy purple underline, like a marker. */
+/* A glowing gradient underline under a page title. */
 .scribble {
-  text-decoration: underline wavy var(--hh-purple);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 10px;
+  display: inline-block;
+  padding-bottom: var(--hh-space-2);
+  background: linear-gradient(90deg, var(--hh-purple), var(--hh-cyan), var(--hh-lime))
+    left bottom / 100% 8px no-repeat;
+  border-radius: var(--hh-radius-pill);
 }
 
-/* ---------- Top bar ---------- */
+/* ---------- Top bar (a lime slab with a thick side wall) ---------- */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--hh-space-4);
   padding: var(--hh-space-3) var(--hh-space-5);
-  background: var(--hh-lime);
-  border-bottom: var(--hh-border-thick) solid var(--hh-border);
+  background: linear-gradient(180deg, #e6f65f, var(--hh-lime));
+  box-shadow:
+    var(--hh-highlight),
+    0 5px 0 #98ab16,
+    0 14px 24px -6px rgba(28, 26, 34, 0.3);
 }
 .topbar__logo {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hh-space-2);
   font-family: var(--hh-font-heading);
   font-weight: 700;
   font-size: var(--hh-text-xl);
   color: var(--hh-text);
   text-decoration: none;
-  transform: rotate(-2deg);
 }
 .topbar__nav {
   display: flex;
-  gap: var(--hh-space-5);
+  gap: var(--hh-space-2);
   flex: 1;
 }
 .topbar__nav a {
+  padding: var(--hh-space-1) var(--hh-space-4);
   color: var(--hh-text);
   font-size: var(--hh-text-lg);
+  font-weight: 700;
   text-decoration: none;
+  border-radius: var(--hh-radius-pill);
+  transition: background var(--hh-speed);
 }
+/* Nav links become little raised pills when you point at them. */
 .topbar__nav a:hover {
-  text-decoration: underline wavy var(--hh-purple);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
+  background: linear-gradient(180deg, #ffffff, #f1efe6);
+  box-shadow:
+    var(--hh-highlight),
+    0 3px 0 rgba(28, 26, 34, 0.18);
 }
 
 .page {
   max-width: 1300px;
   margin: 0 auto;
-  padding: var(--hh-space-5) var(--hh-space-4);
+  padding: var(--hh-space-5) var(--hh-space-4) var(--hh-space-7);
 }
 
-/* ---------- Grids: cards tilt a little, and jiggle when you hover ---------- */
+/* ---------- Grids of cards ---------- */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--hh-space-6);
   margin-bottom: var(--hh-space-6);
-  /* Room above the first row, so the tape and the "start here!" doodle do not sit on the text above. */
-  padding-top: var(--hh-space-6);
+  /* Room above the first row, so the pin and the "start here" badge do not sit on the text above. */
+  padding-top: var(--hh-space-5);
 }
 /* Cards inside a link fill the grid cell, so a whole row has the same height. */
 .card-link > .hh-card {
@@ -113,64 +137,60 @@ a {
 }
 .strike-list {
   display: grid;
-  gap: var(--hh-space-5);
+  gap: var(--hh-space-4);
   margin: var(--hh-space-5) 0;
-}
-.card-grid > *,
-.strike-list > * {
-  transition: transform var(--hh-speed);
-}
-.card-grid > :nth-child(odd),
-.strike-list > :nth-child(odd) {
-  transform: rotate(-1deg);
-}
-.card-grid > :nth-child(even),
-.strike-list > :nth-child(even) {
-  transform: rotate(1deg);
-}
-.card-grid > :nth-child(3n),
-.strike-list > :nth-child(3n) {
-  transform: rotate(-0.5deg);
-}
-.card-grid > :nth-child(odd):hover,
-.strike-list > :nth-child(odd):hover {
-  transform: rotate(1deg);
-}
-.card-grid > :nth-child(even):hover,
-.strike-list > :nth-child(even):hover {
-  transform: rotate(-1deg);
-}
-/* A link that wraps a card lifts its shadow on hover. */
-.card-link:hover .hh-card {
-  box-shadow: var(--hh-shadow);
 }
 .topics {
   padding-left: var(--hh-space-5);
   margin: var(--hh-space-3) 0 0;
 }
 
-/* The "start here!" doodle on the open level. Hidden on small screens. */
+/* A little "start here" badge that bobs above the open level. Hidden on small screens. */
 .start-here {
   display: none;
 }
 @media (min-width: 900px) {
   .start-here {
-    display: flex;
-    align-items: flex-end;
+    display: block;
     position: absolute;
-    top: -40px;
-    right: 0;
+    top: -46px;
+    right: var(--hh-space-3);
     z-index: 2;
-    color: var(--hh-purple);
+    padding: var(--hh-space-1) var(--hh-space-4);
     font-family: var(--hh-font-heading);
-    font-weight: 700;
-    transform: rotate(6deg);
+    font-weight: 600;
+    color: var(--hh-ink-light);
+    background: linear-gradient(180deg, #a06bff, var(--hh-purple));
+    border-radius: var(--hh-radius-pill);
+    box-shadow:
+      var(--hh-highlight),
+      0 4px 0 var(--hh-purple-deep),
+      0 10px 14px rgba(28, 26, 34, 0.25);
+    animation: hh-bob 2.4s ease-in-out infinite;
+  }
+  /* A little pointer under the badge. */
+  .start-here::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    background: var(--hh-purple-deep);
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 3px;
+    z-index: -1;
+  }
+}
+@keyframes hh-bob {
+  50% {
+    transform: translateY(-6px);
   }
 }
 
 /* ---------- Strike page ---------- */
 .strike-header {
-  margin-bottom: var(--hh-space-6); /* room for the tape on the first card */
+  margin-bottom: var(--hh-space-6);
 }
 .strike-grid {
   display: grid;
@@ -200,11 +220,11 @@ a {
   justify-content: space-between;
   margin-bottom: var(--hh-space-2);
 }
-/* The editor is pinned inside a wobbly frame. It is never tilted, so the code stays sharp. */
+/* The code editor sits in a deep, rounded recess. */
 .editor-frame {
   overflow: hidden;
-  border: var(--hh-border-thick) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-inset);
 }
 .run-bar {
   display: flex;
@@ -224,14 +244,16 @@ a {
 }
 .result {
   padding: var(--hh-space-2) var(--hh-space-3);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  border-radius: var(--hh-radius-sm);
+  box-shadow:
+    var(--hh-highlight),
+    0 2px 0 rgba(28, 26, 34, 0.1);
 }
 .result--pass {
-  background: var(--hh-success-soft);
+  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
 }
 .result--fail {
-  background: var(--hh-danger-soft);
+  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
 }
 .result__message {
   color: var(--hh-danger);
@@ -240,11 +262,11 @@ a {
 
 .message {
   padding: var(--hh-space-3) var(--hh-space-4);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-highlight);
 }
 .message--bad {
-  background: var(--hh-danger-soft);
+  background: linear-gradient(180deg, #fff1f1, var(--hh-danger-soft));
   color: var(--hh-danger);
 }
 
@@ -254,8 +276,8 @@ a {
   padding: var(--hh-space-3);
   background: var(--hh-code-bg);
   color: var(--hh-code-text);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  border-radius: var(--hh-radius-sm);
+  box-shadow: var(--hh-shadow-inset);
   font-family: var(--hh-font-mono);
   font-size: var(--hh-text-sm);
   white-space: pre-wrap;
@@ -264,25 +286,30 @@ a {
   white-space: pre-wrap;
 }
 .hint {
-  background: var(--hh-postit);
   padding: var(--hh-space-3);
-  border: var(--hh-border-thin) dashed var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  border-radius: var(--hh-radius-sm);
+  box-shadow:
+    var(--hh-highlight),
+    0 3px 0 rgba(28, 26, 34, 0.1);
 }
 .divider {
   clear: both; /* stay below any floated picture */
   border: 0;
-  border-top: var(--hh-border-thin) dashed var(--hh-border);
+  height: 3px;
   margin: var(--hh-space-4) 0;
+  border-radius: var(--hh-radius-pill);
+  background: var(--hh-eraser);
+  box-shadow: var(--hh-highlight);
 }
 
 /* ---------- Flashcards ---------- */
 .flashcard {
+  display: flow-root;
   padding: var(--hh-space-5);
-  background: var(--hh-postit);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
+  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
 .flashcard__answer {
   font-size: var(--hh-text-lg);
@@ -294,15 +321,13 @@ a {
   overflow: hidden;
   text-align: center;
   padding: var(--hh-space-5);
-  background: var(--hh-success-soft);
-  border: var(--hh-border-thick) dashed var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
+  background: linear-gradient(180deg, #ecfaef, var(--hh-success-soft));
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
 .celebration__confetti span {
   position: absolute;
   top: calc(-1 * var(--hh-space-5));
-  font-size: var(--hh-text-xl);
   animation: hh-fall 2.5s ease-in forwards;
 }
 @keyframes hh-fall {
@@ -312,31 +337,18 @@ a {
   }
 }
 
-/* Less motion for people who ask for it: no tilting on hover, no falling confetti. */
-@media (prefers-reduced-motion: reduce) {
-  .card-grid > *,
-  .strike-list > * {
-    transition: none;
-  }
-  .card-grid > *,
-  .strike-list > * {
-    transform: none !important; /* beats the tilt rules above */
-  }
-  .celebration__confetti {
-    display: none;
-  }
-}
-
-/* ---------- Mascot pictures ---------- */
+/* ---------- Mascot pictures (raised frames that lean a little in 3D) ---------- */
 .logo-img {
   vertical-align: middle;
   object-fit: cover;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  border-radius: var(--hh-radius-sm);
   background: var(--hh-surface);
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 4px 8px rgba(28, 26, 34, 0.3);
 }
 
-/* A page header: words on the left, a picture pinned on the right. */
+/* A page header: words on the left, a picture floating on the right. */
 .hero {
   display: flex;
   align-items: center;
@@ -350,10 +362,15 @@ a {
   height: 110px;
   object-fit: cover;
   background: var(--hh-surface);
-  border: var(--hh-border-thick) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
-  transform: rotate(3deg);
+  border: 4px solid #ffffff;
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-shadow-lift);
+  transform: perspective(var(--hh-perspective)) rotateY(-12deg) rotateX(5deg);
+  transition: transform 260ms;
+}
+.hero__art:hover {
+  transform: perspective(var(--hh-perspective)) rotateY(0deg) rotateX(0deg)
+    translateY(-4px);
 }
 @media (min-width: 700px) {
   .hero__art {
@@ -363,7 +380,6 @@ a {
 }
 
 /* Cards let a floated picture sit inside them without spilling out. */
-.card-grid .hh-card,
 .hh-card {
   display: flow-root;
 }
@@ -373,9 +389,10 @@ a {
   height: 96px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-3);
   object-fit: cover;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
-  transform: rotate(3deg);
+  border: 3px solid #ffffff;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-card);
+  transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(3deg);
 }
 /* Locked levels: the picture is faded, like a sneak peek. */
 .level-art--locked {
@@ -389,9 +406,10 @@ a {
   height: 90px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-3);
   object-fit: cover;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
-  transform: rotate(-3deg);
+  border: 3px solid #ffffff;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-card);
+  transform: perspective(var(--hh-perspective)) rotateY(10deg) rotateX(3deg);
 }
 
 .celebration__art {
@@ -401,10 +419,10 @@ a {
   height: 130px;
   margin: 0 auto var(--hh-space-3);
   object-fit: cover;
-  border: var(--hh-border-thick) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
-  transform: rotate(-3deg);
+  border: 4px solid #ffffff;
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-shadow-lift);
+  transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(4deg);
 }
 
 /* A page whose cards sit one under another: keep a gap between them. */
@@ -419,15 +437,21 @@ a {
   height: 130px;
   margin: 0 0 var(--hh-space-3) var(--hh-space-4);
   object-fit: cover;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
-  transform: rotate(2deg);
+  border: 3px solid #ffffff;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-card);
+  transform: perspective(var(--hh-perspective)) rotateY(-10deg) rotateX(3deg);
 }
 @media (max-width: 600px) {
   .card-art {
     width: 100px;
     height: 90px;
   }
+}
+/* A smaller picture for the narrow lesson cards on the strike page. */
+.card-art--small {
+  width: 110px;
+  height: 96px;
 }
 
 /* Banner shown on a strike you have already finished. */
@@ -437,10 +461,9 @@ a {
   gap: var(--hh-space-4);
   margin-top: var(--hh-space-5);
   padding: var(--hh-space-4);
-  background: var(--hh-postit);
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
+  background: linear-gradient(180deg, #fff9cf, var(--hh-postit));
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-highlight), var(--hh-shadow-card);
 }
 .done-banner p {
   margin: 0;
@@ -450,47 +473,39 @@ a {
   width: 110px;
   height: 110px;
   object-fit: cover;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
-  transform: rotate(-3deg);
+  border: 3px solid #ffffff;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-card);
+  transform: perspective(var(--hh-perspective)) rotateY(10deg) rotateX(3deg);
 }
 
-/* Confetti: little paper scraps in the palette colors (no emoji). */
+/* Confetti: glossy little spheres in the palette colors. */
 .celebration__confetti span {
-  width: 14px;
-  height: 14px;
-  border: var(--hh-border-thin) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-sm);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 3px 4px rgba(28, 26, 34, 0.3);
 }
 .confetti--0 {
-  background: var(--hh-lime);
+  background: radial-gradient(circle at 32% 28%, #f6ffa0, var(--hh-lime) 55%, #98ab16);
 }
 .confetti--1 {
-  background: var(--hh-purple);
+  background: radial-gradient(
+    circle at 32% 28%,
+    #c9a8ff,
+    var(--hh-purple) 55%,
+    var(--hh-purple-deep)
+  );
 }
 .confetti--2 {
-  background: var(--hh-cyan);
+  background: radial-gradient(circle at 32% 28%, #9af3f9, var(--hh-cyan) 55%, #017c85);
 }
 .confetti--3 {
-  background: var(--hh-sun);
+  background: radial-gradient(circle at 32% 28%, #fff2a6, var(--hh-sun) 55%, #b58a00);
 }
 
-/* Long, thin cards look best with the small wobble (the big one skews them into parallelograms). */
-.strike-list .hh-card {
-  border-radius: var(--hh-wobbly-sm);
-}
-/* The flashcard sits beside a floated picture instead of sliding under it. */
-.flashcard {
-  display: flow-root;
-}
 .rebuild-lab {
   margin-top: var(--hh-space-6);
-}
-
-/* A smaller picture for the narrow lesson cards on the strike page. */
-.card-art--small {
-  width: 110px;
-  height: 96px;
 }
 
 /* Loading screen. */
@@ -505,10 +520,10 @@ a {
   width: 180px;
   height: 180px;
   object-fit: cover;
-  border: var(--hh-border-thick) solid var(--hh-border);
-  border-radius: var(--hh-wobbly-md);
-  box-shadow: var(--hh-shadow);
-  transform: rotate(-3deg);
+  border: 4px solid #ffffff;
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-shadow-lift);
+  animation: hh-bob 2.4s ease-in-out infinite;
 }
 
 /* The level switcher on the Interview page. */
@@ -516,4 +531,24 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: var(--hh-space-4);
+}
+
+/* Less motion for people who ask for it: no leaning pictures, no bobbing, no falling confetti. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__art,
+  .level-art,
+  .hint-art,
+  .card-art,
+  .celebration__art,
+  .done-banner__art {
+    transform: none;
+    transition: none;
+  }
+  .start-here,
+  .loading__art {
+    animation: none;
+  }
+  .celebration__confetti {
+    display: none;
+  }
 }

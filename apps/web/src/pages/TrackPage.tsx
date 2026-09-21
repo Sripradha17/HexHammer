@@ -39,7 +39,7 @@ export function TrackPage() {
       <div className="strike-list">
         {track.strikes.map((strike) => (
           <Link key={strike.id} to={`/strike/${strike.id}`} className="card-link">
-            <Card level={track.accent}>
+            <Card tilt level={track.accent}>
               <strong>
                 {strike.order}. {strike.title}
               </strong>{" "}

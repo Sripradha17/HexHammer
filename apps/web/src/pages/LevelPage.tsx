@@ -44,7 +44,7 @@ export function LevelPage() {
       <div className="strike-list">
         {level.strikes.map((strike) => (
           <Link key={strike.id} to={`/strike/${strike.id}`} className="card-link">
-            <Card level={level.number}>
+            <Card tilt level={level.number}>
               <strong>
                 {strike.order}. {strike.title}
               </strong>{" "}
