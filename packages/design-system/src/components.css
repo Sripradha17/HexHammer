@@ -125,7 +125,11 @@
 .hh-card--locked {
   background: linear-gradient(180deg, var(--hh-locked-top), var(--hh-locked-bottom));
   box-shadow: var(--hh-shadow-inset);
-  filter: saturate(0.75);
+  filter: saturate(0.75) blur(0.5px); /* depth of field: things far away are a little soft */
+  transition: filter 240ms;
+}
+.hh-card--locked:hover {
+  filter: saturate(0.9) blur(0); /* point at it and it comes into focus */
 }
 /* Decorations: a glossy ribbon and a glossy pin, sitting on the top edge. */
 .hh-card--tape::before {

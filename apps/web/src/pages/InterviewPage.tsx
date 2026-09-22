@@ -27,6 +27,7 @@ export function InterviewPage({ onProgress }: { onProgress: () => void }) {
     <div className="stack">
       <div className="hero">
         <div>
+          <p className="eyebrow">The practice room</p>
           <h1>Interview practice</h1>
           <p className="muted">Say it out loud first. Then check yourself.</p>
         </div>

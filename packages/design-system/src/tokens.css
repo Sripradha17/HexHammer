@@ -81,6 +81,16 @@
   --hh-glow-b: color-mix(in srgb, var(--hh-purple) 16%, transparent);
   --hh-glow-size: 0px; /* how far a card glows in its own color (only in dark mode) */
 
+  /* ---- Cinematic layers: light, lens and film (these change in dark mode) ---- */
+  --hh-spot: rgba(255, 255, 255, 0.55); /* the spotlight that follows the mouse */
+  --hh-spot-blend: soft-light;
+  --hh-vignette: rgba(60, 30, 110, 0.16); /* the darker edges of the screen */
+  --hh-beam-a: rgba(213, 234, 46, 0.3); /* two soft light beams behind the page */
+  --hh-beam-b: rgba(123, 60, 240, 0.14);
+  --hh-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --hh-grain-opacity: 0.06; /* film grain */
+  --hh-title-glow: 0 10px 30px rgba(123, 60, 240, 0.2); /* glow under big titles */
+
   /* ---- Spacing scale ---- */
   --hh-space-1: 4px;
   --hh-space-2: 8px;
@@ -214,6 +224,13 @@
   --hh-glow-a: color-mix(in srgb, var(--hh-lime) 10%, transparent);
   --hh-glow-b: color-mix(in srgb, var(--hh-purple) 34%, transparent);
   --hh-glow-size: 34px;
+  --hh-spot: rgba(185, 154, 255, 0.2);
+  --hh-spot-blend: screen;
+  --hh-vignette: rgba(0, 0, 0, 0.6);
+  --hh-beam-a: rgba(213, 234, 46, 0.09);
+  --hh-beam-b: rgba(123, 60, 240, 0.28);
+  --hh-grain-opacity: 0.09;
+  --hh-title-glow: 0 0 30px rgba(185, 154, 255, 0.4);
 
   --hh-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2);
   --hh-shadow-card:

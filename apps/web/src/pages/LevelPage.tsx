@@ -32,6 +32,7 @@ export function LevelPage() {
       <Link to="/">Back to Level Map</Link>
       <div className="hero">
         <div>
+          <p className="eyebrow">Chapter {level.number}</p>
           <h1>
             Level {level.number}: {level.title}
           </h1>

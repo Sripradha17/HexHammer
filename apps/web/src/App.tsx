@@ -1,9 +1,10 @@
 // The app shell: top bar (with the streak) and the four pages.
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Link, Route, Routes } from "react-router";
+import { Link, Route, Routes, useLocation } from "react-router";
 import { Badge, Button } from "@hexhammer/design-system";
 import { api, type StreakInfo } from "./api";
 import { art } from "./mascots";
+import { CinemaLayers } from "./components/CinemaLayers";
 import { LevelMapPage } from "./pages/LevelMapPage";
 import { LevelPage } from "./pages/LevelPage";
 import { TrackPage } from "./pages/TrackPage";
@@ -27,6 +28,7 @@ function firstTheme(): Theme {
 export function App() {
   const [streak, setStreak] = useState<StreakInfo | null>(null);
   const [theme, setTheme] = useState<Theme>(firstTheme);
+  const location = useLocation(); // a new address means a new "scene"
 
   // Put the theme on the <html> tag (the CSS reads it there) and remember it.
   useLayoutEffect(() => {
@@ -54,6 +56,9 @@ export function App() {
           "--mouse-y",
           String((event.clientY / window.innerHeight) * 2 - 1),
         );
+        // Where the spotlight shines, in pixels.
+        root.style.setProperty("--spot-x", `${event.clientX}px`);
+        root.style.setProperty("--spot-y", `${event.clientY}px`);
       });
     }
     window.addEventListener("mousemove", onMove);
@@ -72,49 +77,58 @@ export function App() {
   }, []);
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <Link to="/" className="topbar__logo">
-          <img className="logo-img" src={art.logo} alt="" width={44} height={44} />{" "}
-          Hexhammer
-        </Link>
-        <nav className="topbar__nav">
-          <Link to="/">Level Map</Link>
-          <Link to="/interview">Interview</Link>
-        </nav>
-        <div className="topbar__right">
-          <Badge
-            tone={streak?.doneToday ? "success" : "soft"}
-            title="Days in a row that you practiced"
-          >
-            {streak?.current ?? 0} day streak
-          </Badge>
-          <Button
-            size="small"
-            variant="secondary"
-            aria-pressed={theme === "dark"}
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? "Light mode" : "Dark mode"}
-          </Button>
-        </div>
-      </header>
+    <>
+      <CinemaLayers />
+      <div className="app">
+        <header className="topbar">
+          <Link to="/" className="topbar__logo">
+            <img className="logo-img" src={art.logo} alt="" width={44} height={44} />{" "}
+            Hexhammer
+          </Link>
+          <nav className="topbar__nav">
+            <Link to="/">Level Map</Link>
+            <Link to="/interview">Interview</Link>
+          </nav>
+          <div className="topbar__right">
+            <Badge
+              tone={streak?.doneToday ? "success" : "soft"}
+              title="Days in a row that you practiced"
+            >
+              {streak?.current ?? 0} day streak
+            </Badge>
+            <Button
+              size="small"
+              variant="secondary"
+              aria-pressed={theme === "dark"}
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? "Light mode" : "Dark mode"}
+            </Button>
+          </div>
+        </header>
 
-      <main className="page">
-        <Routes>
-          <Route path="/" element={<LevelMapPage />} />
-          <Route path="/level/:number" element={<LevelPage />} />
-          <Route path="/track/:id" element={<TrackPage />} />
-          <Route
-            path="/strike/:id"
-            element={<StrikePage onProgress={() => api.getStreak().then(setStreak)} />}
-          />
-          <Route
-            path="/interview"
-            element={<InterviewPage onProgress={() => api.getStreak().then(setStreak)} />}
-          />
-        </Routes>
-      </main>
-    </div>
+        <main className="page">
+          <div key={location.pathname} className="scene">
+            <Routes>
+              <Route path="/" element={<LevelMapPage />} />
+              <Route path="/level/:number" element={<LevelPage />} />
+              <Route path="/track/:id" element={<TrackPage />} />
+              <Route
+                path="/strike/:id"
+                element={
+                  <StrikePage onProgress={() => api.getStreak().then(setStreak)} />
+                }
+              />
+              <Route
+                path="/interview"
+                element={
+                  <InterviewPage onProgress={() => api.getStreak().then(setStreak)} />
+                }
+              />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

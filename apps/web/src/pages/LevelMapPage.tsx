@@ -52,6 +52,7 @@ export function LevelMapPage() {
     <div>
       <div className="hero">
         <div>
+          <p className="eyebrow">Hexhammer presents</p>
           <h1 className="scribble">Pick your level</h1>
           <p className="muted">
             One tiny idea at a time. Levels 1, 2 and 3 are open. The rest unlock in later

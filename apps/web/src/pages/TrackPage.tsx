@@ -29,6 +29,7 @@ export function TrackPage() {
       <Link to="/">Back to Level Map</Link>
       <div className="hero">
         <div>
+          <p className="eyebrow">A track that runs alongside</p>
           <h1>{track.title}</h1>
           <p className="muted">{track.description}</p>
         </div>

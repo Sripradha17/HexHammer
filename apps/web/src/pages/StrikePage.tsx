@@ -124,6 +124,7 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
     <div>
       <div className="strike-header">
         <Link to={backTo}>{backLabel}</Link>
+        <p className="eyebrow">{strike.trackTitle ?? `Level ${strike.level}`}</p>
         <h1>
           Strike {strike.order}: {strike.title}
         </h1>
