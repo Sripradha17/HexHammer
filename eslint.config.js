@@ -5,7 +5,16 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "apps/api/prisma/migrations/**"] },
+  {
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "apps/api/prisma/migrations/**",
+      // Generated vendor bundle (React + ReactDOM + Babel standalone), rebuilt by
+      // apps/web/scripts/build-react-env.mjs. Never hand-edited, never linted.
+      "apps/web/public/react-env.js",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -15,7 +24,7 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules,
   },
   {
-    files: ["apps/api/**/*.ts", "*.config.{js,ts}"],
+    files: ["apps/api/**/*.ts", "apps/api/**/*.mjs", "apps/web/scripts/**/*.mjs", "*.config.{js,ts}"],
     languageOptions: { globals: globals.node },
   },
 );

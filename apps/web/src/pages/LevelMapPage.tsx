@@ -1,4 +1,4 @@
-// The Level Map: 8 level cards (Levels 1 to 3 open, the rest locked) and the three tracks.
+// The Level Map: 8 level cards (Levels 1 to 4 open, the rest locked) and the three tracks.
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Badge, Card, ProgressBar } from "@hexhammer/design-system";
@@ -55,7 +55,7 @@ export function LevelMapPage() {
           <p className="eyebrow">Hexhammer presents</p>
           <h1 className="scribble">Pick your level</h1>
           <p className="muted">
-            One tiny idea at a time. Levels 1, 2 and 3 are open. The rest unlock in later
+            One tiny idea at a time. Levels 1 to 4 are open. The rest unlock in later
             phases.
           </p>
         </div>

@@ -218,6 +218,16 @@ a {
   border-radius: var(--hh-radius-md);
   box-shadow: var(--hh-shadow-inset);
 }
+/* The live "your page" preview for web page strikes: a little framed browser window. */
+.live-preview {
+  display: block;
+  width: 100%;
+  height: 260px;
+  background: #ffffff;
+  border: 0;
+  border-radius: var(--hh-radius-md);
+  box-shadow: var(--hh-shadow-inset);
+}
 .run-bar {
   display: flex;
   gap: var(--hh-space-3);
@@ -260,6 +270,10 @@ a {
 .message--bad {
   background: linear-gradient(180deg, var(--hh-bad-top), var(--hh-bad-bottom));
   color: var(--hh-danger);
+}
+.message--info {
+  background: linear-gradient(180deg, var(--hh-ok-top), var(--hh-ok-bottom));
+  color: var(--hh-success);
 }
 
 .console__lines,

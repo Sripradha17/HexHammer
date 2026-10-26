@@ -40,11 +40,13 @@ export interface StrikeData {
   trackTitle: string | null;
   order: number;
   title: string;
+  runner: "worker" | "iframe" | "server" | "sql" | "react";
   look: string;
   type: string;
   break: string;
   say: string;
   starterCode: string;
+  sqlSeed: string | null; // only set when runner is "sql"
   tests: string;
   hints: string[];
   status: StrikeSummary["status"];

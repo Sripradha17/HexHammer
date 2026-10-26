@@ -12,6 +12,13 @@ import { art } from "../mascots";
 import { Loading } from "../components/Loading";
 import { createWorker } from "../runner/createWorker";
 import { runCode } from "../runner/runCode";
+import { createTestFrame } from "../runner/createTestFrame";
+import { runIframeTests } from "../runner/runIframeTests";
+import { runServerCode } from "../runner/runServerCode";
+import { runSqlCode } from "../runner/runSqlCode";
+import { runReactTests } from "../runner/runReactTests";
+import { buildReactPreviewDoc } from "../runner/buildReactDoc";
+import { LivePreview } from "../components/LivePreview";
 import type { RunResult } from "../runner/execute";
 
 const AUTOSAVE_DELAY_MS = 1000;
@@ -78,7 +85,21 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
     setRunning(true);
     setCelebrate(false);
 
-    const result = await runCode(code, strike.tests, createWorker);
+    // A web page strike runs in a sandboxed iframe. A React strike (Level 6) runs in the same
+    // sandboxed iframe, with React/ReactDOM/Babel loaded first. A server strike (Level 5+) runs
+    // for real on the local API, in a throwaway process. A sql strike runs for real too, but
+    // against a throwaway IN-MEMORY database, never the app's real one. Everything else runs in
+    // a Web Worker. Same give-up-after-a-while safety net either way, just a different sandbox.
+    const result =
+      strike.runner === "iframe"
+        ? await runIframeTests(code, strike.tests, createTestFrame)
+        : strike.runner === "react"
+          ? await runReactTests(code, strike.tests, createTestFrame)
+          : strike.runner === "server"
+            ? await runServerCode(code, strike.tests)
+            : strike.runner === "sql"
+              ? await runSqlCode(code, strike.sqlSeed ?? "", strike.tests)
+              : await runCode(code, strike.tests, createWorker);
     setRun(result);
 
     const allPassed =
@@ -183,9 +204,47 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
               </span>
             </div>
             <div className="editor-frame">
-              <CodeEditor value={code} onChange={setCode} />
+              <CodeEditor
+                value={code}
+                onChange={setCode}
+                language={
+                  strike.runner === "iframe"
+                    ? "html"
+                    : strike.runner === "sql"
+                      ? "sql"
+                      : "javascript"
+                }
+              />
             </div>
           </Card>
+
+          {strike.runner === "iframe" && (
+            <Card title="Your page" level={strike.level}>
+              <LivePreview html={code} />
+            </Card>
+          )}
+
+          {strike.runner === "react" && (
+            <Card title="Your component" level={strike.level}>
+              <LivePreview html={code} buildDoc={buildReactPreviewDoc} />
+            </Card>
+          )}
+
+          {strike.runner === "server" && (
+            <p className="message message--bad">
+              This strike runs real Node code on your own local API server, in a throwaway
+              process that only ever answers requests from this same computer, in development.
+              Never deploy this app publicly with that switched on.
+            </p>
+          )}
+
+          {strike.runner === "sql" && (
+            <p className="message message--info">
+              This strike runs your SQL for real, but against a throwaway database that lives
+              only in memory for this one run. It is never your real data, and it disappears the
+              moment the run finishes.
+            </p>
+          )}
 
           <div className="run-bar">
             <Button level={strike.level} onClick={handleRunTests} disabled={running}>

@@ -6,11 +6,19 @@ import { level1Lessons } from "./level-1";
 import { level2Lessons } from "./level-2";
 import { level3Lessons } from "./level-3";
 import { dsaLessons } from "./dsa";
+import { level4Lessons } from "./level-4";
+import { level5Lessons } from "./level-5";
+import { level6Lessons } from "./level-6";
+import { professionalLessons } from "./professional";
 
 export { level1Lessons, level1InterviewPack } from "./level-1";
 export { level2Lessons } from "./level-2";
 export { level3Lessons } from "./level-3";
 export { dsaLessons } from "./dsa";
+export { level4Lessons } from "./level-4";
+export { level5Lessons } from "./level-5";
+export { level6Lessons } from "./level-6";
+export { professionalLessons } from "./professional";
 export { interviewPack as level2InterviewPack } from "./level-2/interview-pack";
 export { interviewPacks } from "./interview-packs";
 
@@ -20,6 +28,10 @@ export const allLessons = [
   ...level2Lessons,
   ...level3Lessons,
   ...dsaLessons,
+  ...level4Lessons,
+  ...level5Lessons,
+  ...level6Lessons,
+  ...professionalLessons,
 ];
 
 // Metadata for all 8 levels and the 3 tracks.

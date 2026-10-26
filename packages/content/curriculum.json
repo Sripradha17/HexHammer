@@ -110,7 +110,7 @@
       "description": "Build real pages: structure, style, behavior, and keeping them fast, safe and accessible.",
       "runner": "sandboxed iframe",
       "phase": 3,
-      "fullLessons": false,
+      "fullLessons": true,
       "strikes": [
         "Semantic HTML",
         "Forms",
@@ -148,7 +148,7 @@
       "description": "APIs, databases, auth and security. Runs on a local-only server runner (Phase 3).",
       "runner": "local server runner (local only, with warnings)",
       "phase": 3,
-      "fullLessons": false,
+      "fullLessons": true,
       "strikes": [
         "HTTP: methods, status codes, headers",
         "HTTP: caching and cookies",
@@ -350,7 +350,7 @@
         "Technical writing",
         "Reviewing and verifying AI-generated code"
       ],
-      "fullLessons": false,
+      "fullLessons": true,
       "accent": 4
     },
     {

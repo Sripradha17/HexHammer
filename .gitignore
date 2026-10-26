@@ -145,3 +145,13 @@ vite.config.ts.timestamp-*
 # Hexhammer build output
 dist/
 *.tsbuildinfo
+
+# Hexhammer server runner: throwaway temp folders for each Level 5+ real code run (see
+# apps/api/src/serverRunner). Always deleted right after the run finishes; this is just a
+# safety net in case one is ever left behind.
+apps/api/.runner-tmp/
+
+# Hexhammer Level 6 (React): generated vendor bundle (react + react-dom/client + Babel
+# standalone), rebuilt by apps/web/scripts/build-react-env.mjs before dev/build/test. Never
+# hand-edit this file.
+apps/web/public/react-env.js

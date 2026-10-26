@@ -29,6 +29,7 @@ model Strike {
   levelNumber Int?
   level       Level?    @relation(fields: [levelNumber], references: [number])
   trackId     String?
+  runner      String    @default("worker") // "worker", "iframe", "server", "sql" or "react"
   order       Int
   title       String
   lookText    String
@@ -36,6 +37,7 @@ model Strike {
   breakText   String
   sayText     String
   starterCode String
+  sqlSeed     String? // only for runner: "sql" — fixed CREATE TABLE/INSERT setup, run before every attempt
   tests       String
   hints       Json // array of exactly 3 strings
   solution    String // hidden until "reveal" (see the solution route)

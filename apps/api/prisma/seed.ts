@@ -34,6 +34,7 @@ async function main() {
       // A lesson belongs to a level OR to a track (like the DSA track), never both.
       levelNumber: lesson.track ? null : lesson.level,
       trackId: lesson.track ?? null,
+      runner: lesson.runner ?? "worker",
       order: lesson.order,
       title: lesson.title,
       lookText: lesson.look,
@@ -41,6 +42,7 @@ async function main() {
       breakText: lesson.break,
       sayText: lesson.say,
       starterCode: lesson.starterCode,
+      sqlSeed: lesson.sqlSeed ?? null,
       tests: lesson.tests,
       hints: lesson.hints,
       solution: lesson.solution,

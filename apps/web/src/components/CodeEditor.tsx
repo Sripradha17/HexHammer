@@ -6,13 +6,19 @@ interface CodeEditorProps {
   value: string;
   onChange: (code: string) => void;
   height?: string;
+  language?: "javascript" | "html" | "sql";
 }
 
-export function CodeEditor({ value, onChange, height = "420px" }: CodeEditorProps) {
+export function CodeEditor({
+  value,
+  onChange,
+  height = "420px",
+  language = "javascript",
+}: CodeEditorProps) {
   return (
     <Editor
       height={height}
-      language="javascript"
+      language={language}
       theme="vs-dark"
       value={value}
       onChange={(newValue) => onChange(newValue ?? "")}
