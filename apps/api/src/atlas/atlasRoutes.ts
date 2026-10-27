@@ -144,23 +144,25 @@ export function createAtlasRouter(db: PrismaClient) {
   // GET /atlas/mission-control -> the few things the home screen needs, chosen from real data.
   router.get("/atlas/mission-control", async (_req, res) => {
     const { regions, prefs, evidence } = await buildMap();
-    const [xp, lastActivity, dueTopics, dueQuestions, nextDue, activeProject, recentAchievement, radar] = await Promise.all([
+    const [xp, lastActivity, dueTopics, dueQuestions, nextDue, activeProject, unlockedAchievements, streakDays, radarCounts] = await Promise.all([
       xpTotal(),
       db.activityLog.findFirst({ where: { topicId: { not: null } }, orderBy: { createdAt: "desc" } }),
       db.reviewItem.count({ where: { kind: "topic", dueAt: { lte: endOfToday() } } }),
       db.reviewItem.count({ where: { kind: "question", dueAt: { lte: endOfToday() } } }),
       db.reviewItem.findFirst({ where: { dueAt: { gt: endOfToday() } }, orderBy: { dueAt: "asc" } }),
       db.project.findFirst({ where: { status: { in: ["in_progress", "planned", "blocked"] } }, orderBy: { updatedAt: "desc" }, include: { milestones: { orderBy: { order: "asc" } } } }),
-      db.achievement.findFirst({ orderBy: { unlockedAt: "desc" } }),
+      db.achievement.findMany({ orderBy: { unlockedAt: "desc" } }),
+      db.streakDay.findMany({ select: { date: true } }),
+      // The home screen shows only COUNTS of unreviewed radar items; the headlines live on the Radar page.
       prefs.notifyRadar
-        ? db.techUpdate.findMany({
+        ? db.techUpdate.groupBy({
+            by: ["classification"],
             where: { reviewStatus: { in: ["new", "needs-verification"] }, classification: { notIn: ["irrelevant", "minor"] } },
-            orderBy: [{ discoveredAt: "desc" }],
-            take: 3,
-            include: { source: { select: { name: true } } },
+            _count: true,
           })
         : Promise.resolve([]),
     ]);
+    const recentAchievement = unlockedAchievements[0] ?? null;
 
     // The current path: my preferred region, or the region I last worked in, or Foundations.
     const lastDomain = lastActivity?.topicId ? getTopic(lastActivity.topicId)?.domainId : undefined;
@@ -191,7 +193,16 @@ export function createAtlasRouter(db: PrismaClient) {
         regionId: next.regionId,
         status: next.status,
         why: next.status === "new" ? "Prerequisites met and not started yet." : "You have started this; finish it with the assessment.",
+        // One sentence: what I will be able to do afterwards (the topic's first learning objective).
+        objective: getTopic(next.id)?.learningObjectives[0] ?? null,
+        // Which interactive scene explains it best (the home screen shows a live one).
+        visualization: getTopic(next.id)?.visualizationType ?? "none",
       },
+      // The build that goes with the next mission (every written topic suggests one).
+      nextBuild: (() => {
+        const project = next ? getTopic(next.id)?.project : undefined;
+        return next && project ? { topicId: next.id, title: project.title, milestones: project.milestones.length } : null;
+      })(),
       resume: resume && resumeEv && { id: resume.id, title: resume.title, status: topicStatus(resume, resumeEv, true) },
       skills: regions.map((r) => ({ id: r.id, short: r.short, hue: r.hue, unlocked: r.unlocked, ...r.counts })),
       reviews: { dueTopics, dueQuestions, nextDueAt: nextDue?.dueAt ?? null, enabled: prefs.notifyReviews },
@@ -207,7 +218,18 @@ export function createAtlasRouter(db: PrismaClient) {
         const rule = recentAchievement && ACHIEVEMENTS.find((a) => a.id === recentAchievement.id);
         return rule ? { id: rule.id, title: rule.title, icon: rule.icon, description: rule.description, unlockedAt: recentAchievement!.unlockedAt } : null;
       })(),
-      radar: radar.map((u) => ({ id: u.id, title: u.title, classification: u.classification, source: u.source.name, discoveredAt: u.discoveredAt })),
+      // The first achievement (in list order) I have not unlocked yet: the next thing to aim for.
+      nextAchievement: (() => {
+        const have = new Set(unlockedAchievements.map((a) => a.id));
+        const rule = ACHIEVEMENTS.find((a) => !have.has(a.id));
+        return rule ? { id: rule.id, title: rule.title, icon: rule.icon, description: rule.description } : null;
+      })(),
+      achievements: { unlocked: unlockedAchievements.length, total: ACHIEVEMENTS.length },
+      streak: { current: calculateStreak(streakDays.map((d) => d.date), toDateString()), totalDays: streakDays.length },
+      radar: {
+        enabled: prefs.notifyRadar,
+        byClassification: Object.fromEntries(radarCounts.map((c) => [c.classification, c._count])) as Record<string, number>,
+      },
     });
   });
 

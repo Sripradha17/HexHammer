@@ -3,6 +3,7 @@
 // screen readers (aria-live) and its animation turns off under reduced motion (see app.css).
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import type { Rewards as RewardResult, UnlockedAchievement } from "../atlasApi";
+import { chime } from "../sound";
 
 interface Toast {
   id: number;
@@ -32,6 +33,9 @@ export function RewardsProvider({ children }: { children: ReactNode }) {
     if ((r.xpAwarded ?? 0) > 0 || r.message) fresh.push({ id: nextId++, xp: r.xpAwarded ?? 0, message: r.message });
     for (const a of r.achievements ?? []) fresh.push({ id: nextId++, xp: 0, achievement: a });
     if (fresh.length === 0) return;
+    // Optional sound (off unless I turned it on): a bigger chime for an achievement.
+    if (fresh.some((t) => t.achievement)) chime.unlock();
+    else chime.xp();
     setXpVersion((v) => v + 1);
     setToasts((all) => [...all, ...fresh]);
     for (const t of fresh) {

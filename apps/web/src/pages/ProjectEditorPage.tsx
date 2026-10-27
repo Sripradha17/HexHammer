@@ -1,4 +1,5 @@
-// PROJECT EDITOR: create or edit one project. Validation messages come from the server and appear
+// PROJECT BLUEPRINT: create a project from scratch, or edit every field of one (/projects/:id/blueprint).
+// The day-to-day building happens in BuildPage; this is the full form behind it. Validation messages come from the server and appear
 // next to each field. Milestones, tasks and tests are checklists. Deleting asks first.
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -7,30 +8,10 @@ import { ApiError, projectsApi, type CheckItem, type Project, type ProjectDraft 
 import { ErrorState, Loading } from "../components/PageState";
 import { useRewards } from "../components/Rewards";
 import { NotFoundPage } from "./NotFoundPage";
+import { EMPTY_PROJECT } from "../projectDraft";
 import { PROJECT_STATUS_LABEL, PROJECT_TYPE_LABEL, formatDate } from "../labels";
 
-const EMPTY: ProjectDraft = {
-  title: "",
-  description: "",
-  topicId: null,
-  domainId: null,
-  type: "implementation",
-  difficulty: "core",
-  status: "planned",
-  objectives: [],
-  prerequisites: [],
-  requirements: [],
-  acceptanceCriteria: [],
-  technologies: [],
-  tasks: [],
-  tests: [],
-  stretchGoals: [],
-  repoUrl: null,
-  demoUrl: null,
-  evidence: null,
-  reflection: null,
-  milestones: [],
-};
+const EMPTY: ProjectDraft = EMPTY_PROJECT;
 
 // A list of text lines edited in one textarea: one item per line (simple and keyboard friendly).
 function LinesField({ label, hint, value, onChange, error }: { label: string; hint?: string; value: string[]; onChange: (v: string[]) => void; error?: string }) {
@@ -196,7 +177,7 @@ export function ProjectEditorPage() {
   return (
     <div className="editor">
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link to="/projects">Workshop</Link> <span aria-hidden="true">/</span> <span aria-current="page">{isNew ? "New project" : project!.title}</span>
+        <Link to="/projects">Workshop</Link> <span aria-hidden="true">/</span> {isNew ? <span aria-current="page">New blueprint</span> : <><Link to={`/projects/${project!.id}`}>{project!.title}</Link> <span aria-hidden="true">/</span> <span aria-current="page">Blueprint</span></>}
       </nav>
       <header className="page-head page-head--row">
         <div>

@@ -54,93 +54,64 @@
   --p-violet-700: #5b3fc4;
 }
 
-/* ---------------------------------------------------------------- 2. SEMANTIC (light theme) */
+/* ---------------------------------------------------------------- 2. SEMANTIC: "Midnight world" */
+/* Hexhammer has ONE look: a deep charcoal and midnight-blue world, lit by amber (the thing to do
+   next) and cyan (information). There is no light theme on purpose: one coherent world. */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Surfaces: the page, raised panels, sunken wells. */
-  --hh-bg: var(--p-paper-50);
-  --hh-bg-glow: radial-gradient(1200px 600px at 85% -10%, rgba(245, 154, 27, 0.12), transparent 60%);
-  --hh-surface: #ffffff;
-  --hh-surface-2: var(--p-paper-100); /* sunken: inputs, code wells, tracks */
-  --hh-surface-3: var(--p-paper-200);
-  --hh-line: rgba(22, 24, 29, 0.12); /* hairline borders */
-  --hh-line-strong: rgba(22, 24, 29, 0.24);
+  /* Surfaces: the page, raised panels (slightly see-through glass), sunken wells. */
+  --hh-bg: #060912;
+  --hh-bg-glow: radial-gradient(1100px 620px at 80% -10%, rgba(255, 170, 60, 0.10), transparent 60%),
+    radial-gradient(900px 600px at -10% 100%, rgba(60, 190, 230, 0.08), transparent 60%);
+  --hh-surface: #0e1422;
+  --hh-surface-glass: rgba(16, 23, 39, 0.72);
+  --hh-surface-2: #0a0f1a; /* sunken: inputs, code wells, tracks */
+  --hh-surface-3: #1a2336;
+  --hh-line: rgba(150, 180, 255, 0.11); /* hairline borders */
+  --hh-line-strong: rgba(150, 180, 255, 0.24);
 
-  /* Text. Muted text keeps at least 4.5:1 on every surface. */
-  --hh-text: var(--p-paper-900);
-  --hh-text-muted: var(--p-paper-600);
-  --hh-text-faint: #767b86; /* only for large text or decorative labels */
-  --hh-link: var(--p-ember-700);
+  /* Text. Muted text keeps at least 7:1 on every surface; faint is for large text only. */
+  --hh-text: #eef2fa;
+  --hh-text-muted: #aab5c9;
+  --hh-text-faint: #7f8aa0;
+  --hh-link: var(--p-ember-300);
 
-  /* Action: the ONE thing to do next. Dark ink on ember in both themes (contrast > 9:1). */
+  /* Action: the ONE thing to do next. Dark ink on amber (contrast > 9:1). */
   --hh-action: var(--p-ember-400);
   --hh-action-hover: var(--p-ember-300);
-  --hh-action-ink: var(--p-ember-900);
-  --hh-ember-text: var(--p-ember-700); /* ember-colored text that still reads on the page */
-
-  --hh-info: var(--p-spark-700);
-  --hh-success: var(--p-green-700);
-  --hh-success-soft: #dcf3e4;
-  --hh-danger: var(--p-red-700);
-  --hh-danger-soft: #fde4e1;
-  --hh-review: var(--p-violet-700); /* "review due": a calm violet, never alarm red */
-  --hh-review-soft: #ebe5ff;
-  --hh-warning-soft: #fff0d6;
-
-  --hh-focus: #1f6feb; /* focus ring: blue in light mode, visible on every surface */
-
-  /* Code always sits on a dark well, in both themes (familiar, and Monaco matches it). */
-  --hh-code-bg: #11141b;
-  --hh-code-text: #e8ebf2;
-  --hh-code-muted: #8e97a8;
-
-  /* Depth: one soft shadow scale; the light comes from above. */
-  --hh-shadow-1: 0 1px 2px rgba(22, 24, 29, 0.06), 0 2px 8px rgba(22, 24, 29, 0.06);
-  --hh-shadow-2: 0 2px 4px rgba(22, 24, 29, 0.06), 0 12px 32px -8px rgba(22, 24, 29, 0.18);
-  --hh-shadow-3: 0 4px 8px rgba(22, 24, 29, 0.08), 0 28px 60px -16px rgba(22, 24, 29, 0.28);
-
-  /* Domain colors are made from each region's hue: hsl(var(--hue) ...). These say how. */
-  --hh-hue-sat: 62%;
-  --hh-hue-light: 40%; /* strokes and text in light mode */
-  --hh-hue-fill-light: 92%; /* tinted fills */
-}
-
-/* ---------------------------------------------------------------- DARK theme ("night forge") */
-/* Applied when I pick dark, or when my system prefers dark and I have not picked light. */
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --hh-bg: var(--p-ink-950);
-  --hh-bg-glow: radial-gradient(1100px 620px at 85% -10%, rgba(245, 154, 27, 0.14), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(95, 208, 236, 0.07), transparent 60%);
-  --hh-surface: var(--p-ink-850);
-  --hh-surface-2: var(--p-ink-900);
-  --hh-surface-3: var(--p-ink-700);
-  --hh-line: rgba(255, 255, 255, 0.09);
-  --hh-line-strong: rgba(255, 255, 255, 0.2);
-
-  --hh-text: var(--p-ink-50);
-  --hh-text-muted: var(--p-ink-300);
-  --hh-text-faint: var(--p-ink-400);
-  --hh-link: var(--p-ember-300);
+  --hh-action-ink: #221200;
   --hh-ember-text: var(--p-ember-400);
+  --hh-cyan: #5fd8f5;
+  --hh-cyan-soft: rgba(95, 216, 245, 0.12);
 
   --hh-info: var(--p-spark-400);
   --hh-success: var(--p-green-300);
   --hh-success-soft: rgba(126, 226, 168, 0.12);
   --hh-danger: var(--p-red-300);
   --hh-danger-soft: rgba(255, 155, 143, 0.12);
-  --hh-review: var(--p-violet-300);
+  --hh-review: var(--p-violet-300); /* "review due": a calm violet, never alarm red */
   --hh-review-soft: rgba(199, 180, 255, 0.12);
   --hh-warning-soft: rgba(255, 181, 71, 0.12);
+
   --hh-focus: var(--p-spark-300);
 
+  /* Code sits on a dark well (Monaco matches it). */
+  --hh-code-bg: #070b14;
+  --hh-code-text: #e8ebf2;
+  --hh-code-muted: #8e97a8;
+
+  /* Depth: shadows plus a soft glow for things that are "lit". */
   --hh-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --hh-shadow-2: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 40px -12px rgba(0, 0, 0, 0.6);
   --hh-shadow-3: 0 6px 12px rgba(0, 0, 0, 0.4), 0 32px 70px -20px rgba(0, 0, 0, 0.75);
+  --hh-glow-amber: 0 0 0 1px rgba(255, 181, 71, 0.5), 0 0 32px -4px rgba(255, 170, 60, 0.45);
+  --hh-glow-cyan: 0 0 0 1px rgba(95, 216, 245, 0.45), 0 0 28px -6px rgba(95, 216, 245, 0.45);
 
-  --hh-hue-light: 68%;
-  --hh-hue-fill-light: 16%;
+  /* Domain colors are made from each region's hue: hsl(var(--hue) ...). These say how. */
+  --hh-hue-sat: 70%;
+  --hh-hue-light: 68%; /* strokes and text */
+  --hh-hue-fill-light: 16%; /* tinted fills */
 }
 
 /* ---------------------------------------------------------------- TYPE, SPACE, SHAPE, MOTION */

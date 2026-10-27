@@ -1,14 +1,14 @@
-// The main screen. Left: the four lesson cards. Right: the editor, Run tests, and results.
+// THE CODE BAY: one hand-typed strike. Left: the four beats (Look, Type, Break, Say), one at a
+// time, and the hint ladder. Right: the editor, Run tests, the results and the console.
 // Beat 5 (Save) happens by itself: code auto-saves 1 second after I stop typing.
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router";
-import { Badge, Button, Card, TextArea } from "@hexhammer/design-system";
+import { Link, useLocation, useParams } from "react-router";
+import { TextArea } from "@hexhammer/design-system";
 import { api, type StrikeData } from "../api";
 import { CodeEditor } from "../components/CodeEditor";
-import { ConsolePanel, TestResults } from "../components/TestResults";
+import { TestResults } from "../components/TestResults";
 import { HintLadder } from "../components/HintLadder";
-import { Celebration } from "../components/Celebration";
-import { art } from "../mascots";
+import { Icon } from "../components/Icon";
 import { Loading } from "../components/Loading";
 import { createWorker } from "../runner/createWorker";
 import { runCode } from "../runner/runCode";
@@ -40,6 +40,8 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
   const [celebrate, setCelebrate] = useState(false);
   const [sayText, setSayText] = useState("");
   const [sayState, setSayState] = useState<"idle" | "saved">("idle");
+  const [beat, setBeat] = useState<"look" | "type" | "break" | "say">("look");
+  const location = useLocation();
 
   // The last code we know the database has. Used so we do not save the same code twice.
   const lastSavedCode = useRef("");
@@ -135,159 +137,118 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
     );
   if (!strike) return <Loading />;
 
-  // A strike belongs to a level or to a track. "Back" goes to whichever one.
-  const backTo = strike.trackId ? `/track/${strike.trackId}` : `/level/${strike.level}`;
-  const backLabel = strike.trackId
-    ? `Back to the ${strike.trackTitle}`
-    : `Back to Level ${strike.level}`;
+  // Back to the mission that sent me here (?mission=topic-id), or to the world map.
+  const missionId = new URLSearchParams(location.search).get("mission");
+  const backTo = missionId ? `/topic/${missionId}#solve` : "/map";
+  const backLabel = missionId ? "Back to the mission" : "World";
+  const BEATS = [
+    { id: "look", label: "Look", text: strike.look },
+    { id: "type", label: "Type", text: strike.type },
+    { id: "break", label: "Break", text: strike.break },
+  ] as const;
 
   return (
-    <div>
-      <div className="strike-header">
-        <Link to={backTo}>{backLabel}</Link>
-        <p className="eyebrow">{strike.trackTitle ?? `Level ${strike.level}`}</p>
-        <h1>
-          Strike {strike.order}: {strike.title}
-        </h1>
-        <Badge level={strike.level}>{strike.trackTitle ?? `Level ${strike.level}`}</Badge>{" "}
-        {strike.status === "complete" && <Badge tone="success">Done</Badge>}
-      </div>
+    <div className="bay-page">
+      <header className="mission__head">
+        <Link to={backTo} className="mission__back">
+          <Icon name="back" size={16} /> {backLabel}
+        </Link>
+        <p className="kicker">
+          Code bay · {strike.trackTitle ?? "hand-typed strike"}
+          {strike.status === "complete" && <span className="pill pill--green">Passed</span>}
+        </p>
+        <h1 className="mission__title">{strike.title}</h1>
+      </header>
 
-      <div className="strike-grid">
-        {/* LEFT: the four lesson cards */}
-        <div className="strike-left">
-          <Card title="Look" level={strike.level} decoration="tape">
-            <img className="card-art card-art--small" src={art.look} alt="" />
-            <pre className="lesson-text">{strike.look}</pre>
-          </Card>
-          <Card title="Type" level={strike.level}>
-            <img className="card-art card-art--small" src={art.type} alt="" />
-            <pre className="lesson-text">{strike.type}</pre>
-          </Card>
-          <Card title="Break" level={strike.level}>
-            <img className="card-art card-art--small" src={art.breakIt} alt="" />
-            <pre className="lesson-text">{strike.break}</pre>
-          </Card>
-          <Card title="Say" level={strike.level} tone="postit" decoration="tack">
-            <p>{strike.say}</p>
-            <TextArea
-              className="say-box"
-              aria-label="Your one-sentence explanation"
-              rows={3}
-              value={sayText}
-              placeholder="Type your one sentence here…"
-              onChange={(event) => {
-                setSayText(event.target.value);
-                setSayState("idle");
-              }}
-            />
-            <Button
-              size="small"
-              level={strike.level}
-              onClick={handleSaveSay}
-              disabled={sayText.trim() === ""}
-            >
-              Save my sentence
-            </Button>{" "}
-            {sayState === "saved" && <Badge tone="success">Saved</Badge>}
-          </Card>
+      <div className="bay-grid">
+        <div className="bay-left">
+          <div className="tabs" role="tablist" aria-label="The four beats">
+            {[...BEATS.map((b) => b.id), "say" as const].map((id) => (
+              <button key={id} type="button" role="tab" aria-selected={beat === id} className="tabs__tab" onClick={() => setBeat(id)}>
+                {id[0].toUpperCase() + id.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="stage-box beat" key={beat}>
+            {beat === "say" ? (
+              <>
+                <p>{strike.say}</p>
+                <TextArea
+                  className="say-box"
+                  aria-label="Your one-sentence explanation"
+                  rows={3}
+                  value={sayText}
+                  placeholder="Type your one sentence here…"
+                  onChange={(event) => {
+                    setSayText(event.target.value);
+                    setSayState("idle");
+                  }}
+                />
+                <button type="button" className="cta cta--small" onClick={handleSaveSay} disabled={sayText.trim() === ""}>
+                  Save my sentence
+                </button>{" "}
+                {sayState === "saved" && <span className="pill pill--green">Saved</span>}
+              </>
+            ) : (
+              <pre className="lesson-text">{BEATS.find((b) => b.id === beat)!.text}</pre>
+            )}
+          </div>
+          <HintLadder strikeId={id} hints={strike.hints} failedRuns={failedRuns} level={strike.level} />
         </div>
 
-        {/* RIGHT: the editor and the test area */}
-        <div className="strike-right">
-          <Card level={strike.level}>
-            <div className="editor-bar">
-              <strong>Your code</strong>
-              <span className="muted">
-                {saveState === "saving" && "Saving…"}
-                {saveState === "saved" && "Saved"}
+        <div className="bay-right">
+          <div className="stage-box stage-box--bench">
+            <div className="bench__bar">
+              <span className="bench__label">
+                <Icon name="code" size={14} /> Your code {saveState === "saving" ? "· saving…" : saveState === "saved" ? "· saved" : ""}
               </span>
+              <button type="button" className="cta cta--small" onClick={handleRunTests} disabled={running}>
+                <Icon name="play" size={14} /> {running ? "Running…" : "Run tests"}
+              </button>
             </div>
-            <div className="editor-frame">
-              <CodeEditor
-                value={code}
-                onChange={setCode}
-                language={
-                  strike.runner === "iframe"
-                    ? "html"
-                    : strike.runner === "sql"
-                      ? "sql"
-                      : "javascript"
-                }
-              />
+            <div className="bench__editor">
+              <CodeEditor value={code} onChange={setCode} height="380px" language={strike.runner === "iframe" ? "html" : strike.runner === "sql" ? "sql" : "javascript"} />
             </div>
-          </Card>
-
-          {strike.runner === "iframe" && (
-            <Card title="Your page" level={strike.level}>
-              <LivePreview html={code} />
-            </Card>
-          )}
-
-          {strike.runner === "react" && (
-            <Card title="Your component" level={strike.level}>
-              <LivePreview html={code} buildDoc={buildReactPreviewDoc} />
-            </Card>
-          )}
-
-          {strike.runner === "server" && (
-            <p className="message message--bad">
-              This strike runs real Node code on your own local API server, in a throwaway
-              process that only ever answers requests from this same computer, in development.
-              Never deploy this app publicly with that switched on.
-            </p>
-          )}
-
-          {strike.runner === "sql" && (
-            <p className="message message--info">
-              This strike runs your SQL for real, but against a throwaway database that lives
-              only in memory for this one run. It is never your real data, and it disappears the
-              moment the run finishes.
-            </p>
-          )}
-
-          <div className="run-bar">
-            <Button level={strike.level} onClick={handleRunTests} disabled={running}>
-              {running ? "Running…" : "Run tests"}
-            </Button>
+            {(strike.runner === "iframe" || strike.runner === "react") && (
+              <div className="bench__preview">
+                <p className="bench__label">Live preview</p>
+                {strike.runner === "iframe" ? <LivePreview html={code} /> : <LivePreview html={code} buildDoc={buildReactPreviewDoc} />}
+              </div>
+            )}
+            {strike.runner === "server" && (
+              <p className="message message--bad">
+                This strike runs real Node code on your own local API server, in a throwaway process that only answers requests from this computer, in development. Never deploy this app publicly with that switched on.
+              </p>
+            )}
+            {strike.runner === "sql" && <p className="message message--info">Your SQL runs for real, against a throwaway in-memory database that disappears after the run. Never your real data.</p>}
           </div>
 
           {celebrate && (
-            <Celebration
-              nextStrikeId={strike.nextStrikeId}
-              level={strike.level}
-              backTo={backTo}
-              backLabel={backLabel}
-            />
+            <div className="stage-box win burst" role="status">
+              <h2 className="ms-card__title">All tests pass. Strike complete!</h2>
+              <p className="muted">Now write your one sentence in the Say beat.</p>
+              <Link to={strike.nextStrikeId && !missionId ? `/strike/${strike.nextStrikeId}` : backTo} className="cta cta--small">
+                {strike.nextStrikeId && !missionId ? "Next strike" : backLabel} <Icon name="arrow" size={15} />
+              </Link>
+            </div>
           )}
 
-          <Card title="Test results" level={strike.level}>
-            <img className="card-art card-art--small" src={art.launch} alt="" />
-            <TestResults run={run} />
-          </Card>
-          <ConsolePanel lines={run?.consoleLines ?? []} />
+          <div className="bench__out">
+            <div className="bench__tests">
+              <p className="bench__label">
+                <Icon name="test" size={14} /> Tests
+              </p>
+              <TestResults run={run} />
+            </div>
+            <div className="bench__terminal">
+              <p className="bench__label">
+                <Icon name="terminal" size={14} /> Console
+              </p>
+              <pre className="bench__lines">{run ? (run.consoleLines.length ? run.consoleLines.join("\n") : "(nothing printed)") : "Run the tests to see output."}</pre>
+            </div>
+          </div>
         </div>
       </div>
-
-      <HintLadder
-        strikeId={id}
-        hints={strike.hints}
-        failedRuns={failedRuns}
-        level={strike.level}
-      />
-
-      {strike.status === "complete" && !celebrate && (
-        <div className="done-banner">
-          <img className="done-banner__art" src={art.thumbs} alt="" />
-          <p>
-            <Link to={strike.nextStrikeId ? `/strike/${strike.nextStrikeId}` : backTo}>
-              <Button level={strike.level}>
-                {strike.nextStrikeId ? "Next strike" : backLabel}
-              </Button>
-            </Link>
-          </p>
-        </div>
-      )}
     </div>
   );
 }

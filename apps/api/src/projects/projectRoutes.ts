@@ -1,7 +1,7 @@
 // Project Workshop + Portfolio API: create, read, update, delete projects and their milestones.
 import { Router } from "express";
 import type { PrismaClient, Prisma } from "@prisma/client";
-import { domains, getTopic } from "@hexhammer/content";
+import { domains, getTopic, topics } from "@hexhammer/content";
 import { HttpError } from "../httpError";
 import { validate } from "../middleware/validate";
 import { validateProject } from "./validateProject";
@@ -39,16 +39,43 @@ export function createProjectRouter(db: PrismaClient) {
     res.json({ projects });
   });
 
+  // GET /projects/templates -> every project a written topic suggests, for the Workshop's
+  // "builds you can start" list. Registered BEFORE /projects/:id, or "templates" would be read as an id.
+  // Ordered from small guided builds (foundation) to bigger ones (advanced).
+  router.get("/projects/templates", (_req, res) => {
+    const rank = { foundation: 0, core: 1, advanced: 2 } as const;
+    const templates = topics
+      .filter((t) => t.project)
+      .sort((a, b) => rank[a.difficulty] - rank[b.difficulty])
+      .map((topic) => {
+        const domain = domains.find((d) => d.id === topic.domainId)!;
+        return {
+          ...templateFor(topic.id)!,
+          topicTitle: topic.title,
+          region: { id: domain.id, short: domain.short, hue: domain.hue },
+          prerequisiteTopics: topic.prerequisites.map((id) => ({ id, title: getTopic(id)?.title ?? id })),
+        };
+      });
+    res.json({ templates });
+  });
+
   router.get("/projects/:id", validate({ params: { id: "numeric" } }), async (req, res) => {
     res.json(await findOr404(Number(req.params.id)));
   });
 
   // GET /projects/templates/:topicId -> the topic's suggested project, to pre-fill the form.
   router.get("/projects/templates/:topicId", (req, res) => {
-    const topic = getTopic(String(req.params.topicId));
-    if (!topic?.project) throw new HttpError(404, "This topic has no project template yet.");
+    const template = templateFor(String(req.params.topicId));
+    if (!template) throw new HttpError(404, "This topic has no project template yet.");
+    res.json(template);
+  });
+
+  // A topic's project template in the shape the project form uses (or null if it has none).
+  function templateFor(topicId: string) {
+    const topic = getTopic(topicId);
+    if (!topic?.project) return null;
     const p = topic.project;
-    res.json({
+    return {
       title: p.title,
       description: p.summary,
       topicId: topic.id,
@@ -64,8 +91,8 @@ export function createProjectRouter(db: PrismaClient) {
       tasks: [],
       stretchGoals: p.stretchGoals,
       milestones: p.milestones.map((m) => ({ title: m.title, doneWhen: m.done_when })),
-    });
-  });
+    };
+  }
 
   // POST /projects -> create.
   router.post("/projects", async (req, res) => {

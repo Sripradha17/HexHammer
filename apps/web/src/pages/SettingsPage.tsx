@@ -1,10 +1,11 @@
 // SETTINGS AND LEARNING PREFERENCES. Saved to the database (so they survive a browser change).
-// Theme is per-browser (localStorage), because it is a display choice, not learning data.
+// Sound is per-browser (localStorage), because it is a display choice, not learning data.
 import { useEffect, useState } from "react";
 import { Button, Field } from "@hexhammer/design-system";
 import { atlas, type Preferences } from "../atlasApi";
 import { useLoad } from "../useLoad";
 import { ErrorState, Loading } from "../components/PageState";
+import { setSoundOn, soundOn } from "../sound";
 
 const RADAR_CATEGORIES = ["security", "framework", "ai-platform", "cloud", "devops", "standards", "publication"];
 
@@ -12,6 +13,7 @@ export function SettingsPage() {
   const { data, error, loading, reload } = useLoad(() => Promise.all([atlas.preferences(), atlas.map()]));
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [status, setStatus] = useState("");
+  const [sound, setSound] = useState(soundOn);
 
   useEffect(() => {
     if (data) setPrefs(data[0]);
@@ -33,15 +35,6 @@ export function SettingsPage() {
       setStatus("Saved.");
     } catch (e) {
       setStatus((e as Error).message);
-    }
-  }
-
-  function setTheme(theme: "light" | "dark") {
-    document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem("hexhammer-theme", theme);
-    } catch {
-      // not remembered
     }
   }
 
@@ -112,7 +105,7 @@ export function SettingsPage() {
         </fieldset>
 
         <fieldset className="settings__group">
-          <legend>Motion and theme</legend>
+          <legend>Motion and sound</legend>
           <Field label="Motion" hint="Reduce turns off every animation.">
             {(p) => (
               <select className="hh-select" value={prefs.motion} onChange={(e) => set("motion", e.target.value as Preferences["motion"])} {...p}>
@@ -122,10 +115,9 @@ export function SettingsPage() {
               </select>
             )}
           </Field>
-          <div className="actions">
-            <Button variant="secondary" size="small" onClick={() => setTheme("light")}>Light theme</Button>
-            <Button variant="secondary" size="small" onClick={() => setTheme("dark")}>Dark theme</Button>
-          </div>
+          <label className="check">
+            <input type="checkbox" checked={sound} onChange={(e) => (setSoundOn(e.target.checked), setSound(e.target.checked))} /> Play soft sounds for wins (off by default; saved in this browser)
+          </label>
         </fieldset>
 
         <div className="editor__bar">

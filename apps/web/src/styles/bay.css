@@ -1,0 +1,57 @@
+/* THE CODE BAY (a hand-typed strike): beats on the left, editor and results on the right. */
+.bay-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--hh-space-5);
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .bay-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.bay-left,
+.bay-right {
+  display: grid;
+  gap: var(--hh-space-4);
+  min-width: 0;
+}
+.bay-left .tabs {
+  margin: 0;
+}
+.beat {
+  animation: step-in 300ms var(--hh-ease) both;
+}
+.lesson-text {
+  margin: 0;
+  font: 400 1rem/1.65 var(--hh-font-body);
+  white-space: pre-wrap;
+}
+.bench__preview {
+  margin-top: var(--hh-space-3);
+}
+.bench__preview iframe {
+  width: 100%;
+  min-height: 220px;
+  background: #fff;
+  border: 0;
+  border-radius: var(--hh-radius-md);
+}
+.win {
+  text-align: center;
+}
+.message {
+  padding: var(--hh-space-3) var(--hh-space-4);
+  border-radius: var(--hh-radius-md);
+  font-size: 0.92rem;
+}
+.message--bad {
+  background: var(--hh-danger-soft);
+}
+.message--info {
+  background: var(--hh-cyan-soft);
+}
+.say-box {
+  width: 100%;
+  margin-bottom: var(--hh-space-3);
+}

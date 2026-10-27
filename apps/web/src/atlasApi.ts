@@ -127,13 +127,18 @@ export interface MissionControl {
   level: { level: number; xpIntoLevel: number; xpForNextLevel: number };
   xp: number;
   path: { id: string; title: string; short: string; hue: number; counts: Region["counts"] };
-  nextMission: { id: string; title: string; regionId: string; status: TopicStatus; why: string } | null;
+  nextMission: { id: string; title: string; regionId: string; status: TopicStatus; why: string; objective: string | null; visualization: Topic["visualizationType"] } | null;
+  nextBuild: { topicId: string; title: string; milestones: number } | null;
   resume: { id: string; title: string; status: TopicStatus } | null;
   skills: ({ id: string; short: string; hue: number; unlocked: boolean } & Region["counts"])[];
   reviews: { dueTopics: number; dueQuestions: number; nextDueAt: string | null; enabled: boolean };
   activeProject: { id: number; title: string; status: string; milestonesDone: number; milestonesTotal: number; nextMilestone: string | null } | null;
   recentAchievement: (UnlockedAchievement & { unlockedAt: string }) | null;
-  radar: { id: number; title: string; classification: string; source: string; discoveredAt: string }[];
+  nextAchievement: UnlockedAchievement | null;
+  achievements: { unlocked: number; total: number };
+  streak: { current: number; totalDays: number };
+  // Counts of unreviewed, relevant radar items by classification (the headlines stay on the Radar page).
+  radar: { enabled: boolean; byClassification: Record<string, number> };
 }
 
 export interface Me {
@@ -263,6 +268,14 @@ export interface Project {
   completedAt: string | null;
   milestones: Milestone[];
 }
+
+// A project a written topic suggests (from GET /projects/templates), with where it sits on the map.
+export type ProjectTemplate = ProjectDraft & {
+  topicId: string;
+  topicTitle: string;
+  region: { id: string; short: string; hue: number };
+  prerequisiteTopics: { id: string; title: string }[];
+};
 
 export type ProjectDraft = Omit<Project, "id" | "createdAt" | "updatedAt" | "completedAt" | "milestones"> & {
   milestones?: { title: string; doneWhen: string }[];
@@ -427,6 +440,7 @@ export const atlas = {
 
 export const projectsApi = {
   list: () => call<{ projects: Project[] }>("/projects"),
+  templates: () => call<{ templates: ProjectTemplate[] }>("/projects/templates"),
   get: (id: number) => call<Project>(`/projects/${id}`),
   template: (topicId: string) => call<ProjectDraft>(`/projects/templates/${encodeURIComponent(topicId)}`),
   create: (draft: ProjectDraft) => post<Rewards & { project: Project }>("/projects", draft),
