@@ -2,7 +2,9 @@
 // Express 5 catches errors from async routes for us, so a thrown HttpError goes to the error handler.
 import { Router } from "express";
 import type { PrismaClient } from "@prisma/client";
-import { curriculum } from "@hexhammer/content";
+import { curriculum, topics } from "@hexhammer/content";
+import { afterProgress, awardXp, logActivity } from "./atlas/service";
+import { XP } from "./atlas/rules";
 import { HttpError } from "./httpError";
 import { validate } from "./middleware/validate";
 import { calculateStreak, toDateString } from "./streak";
@@ -206,11 +208,20 @@ export function createRouter(db: PrismaClient) {
         },
       });
 
+      let achievements: { id: string; title: string }[] = [];
       if (req.body.passed) {
         await recordToday();
+        // Atlas link: a passed strike is real evidence. Pay XP once (the unique key stops repeats),
+        // log it, and re-check mastery for every Atlas topic that practises this strike.
+        await awardXp(db, `strike:${strikeId}`, XP.strikePassed, `Passed strike ${strikeId}`);
+        const linked = topics.filter((t) => t.strikeIds.includes(strikeId));
+        await logActivity(db, "exercise", `strike:${strikeId}`, linked[0]?.id ?? null);
+        for (const t of linked) achievements = [...achievements, ...(await afterProgress(db, t.id))];
+        if (linked.length === 0) achievements = await afterProgress(db, null);
       }
 
       res.json({
+        achievements,
         status: progress.status,
         attempts: progress.attempts,
         canReveal:

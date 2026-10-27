@@ -1,97 +1,169 @@
 /*
-  Hexhammer design tokens: clean 3D style.
-  Named values (CSS variables) used by the WHOLE app.
-  Rule: the app never writes a raw color, size, radius or shadow. It always uses a token from here.
-  Idea: smooth, chunky shapes that look raised off the page, lit from above, with soft layered shadows.
-  The colors come straight from the mascot art: lime, purple, cyan and sunny yellow.
+  HEXHAMMER DESIGN TOKENS: "Forge Atlas".
+  Every color, size, radius, shadow and duration the app uses lives here. Components never write a
+  raw value; they use a token. (Why: one place to change, and themes for free. See the
+  "Design tokens" topic in the Atlas: this file is its living example.)
+
+  Identity in one sentence: a night-time forge and a map table. Deep ink surfaces, warm EMBER light
+  for the one thing you should do next, cool SPARK blue for information, and a hexagon map where
+  each of the 16 regions has its own hue.
+
+  Layers (exactly like the lesson teaches):
+    1. Primitives  (--p-*): raw values. Components never use these directly.
+    2. Semantic    (--hh-*): roles like "surface", "text-muted", "action". Themes re-point these.
+    3. Component   (inside components.css): small local knobs such as --face on a button.
 */
+
+/* ---------------------------------------------------------------- 1. PRIMITIVES */
 :root {
-  /* ---- Palette (taken from the mascot art) ---- */
-  --hh-paper: #f7f4ee; /* warm off-white page */
-  --hh-ink: #1c1a22; /* text and the darkest edges, never pure black */
-  --hh-eraser: #e9e4f2; /* soft lavender grey for pressed-in areas */
-  --hh-lime: #d5ea2e; /* highlighter lime */
-  --hh-purple: #7b3cf0; /* marker purple */
-  --hh-purple-deep: #5b21b6; /* darker purple for small text and links */
-  --hh-cyan: #02c7d3; /* cyan */
-  --hh-sun: #fdc602; /* sunny yellow */
-  --hh-postit: #fff4b8; /* pale sunny yellow note */
-  --hh-night: #22076b; /* deep space navy */
+  /* Ink (dark neutrals) and paper (light neutrals). */
+  --p-ink-950: #0b0d12;
+  --p-ink-900: #10131a;
+  --p-ink-850: #151923;
+  --p-ink-800: #1b202c;
+  --p-ink-700: #262c3a;
+  --p-ink-600: #353d4f;
+  --p-ink-400: #7b8496;
+  --p-ink-300: #a6aebe;
+  --p-ink-100: #e6e9f0;
+  --p-ink-50: #f2f4f8;
+  --p-paper-50: #f7f4ec;
+  --p-paper-100: #efeadd;
+  --p-paper-200: #e2dccb;
+  --p-paper-600: #5a5f6b;
+  --p-paper-900: #16181d;
 
-  /* ---- The 8 level colors: one per level ---- */
-  --hh-level-1: #ff4d5e; /* Red */
-  --hh-level-2: #ff8a1f; /* Orange */
-  --hh-level-3: #fdc602; /* Yellow */
-  --hh-level-4: #d5ea2e; /* Green (the art's lime) */
-  --hh-level-5: #02c7d3; /* Blue (the art's cyan) */
-  --hh-level-6: #5b4bd8; /* Indigo */
-  --hh-level-7: #7b3cf0; /* Violet */
-  --hh-level-8: #f0a800; /* Gold */
+  /* Ember: the forge light. Used for the primary action and "you are here". */
+  --p-ember-300: #ffd08a;
+  --p-ember-400: #ffb547;
+  --p-ember-500: #f59a1b;
+  --p-ember-700: #9a5200;
+  --p-ember-900: #2a1600;
 
-  /* Text that sits ON a full level color. Red, indigo and violet are dark enough for white text. */
-  --hh-ink-light: #ffffff;
-  --hh-ink-dark: #1c1a22;
+  /* Spark: information and links in dark mode. */
+  --p-spark-300: #8be0f5;
+  --p-spark-400: #5fd0ec;
+  --p-spark-700: #0a6c8d;
 
-  /* ---- Names the components use ---- */
-  --hh-bg: var(--hh-paper);
-  --hh-surface: #ffffff;
-  --hh-surface-soft: var(--hh-eraser);
-  --hh-text: var(--hh-ink);
-  --hh-text-muted: #5b5866; /* readable grey for small text */
-  --hh-border: rgba(28, 26, 34, 0.1); /* a faint edge, not a drawn outline */
-  --hh-code-bg: #16131f;
-  --hh-code-text: #f8f8f2;
+  /* Feedback. */
+  --p-green-300: #7ee2a8;
+  --p-green-700: #17733a;
+  --p-red-300: #ff9b8f;
+  --p-red-700: #b42318;
+  --p-violet-300: #c7b4ff;
+  --p-violet-700: #5b3fc4;
+}
 
-  /* Feedback colors. */
-  --hh-success: #1f7a3d;
-  --hh-success-soft: #d9f2df;
-  --hh-danger: #c62828;
-  --hh-danger-soft: #ffe0e0;
-  --hh-info-soft: var(--hh-postit);
-  --hh-focus: var(--hh-purple-deep); /* focus rings and links */
-
-  /* ---- Surfaces (these change in dark mode) ---- */
+/* ---------------------------------------------------------------- 2. SEMANTIC (light theme) */
+:root {
   color-scheme: light;
-  --hh-card-top: #ffffff;
-  --hh-card-bottom: #fbf9ff;
-  --hh-note-top: #fff9cf; /* sticky-note yellow */
-  --hh-note-bottom: #ffef9c;
-  --hh-locked-top: #ece8f4; /* pressed-in "coming soon" */
-  --hh-locked-bottom: #e4dfee;
-  --hh-ok-top: #ecfaef;
-  --hh-ok-bottom: var(--hh-success-soft);
-  --hh-bad-top: #fff1f1;
-  --hh-bad-bottom: var(--hh-danger-soft);
-  --hh-soft-top: #f5f2fb;
-  --hh-soft-bottom: var(--hh-eraser);
-  --hh-input-bg: #ffffff;
-  --hh-frame: #ffffff; /* the white border around pictures */
-  --hh-btn-face: #ffffff; /* secondary buttons */
-  --hh-btn-wall: #c9c2dc;
-  --hh-badge-ink: var(--hh-ink); /* text on the pale level-colored badges */
-  --hh-nav-hover: linear-gradient(180deg, #ffffff, #f1efe6);
-  --hh-topbar-top: #e6f65f;
-  --hh-topbar-bottom: var(--hh-lime);
-  --hh-topbar-wall: #98ab16;
-  --hh-glow-a: color-mix(
-    in srgb,
-    var(--hh-lime) 38%,
-    transparent
-  ); /* soft light behind the page */
-  --hh-glow-b: color-mix(in srgb, var(--hh-purple) 16%, transparent);
-  --hh-glow-size: 0px; /* how far a card glows in its own color (only in dark mode) */
 
-  /* ---- Cinematic layers: light, lens and film (these change in dark mode) ---- */
-  --hh-spot: rgba(255, 255, 255, 0.55); /* the spotlight that follows the mouse */
-  --hh-spot-blend: soft-light;
-  --hh-vignette: rgba(60, 30, 110, 0.16); /* the darker edges of the screen */
-  --hh-beam-a: rgba(213, 234, 46, 0.3); /* two soft light beams behind the page */
-  --hh-beam-b: rgba(123, 60, 240, 0.14);
-  --hh-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --hh-grain-opacity: 0.06; /* film grain */
-  --hh-title-glow: 0 10px 30px rgba(123, 60, 240, 0.2); /* glow under big titles */
+  /* Surfaces: the page, raised panels, sunken wells. */
+  --hh-bg: var(--p-paper-50);
+  --hh-bg-glow: radial-gradient(1200px 600px at 85% -10%, rgba(245, 154, 27, 0.12), transparent 60%);
+  --hh-surface: #ffffff;
+  --hh-surface-2: var(--p-paper-100); /* sunken: inputs, code wells, tracks */
+  --hh-surface-3: var(--p-paper-200);
+  --hh-line: rgba(22, 24, 29, 0.12); /* hairline borders */
+  --hh-line-strong: rgba(22, 24, 29, 0.24);
 
-  /* ---- Spacing scale ---- */
+  /* Text. Muted text keeps at least 4.5:1 on every surface. */
+  --hh-text: var(--p-paper-900);
+  --hh-text-muted: var(--p-paper-600);
+  --hh-text-faint: #767b86; /* only for large text or decorative labels */
+  --hh-link: var(--p-ember-700);
+
+  /* Action: the ONE thing to do next. Dark ink on ember in both themes (contrast > 9:1). */
+  --hh-action: var(--p-ember-400);
+  --hh-action-hover: var(--p-ember-300);
+  --hh-action-ink: var(--p-ember-900);
+  --hh-ember-text: var(--p-ember-700); /* ember-colored text that still reads on the page */
+
+  --hh-info: var(--p-spark-700);
+  --hh-success: var(--p-green-700);
+  --hh-success-soft: #dcf3e4;
+  --hh-danger: var(--p-red-700);
+  --hh-danger-soft: #fde4e1;
+  --hh-review: var(--p-violet-700); /* "review due": a calm violet, never alarm red */
+  --hh-review-soft: #ebe5ff;
+  --hh-warning-soft: #fff0d6;
+
+  --hh-focus: #1f6feb; /* focus ring: blue in light mode, visible on every surface */
+
+  /* Code always sits on a dark well, in both themes (familiar, and Monaco matches it). */
+  --hh-code-bg: #11141b;
+  --hh-code-text: #e8ebf2;
+  --hh-code-muted: #8e97a8;
+
+  /* Depth: one soft shadow scale; the light comes from above. */
+  --hh-shadow-1: 0 1px 2px rgba(22, 24, 29, 0.06), 0 2px 8px rgba(22, 24, 29, 0.06);
+  --hh-shadow-2: 0 2px 4px rgba(22, 24, 29, 0.06), 0 12px 32px -8px rgba(22, 24, 29, 0.18);
+  --hh-shadow-3: 0 4px 8px rgba(22, 24, 29, 0.08), 0 28px 60px -16px rgba(22, 24, 29, 0.28);
+
+  /* Domain colors are made from each region's hue: hsl(var(--hue) ...). These say how. */
+  --hh-hue-sat: 62%;
+  --hh-hue-light: 40%; /* strokes and text in light mode */
+  --hh-hue-fill-light: 92%; /* tinted fills */
+}
+
+/* ---------------------------------------------------------------- DARK theme ("night forge") */
+/* Applied when I pick dark, or when my system prefers dark and I have not picked light. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --hh-bg: var(--p-ink-950);
+  --hh-bg-glow: radial-gradient(1100px 620px at 85% -10%, rgba(245, 154, 27, 0.14), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(95, 208, 236, 0.07), transparent 60%);
+  --hh-surface: var(--p-ink-850);
+  --hh-surface-2: var(--p-ink-900);
+  --hh-surface-3: var(--p-ink-700);
+  --hh-line: rgba(255, 255, 255, 0.09);
+  --hh-line-strong: rgba(255, 255, 255, 0.2);
+
+  --hh-text: var(--p-ink-50);
+  --hh-text-muted: var(--p-ink-300);
+  --hh-text-faint: var(--p-ink-400);
+  --hh-link: var(--p-ember-300);
+  --hh-ember-text: var(--p-ember-400);
+
+  --hh-info: var(--p-spark-400);
+  --hh-success: var(--p-green-300);
+  --hh-success-soft: rgba(126, 226, 168, 0.12);
+  --hh-danger: var(--p-red-300);
+  --hh-danger-soft: rgba(255, 155, 143, 0.12);
+  --hh-review: var(--p-violet-300);
+  --hh-review-soft: rgba(199, 180, 255, 0.12);
+  --hh-warning-soft: rgba(255, 181, 71, 0.12);
+  --hh-focus: var(--p-spark-300);
+
+  --hh-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --hh-shadow-2: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  --hh-shadow-3: 0 6px 12px rgba(0, 0, 0, 0.4), 0 32px 70px -20px rgba(0, 0, 0, 0.75);
+
+  --hh-hue-light: 68%;
+  --hh-hue-fill-light: 16%;
+}
+
+/* ---------------------------------------------------------------- TYPE, SPACE, SHAPE, MOTION */
+:root {
+  --hh-font-display: "Bricolage Grotesque Variable", "Segoe UI", system-ui, sans-serif;
+  --hh-font-body: "Inter Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --hh-font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  /* Older names, kept so every existing page keeps working. */
+  --hh-font: var(--hh-font-body);
+  --hh-font-heading: var(--hh-font-display);
+
+  /* Type scale. Display sizes are fluid: they shrink smoothly on phones. */
+  --hh-text-xs: 0.78rem;
+  --hh-text-sm: 0.875rem;
+  --hh-text-md: 1rem;
+  --hh-text-lg: 1.2rem;
+  --hh-text-xl: clamp(1.4rem, 1.1rem + 1vw, 1.75rem);
+  --hh-text-2xl: clamp(1.9rem, 1.3rem + 2.4vw, 2.8rem);
+  --hh-text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.6rem);
+  --hh-leading: 1.6;
+  --hh-measure: 68ch; /* comfortable reading line length */
+
+  /* Spacing: a 4px base. */
   --hh-space-1: 4px;
   --hh-space-2: 8px;
   --hh-space-3: 12px;
@@ -99,146 +171,70 @@
   --hh-space-5: 24px;
   --hh-space-6: 32px;
   --hh-space-7: 48px;
+  --hh-space-8: 72px;
 
-  /* ---- Smooth rounded corners ---- */
-  --hh-radius-sm: 12px;
-  --hh-radius-md: 20px;
-  --hh-radius-lg: 28px;
+  --hh-radius-sm: 8px;
+  --hh-radius-md: 14px;
+  --hh-radius-lg: 22px;
   --hh-radius-pill: 999px;
 
-  /* ---- Depth: the light comes from above, so shadows fall downward ---- */
-  --hh-highlight: inset 0 2px 0 rgba(255, 255, 255, 0.9); /* the bright top edge of a raised shape */
-  --hh-shadow-card:
-    0 1px 2px rgba(28, 26, 34, 0.08), 0 8px 16px -4px rgba(28, 26, 34, 0.14),
-    0 22px 40px -14px rgba(60, 30, 120, 0.22);
-  --hh-shadow-lift:
-    0 2px 4px rgba(28, 26, 34, 0.1), 0 16px 28px -6px rgba(28, 26, 34, 0.2),
-    0 36px 60px -18px rgba(60, 30, 120, 0.3);
-  --hh-shadow-inset:
-    inset 0 3px 6px rgba(28, 26, 34, 0.18), inset 0 0 0 1px rgba(28, 26, 34, 0.06); /* pressed IN */
-  --hh-edge: 6px; /* thickness of the "side wall" of a chunky button */
+  /* Motion: short, purposeful. Everything collapses to 0 under reduced motion (below). */
+  --hh-speed-fast: 120ms;
+  --hh-speed: 200ms;
+  --hh-speed-slow: 420ms;
+  --hh-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --hh-ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
 
-  /* ---- Type scale ---- */
-  --hh-font-heading: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
-  --hh-font-body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --hh-font: var(--hh-font-body);
-  --hh-font-mono: "Cascadia Code", "Fira Code", Consolas, monospace;
-  --hh-text-sm: 0.9rem;
-  --hh-text-md: 1.05rem;
-  --hh-text-lg: 1.3rem;
-  --hh-text-xl: 1.9rem;
-  --hh-text-2xl: 2.6rem;
-
-  /* ---- 3D motion ---- */
-  --hh-perspective: 900px; /* how strong the 3D tilt looks */
-  --hh-tilt: 9deg; /* the most a card leans toward the mouse */
-  --hh-speed: 140ms;
+  --hh-rail-width: 232px; /* desktop navigation rail */
+  --hh-dock-height: 68px; /* mobile navigation dock */
 }
 
-/*
-  Put data-level="3" on any element and everything inside uses that level's color.
-  Components read --hh-accent (the color), --hh-accent-ink (readable text on it),
-  --hh-accent-deep (a darker shade for side walls and edges) and --hh-tint (a pale wash).
-*/
+/* Reduced motion: from the OS, or forced on in Settings (data-motion="reduce" on <html>). */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) {
+    --hh-speed-fast: 0ms;
+    --hh-speed: 0ms;
+    --hh-speed-slow: 0ms;
+  }
+}
+:root[data-motion="reduce"] {
+  --hh-speed-fast: 0ms;
+  --hh-speed: 0ms;
+  --hh-speed-slow: 0ms;
+}
+
+/* ---------------------------------------------------------------- LEVEL COLORS (classic levels) */
+/* The 8 classic levels keep their own colors. --hh-accent is the level's color; --hh-accent-ink is
+   readable text on it. Put data-level="3" on any element to use Level 3's color inside it. */
+:root {
+  --hh-level-1: #ff5d6c;
+  --hh-level-2: #ff8f33;
+  --hh-level-3: #f6c22d;
+  --hh-level-4: #a9d93a;
+  --hh-level-5: #2fc6d4;
+  --hh-level-6: #7c6cf2;
+  --hh-level-7: #a35cf0;
+  --hh-level-8: #e5a92c;
+  --hh-accent: var(--hh-action);
+  --hh-accent-ink: var(--hh-action-ink);
+}
+[data-level="1"] { --hh-accent: var(--hh-level-1); --hh-accent-ink: #2a0005; }
+[data-level="2"] { --hh-accent: var(--hh-level-2); --hh-accent-ink: #2a1200; }
+[data-level="3"] { --hh-accent: var(--hh-level-3); --hh-accent-ink: #2a1f00; }
+[data-level="4"] { --hh-accent: var(--hh-level-4); --hh-accent-ink: #172500; }
+[data-level="5"] { --hh-accent: var(--hh-level-5); --hh-accent-ink: #00262a; }
+[data-level="6"] { --hh-accent: var(--hh-level-6); --hh-accent-ink: #0d0630; }
+[data-level="7"] { --hh-accent: var(--hh-level-7); --hh-accent-ink: #1a0333; }
+[data-level="8"] { --hh-accent: var(--hh-level-8); --hh-accent-ink: #2a1d00; }
 [data-level] {
-  --hh-accent: var(--hh-level-1);
-  --hh-accent-ink: var(--hh-ink-light);
-}
-[data-level="1"] {
-  --hh-accent: var(--hh-level-1);
-  --hh-accent-ink: var(--hh-ink-light);
-}
-[data-level="2"] {
-  --hh-accent: var(--hh-level-2);
-  --hh-accent-ink: var(--hh-ink-dark);
-}
-[data-level="3"] {
-  --hh-accent: var(--hh-level-3);
-  --hh-accent-ink: var(--hh-ink-dark);
-}
-[data-level="4"] {
-  --hh-accent: var(--hh-level-4);
-  --hh-accent-ink: var(--hh-ink-dark);
-}
-[data-level="5"] {
-  --hh-accent: var(--hh-level-5);
-  --hh-accent-ink: var(--hh-ink-dark);
-}
-[data-level="6"] {
-  --hh-accent: var(--hh-level-6);
-  --hh-accent-ink: var(--hh-ink-light);
-}
-[data-level="7"] {
-  --hh-accent: var(--hh-level-7);
-  --hh-accent-ink: var(--hh-ink-light);
-}
-[data-level="8"] {
-  --hh-accent: var(--hh-level-8);
-  --hh-accent-ink: var(--hh-ink-dark);
-}
-[data-level] {
-  --hh-accent-deep: color-mix(in srgb, var(--hh-accent) 58%, black);
-  --hh-tint: color-mix(in srgb, var(--hh-accent) 28%, white);
+  --hh-accent-soft: color-mix(in srgb, var(--hh-accent) 16%, transparent);
+  --hh-accent-text: color-mix(in srgb, var(--hh-accent) 70%, var(--hh-text));
 }
 
-/*
-  DARK THEME. The same tokens with night values. Turn it on with data-theme="dark" on the <html> tag.
-  Glow replaces the soft daylight shadows, so raised things still look raised in the dark.
-*/
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --hh-paper: #14111d;
-  --hh-ink: #f2effa; /* "ink" is the text color, so it turns light */
-  --hh-eraser: #2a2440;
-  --hh-surface: #1d1830;
-  --hh-text-muted: #b5aec8;
-  --hh-border: rgba(255, 255, 255, 0.12);
-  --hh-success: #6fe08f;
-  --hh-success-soft: #143a22;
-  --hh-danger: #ff8a8f;
-  --hh-danger-soft: #4a1a1f;
-  --hh-focus: #b99aff;
-
-  --hh-card-top: #272040;
-  --hh-card-bottom: #1e1930;
-  --hh-note-top: #574a12;
-  --hh-note-bottom: #463b0d;
-  --hh-locked-top: #221d33;
-  --hh-locked-bottom: #1b172a;
-  --hh-ok-top: #17442a;
-  --hh-bad-top: #55202a;
-  --hh-soft-top: #3a3355;
-  --hh-input-bg: #120f1c;
-  --hh-frame: #e9e4f2;
-  --hh-btn-face: #3a3355;
-  --hh-btn-wall: #191427;
-  --hh-badge-ink: #1c1a22; /* pale badges keep dark text */
-  --hh-nav-hover: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.08)
-  );
-  --hh-topbar-top: #44530c;
-  --hh-topbar-bottom: #34410a;
-  --hh-topbar-wall: #141a04;
-  --hh-glow-a: color-mix(in srgb, var(--hh-lime) 10%, transparent);
-  --hh-glow-b: color-mix(in srgb, var(--hh-purple) 34%, transparent);
-  --hh-glow-size: 34px;
-  --hh-spot: rgba(185, 154, 255, 0.2);
-  --hh-spot-blend: screen;
-  --hh-vignette: rgba(0, 0, 0, 0.6);
-  --hh-beam-a: rgba(213, 234, 46, 0.09);
-  --hh-beam-b: rgba(123, 60, 240, 0.28);
-  --hh-grain-opacity: 0.09;
-  --hh-title-glow: 0 0 30px rgba(185, 154, 255, 0.4);
-
-  --hh-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  --hh-shadow-card:
-    0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 22px -6px rgba(0, 0, 0, 0.65),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  --hh-shadow-lift:
-    0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 32px -8px rgba(0, 0, 0, 0.75),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  --hh-shadow-inset:
-    inset 0 3px 8px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+/* ---------------------------------------------------------------- REGION COLORS */
+/* Put style="--hue: 196" on an element; these give its stroke, text and fill colors. */
+[style*="--hue"] {
+  --hh-region: hsl(var(--hue) var(--hh-hue-sat) var(--hh-hue-light));
+  --hh-region-fill: hsl(var(--hue) 60% var(--hh-hue-fill-light));
+  --hh-region-glow: hsl(var(--hue) 90% 60% / 0.35);
 }

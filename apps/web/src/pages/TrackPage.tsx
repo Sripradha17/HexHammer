@@ -35,7 +35,7 @@ export function TrackPage() {
         </div>
         <img className="hero__art" src={trackArt[track.id]} alt="" />
       </div>
-      <ProgressBar level={track.accent} percent={track.percentComplete} />
+      <ProgressBar name={`${track.title} complete`} level={track.accent} percent={track.percentComplete} />
 
       <div className="strike-list">
         {track.strikes.map((strike) => (

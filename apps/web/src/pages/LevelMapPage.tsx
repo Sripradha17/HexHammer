@@ -83,7 +83,7 @@ export function LevelMapPage() {
                   <strong>{level.title}</strong>
                 </p>
                 <p className="muted">{level.description}</p>
-                <ProgressBar level={level.number} percent={level.percentComplete} />
+                <ProgressBar name={`Level ${level.number} complete`} level={level.number} percent={level.percentComplete} />
                 <p className="muted">
                   {level.completedStrikes} of {level.totalStrikes} strikes done
                 </p>
@@ -108,7 +108,7 @@ export function LevelMapPage() {
               <p>
                 <strong>{level.title}</strong>
               </p>
-              <ProgressBar percent={0} />
+              <ProgressBar name={`Level ${level.number} complete`} percent={0} />
               <TopicList topics={level.plannedStrikes} />
             </Card>
           ),
@@ -123,7 +123,7 @@ export function LevelMapPage() {
               <Card tilt level={track.accent} decoration="tack" title={track.title}>
                 <img className="level-art" src={trackArt[track.id]} alt="" />
                 <p className="muted">{track.description}</p>
-                <ProgressBar level={track.accent} percent={track.percentComplete} />
+                <ProgressBar name={`${track.title} complete`} level={track.accent} percent={track.percentComplete} />
                 <p className="muted">
                   {track.completedStrikes} of {track.totalStrikes} strikes done
                 </p>

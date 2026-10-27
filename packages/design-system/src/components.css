@@ -1,206 +1,148 @@
-/* Styles for the plain components. Only tokens (var(--hh-...)) are used. Clean 3D style: raised, lit from above. */
+/* Styles for the shared components. Only tokens (var(--hh-...)) are used. */
 
-/* ---------- Button (a chunky key you can press) ---------- */
+/* ---------------------------------------------------------------- Button */
+/* One primary per screen (ember). Secondary is a quiet outline. Ghost is text-like. */
 .hh-button {
-  /* The face color, and a darker "side wall" color under it. */
-  --face: var(--hh-accent, var(--hh-purple));
-  --wall: var(--hh-accent-deep, var(--hh-purple-deep));
-  font-family: var(--hh-font-body);
-  font-weight: 700;
-  font-size: var(--hh-text-lg);
-  min-height: 48px; /* big enough to tap */
-  padding: var(--hh-space-2) var(--hh-space-5);
-  margin-bottom: var(--hh-edge); /* room for the side wall */
-  color: var(--hh-accent-ink, var(--hh-ink-light));
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--face) 72%, white),
-    var(--face) 60%
-  );
-  border: 0;
+  --face: var(--hh-accent, var(--hh-action));
+  --ink: var(--hh-accent-ink, var(--hh-action-ink));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hh-space-2);
+  min-height: 44px; /* comfortable tap target */
+  padding: 0 var(--hh-space-5);
+  font: 650 var(--hh-text-md) / 1 var(--hh-font-body);
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  background: var(--face);
+  border: 1px solid transparent;
   border-radius: var(--hh-radius-pill);
-  box-shadow:
-    var(--hh-highlight),
-    0 var(--hh-edge) 0 var(--wall),
-    0 calc(var(--hh-edge) + 6px) 14px rgba(28, 26, 34, 0.28);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, var(--hh-shadow-1);
   cursor: pointer;
+  text-decoration: none;
   transition:
-    transform var(--hh-speed),
-    box-shadow var(--hh-speed),
-    filter var(--hh-speed);
+    transform var(--hh-speed-fast) var(--hh-ease),
+    filter var(--hh-speed-fast) var(--hh-ease),
+    background-color var(--hh-speed) var(--hh-ease);
 }
-/* Hover: rises a little and gets brighter. */
 .hh-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-  box-shadow:
-    var(--hh-highlight),
-    0 calc(var(--hh-edge) + 2px) 0 var(--wall),
-    0 calc(var(--hh-edge) + 12px) 20px rgba(28, 26, 34, 0.3);
+  filter: brightness(1.07);
+  transform: translateY(-1px);
 }
-/* Active: pushed down into the page until the side wall almost disappears. */
 .hh-button:active:not(:disabled) {
-  transform: translateY(calc(var(--hh-edge) - 1px));
-  filter: brightness(0.98);
-  box-shadow:
-    var(--hh-highlight),
-    0 1px 0 var(--wall),
-    0 2px 6px rgba(28, 26, 34, 0.25);
+  transform: translateY(1px);
+  filter: brightness(0.96);
 }
 .hh-button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
-.hh-button:focus-visible {
-  outline: 3px solid var(--hh-focus);
-  outline-offset: 3px;
-}
-
 .hh-button--secondary {
-  --face: var(--hh-btn-face);
-  --wall: var(--hh-btn-wall);
-  color: var(--hh-text);
+  --face: transparent;
+  --ink: var(--hh-text);
+  border-color: var(--hh-line-strong);
+  box-shadow: none;
+}
+.hh-button--secondary:hover:not(:disabled) {
+  background: var(--hh-surface-2);
+  filter: none;
+}
+.hh-button--ghost {
+  --face: transparent;
+  --ink: var(--hh-text-muted);
+  box-shadow: none;
+  padding: 0 var(--hh-space-3);
+}
+.hh-button--ghost:hover:not(:disabled) {
+  --ink: var(--hh-text);
+  background: var(--hh-surface-2);
+  filter: none;
 }
 .hh-button--danger {
-  --face: #e5484d;
-  --wall: #9b1c22;
-  color: var(--hh-ink-light);
+  --face: var(--hh-danger);
+  --ink: var(--hh-surface);
 }
 .hh-button--small {
-  font-size: var(--hh-text-md);
-  min-height: 44px;
-  padding: var(--hh-space-1) var(--hh-space-4);
+  min-height: 34px;
+  padding: 0 var(--hh-space-4);
+  font-size: var(--hh-text-sm);
 }
 
-/* ---------- Card (a raised panel) ---------- */
+/* ---------------------------------------------------------------- Card */
 .hh-card {
   position: relative;
   padding: var(--hh-space-5);
-  background: linear-gradient(180deg, var(--hh-card-top), var(--hh-card-bottom));
-  border: 1px solid var(--hh-border);
+  background: var(--hh-surface);
+  border: 1px solid var(--hh-line);
   border-radius: var(--hh-radius-lg);
-  /* A colored top edge (the level color), a bright highlight, and layered soft shadows. */
-  box-shadow:
-    inset 0 6px 0 var(--hh-accent, transparent),
-    var(--hh-shadow-card),
-    0 0 var(--hh-glow-size) -10px
-      color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, transparent);
+  box-shadow: var(--hh-shadow-1);
+  color: var(--hh-text);
 }
-/* A card you can lean toward the mouse. The Card component sets --hh-tilt-x and --hh-tilt-y. */
-.hh-card--tilt {
-  transform: perspective(var(--hh-perspective)) rotateX(var(--hh-tilt-x, 0deg))
-    rotateY(var(--hh-tilt-y, 0deg));
-  transition:
-    transform var(--hh-speed),
-    box-shadow 240ms;
-  will-change: transform;
-}
-.hh-card--tilt:hover {
-  box-shadow:
-    inset 0 6px 0 var(--hh-accent, transparent),
-    var(--hh-shadow-lift),
-    0 0 var(--hh-glow-size) -10px
-      color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, transparent);
+/* A level card gets a thin colored top edge, so the color means "which level", nothing more. */
+.hh-card[data-level] {
+  border-top: 3px solid var(--hh-accent);
 }
 .hh-card__title {
-  display: block;
-  width: fit-content;
   margin: 0 0 var(--hh-space-3);
-  padding: 0 var(--hh-space-1);
-  font-family: var(--hh-font-heading);
-  font-size: var(--hh-text-lg);
-  font-weight: 600;
-  line-height: 1.25;
-  /* A soft glowing marker stripe under the words. */
-  background: linear-gradient(
-    transparent 62%,
-    color-mix(in srgb, var(--hh-accent, var(--hh-eraser)) 60%, transparent) 62%
-  );
-  border-radius: 4px;
+  font: 650 var(--hh-text-lg) / 1.25 var(--hh-font-display);
+  letter-spacing: -0.01em;
+}
+.hh-card--locked {
+  background: var(--hh-surface-2);
+  box-shadow: none;
+  border-style: dashed;
+}
+.hh-card--locked .hh-card__title {
+  color: var(--hh-text-muted);
 }
 .hh-card--postit {
-  background: linear-gradient(180deg, var(--hh-note-top), var(--hh-note-bottom));
-}
-/* Locked cards look pressed IN and dimmed: you cannot use them yet. */
-.hh-card--locked {
-  background: linear-gradient(180deg, var(--hh-locked-top), var(--hh-locked-bottom));
-  box-shadow: var(--hh-shadow-inset);
-  filter: saturate(0.75) blur(0.5px); /* depth of field: things far away are a little soft */
-  transition: filter 240ms;
-}
-.hh-card--locked:hover {
-  filter: saturate(0.9) blur(0); /* point at it and it comes into focus */
-}
-/* Decorations: a glossy ribbon and a glossy pin, sitting on the top edge. */
-.hh-card--tape::before {
-  content: "";
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  width: 84px;
-  height: 18px;
-  transform: translateX(-50%);
-  border-radius: var(--hh-radius-pill);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, white),
-    var(--hh-accent, var(--hh-purple))
-  );
-  box-shadow:
-    var(--hh-highlight),
-    0 4px 8px rgba(28, 26, 34, 0.25);
-}
-.hh-card--tack::before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  width: 24px;
-  height: 24px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 32% 28%,
-    #ffffff 0,
-    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 55%, white) 20%,
-    var(--hh-accent, var(--hh-purple)) 55%,
-    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 55%, black) 100%
-  );
-  box-shadow: 0 6px 8px rgba(28, 26, 34, 0.3);
+  background: var(--hh-warning-soft);
+  border-color: color-mix(in srgb, var(--hh-action) 40%, transparent);
 }
 
-/* ---------- Badge (a small glossy pill) ---------- */
+/* ---------------------------------------------------------------- Badge */
 .hh-badge {
-  display: inline-block;
-  padding: 1px var(--hh-space-3);
-  font-family: var(--hh-font-body);
-  font-size: var(--hh-text-sm);
-  font-weight: 700;
-  color: var(--hh-badge-ink);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--hh-tint, var(--hh-postit)) 55%, white),
-    var(--hh-tint, var(--hh-postit))
-  );
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  font: 600 var(--hh-text-xs) / 1.6 var(--hh-font-body);
+  letter-spacing: 0.02em;
   border-radius: var(--hh-radius-pill);
-  box-shadow:
-    var(--hh-highlight),
-    0 2px 0 rgba(28, 26, 34, 0.14);
+  color: var(--hh-text);
+  background: var(--hh-surface-2);
+  border: 1px solid var(--hh-line);
+  white-space: nowrap;
+}
+.hh-badge[data-level] {
+  background: var(--hh-accent-soft);
+  border-color: color-mix(in srgb, var(--hh-accent) 45%, transparent);
 }
 .hh-badge--soft {
-  color: var(--hh-text);
-  background: linear-gradient(180deg, var(--hh-soft-top), var(--hh-soft-bottom));
+  color: var(--hh-text-muted);
 }
 .hh-badge--success {
-  background: linear-gradient(180deg, var(--hh-ok-top), var(--hh-ok-bottom));
   color: var(--hh-success);
+  background: var(--hh-success-soft);
+  border-color: transparent;
 }
 .hh-badge--danger {
-  background: linear-gradient(180deg, var(--hh-bad-top), var(--hh-bad-bottom));
   color: var(--hh-danger);
+  background: var(--hh-danger-soft);
+  border-color: transparent;
+}
+.hh-badge--review {
+  color: var(--hh-review);
+  background: var(--hh-review-soft);
+  border-color: transparent;
+}
+.hh-badge--ember {
+  color: var(--hh-action-ink);
+  background: var(--hh-action);
+  border-color: transparent;
 }
 
-/* ---------- ProgressBar (a glossy fill in a pressed-in track) ---------- */
+/* ---------------------------------------------------------------- Progress bar */
 .hh-progress {
   display: flex;
   align-items: center;
@@ -208,64 +150,173 @@
 }
 .hh-progress__track {
   flex: 1;
-  height: 20px;
-  overflow: hidden;
-  background: var(--hh-eraser);
+  height: 8px;
+  background: var(--hh-surface-2);
   border-radius: var(--hh-radius-pill);
-  box-shadow: var(--hh-shadow-inset);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--hh-line);
 }
 .hh-progress__fill {
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--hh-accent, var(--hh-purple)) 60%, white),
-    var(--hh-accent, var(--hh-purple)) 50%,
-    var(--hh-accent-deep, var(--hh-purple-deep))
-  );
-  border-radius: var(--hh-radius-pill);
-  box-shadow:
-    var(--hh-highlight),
-    0 1px 3px rgba(28, 26, 34, 0.3);
-  transition: width 0.4s;
+  background: var(--hh-accent, var(--hh-action));
+  border-radius: inherit;
+  transition: width var(--hh-speed-slow) var(--hh-ease);
 }
 .hh-progress__label {
-  min-width: 4ch;
-  font-family: var(--hh-font-heading);
-  font-weight: 600;
-  text-align: right;
+  min-width: 3.5ch;
+  font: 600 var(--hh-text-sm) / 1 var(--hh-font-mono);
+  color: var(--hh-text-muted);
 }
 
-/* ---------- TextArea (a writing box pressed into the page) ---------- */
-.hh-textarea {
+/* ---------------------------------------------------------------- Inputs (TextArea, Field) */
+.hh-textarea,
+.hh-input,
+.hh-select {
   width: 100%;
-  padding: var(--hh-space-3);
-  font-family: var(--hh-font-body);
-  font-size: var(--hh-text-md);
+  min-height: 44px;
+  padding: var(--hh-space-3) var(--hh-space-4);
+  font: 400 var(--hh-text-md) / 1.5 var(--hh-font-body);
   color: var(--hh-text);
-  background: var(--hh-input-bg);
-  border: 2px solid transparent;
+  background: var(--hh-surface-2);
+  border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-md);
-  box-shadow: var(--hh-shadow-inset);
+  transition: border-color var(--hh-speed-fast), box-shadow var(--hh-speed-fast);
 }
-.hh-textarea::placeholder {
-  color: color-mix(in srgb, var(--hh-text) 45%, transparent);
+.hh-textarea {
+  min-height: 110px;
+  resize: vertical;
 }
-.hh-textarea:focus {
-  outline: none; /* replaced by the purple border and ring below (still clearly visible) */
+.hh-textarea:focus,
+.hh-input:focus,
+.hh-select:focus {
+  outline: none;
   border-color: var(--hh-focus);
-  box-shadow:
-    var(--hh-shadow-inset),
-    0 0 0 4px color-mix(in srgb, var(--hh-focus) 25%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hh-focus) 30%, transparent);
+}
+.hh-field {
+  display: grid;
+  gap: var(--hh-space-2);
+}
+.hh-field__label {
+  font: 600 var(--hh-text-sm) / 1.3 var(--hh-font-body);
+}
+.hh-field__hint {
+  font-size: var(--hh-text-sm);
+  color: var(--hh-text-muted);
+}
+.hh-field__error {
+  font-size: var(--hh-text-sm);
+  font-weight: 600;
+  color: var(--hh-danger);
+}
+.hh-field--invalid .hh-input,
+.hh-field--invalid .hh-textarea,
+.hh-field--invalid .hh-select {
+  border-color: var(--hh-danger);
 }
 
-/* People who ask their computer for less motion get no lean and no slide. */
-@media (prefers-reduced-motion: reduce) {
-  .hh-button,
-  .hh-progress__fill,
-  .hh-card--tilt {
-    transition: none;
-  }
-  .hh-card--tilt {
-    transform: none;
-  }
+/* ---------------------------------------------------------------- Chip (toggle filter) */
+.hh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 var(--hh-space-4);
+  font: 550 var(--hh-text-sm) / 1 var(--hh-font-body);
+  color: var(--hh-text-muted);
+  background: transparent;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-pill);
+  cursor: pointer;
+  transition: background-color var(--hh-speed-fast), color var(--hh-speed-fast);
+}
+.hh-chip:hover {
+  color: var(--hh-text);
+  background: var(--hh-surface-2);
+}
+.hh-chip[aria-pressed="true"] {
+  color: var(--hh-bg);
+  background: var(--hh-text);
+  border-color: var(--hh-text);
+}
+
+/* ---------------------------------------------------------------- Empty state */
+.hh-empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--hh-space-3);
+  padding: var(--hh-space-6);
+  border: 1px dashed var(--hh-line-strong);
+  border-radius: var(--hh-radius-lg);
+  color: var(--hh-text-muted);
+}
+.hh-empty__title {
+  margin: 0;
+  font: 650 var(--hh-text-lg) / 1.3 var(--hh-font-display);
+  color: var(--hh-text);
+}
+.hh-empty p {
+  margin: 0;
+  max-width: 60ch;
+}
+
+/* ---------------------------------------------------------------- Dialog */
+.hh-dialog {
+  width: min(520px, calc(100vw - 32px));
+  padding: var(--hh-space-6);
+  color: var(--hh-text);
+  background: var(--hh-surface);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-shadow-3);
+}
+.hh-dialog::backdrop {
+  background: rgba(5, 7, 10, 0.6);
+  backdrop-filter: blur(2px);
+}
+.hh-dialog__title {
+  margin: 0 0 var(--hh-space-3);
+  font: 700 var(--hh-text-xl) / 1.2 var(--hh-font-display);
+}
+.hh-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--hh-space-3);
+  margin-top: var(--hh-space-5);
+}
+
+/* ---------------------------------------------------------------- Hex (the map's tile shape) */
+.hh-hex {
+  display: block;
+  overflow: visible;
+}
+.hh-hex__shape {
+  fill: var(--hh-surface);
+  stroke: var(--hh-region, var(--hh-line-strong));
+  stroke-width: 2;
+  transition: fill var(--hh-speed) var(--hh-ease), stroke-width var(--hh-speed);
+}
+.hh-hex__fill {
+  fill: var(--hh-region, var(--hh-action));
+  opacity: 0.9;
+  transition: transform var(--hh-speed-slow) var(--hh-ease);
+}
+.hh-hex--locked .hh-hex__shape {
+  fill: var(--hh-surface-2);
+  stroke-dasharray: 5 5;
+  stroke: var(--hh-line-strong);
+}
+.hh-hex--review .hh-hex__ring {
+  stroke: var(--hh-review);
+  stroke-width: 2.5;
+  stroke-dasharray: 3 4;
+  fill: none;
+}
+
+/* ---------------------------------------------------------------- Focus (everywhere) */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--hh-focus);
+  outline-offset: 2px;
+  border-radius: 6px;
 }

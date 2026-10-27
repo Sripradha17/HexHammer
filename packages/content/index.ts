@@ -60,3 +60,6 @@ export interface TrackMeta {
 }
 
 export const curriculum = curriculumJson as { levels: LevelMeta[]; tracks: TrackMeta[] };
+
+// THE ATLAS: the 16-domain curriculum (domains, topics, glossary, audit). See atlas/types.ts.
+export * from "./atlas";

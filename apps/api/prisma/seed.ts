@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
 import { allLessons, curriculum, interviewPacks } from "@hexhammer/content";
+import { DEFAULT_SOURCES, FIXTURE_SOURCES } from "../src/radar/defaultSources";
 
 config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)) });
 
@@ -68,8 +69,24 @@ async function main() {
     }
   }
 
+  // 4. Tech Radar sources. Created as "unverified" (or left alone if they already exist, so my
+  // edits, enable/disable choices and health history are kept). `npm run radar:validate` then
+  // fetches each one and records whether it really works. Fixture sources are local test files.
+  for (const source of [...DEFAULT_SOURCES, ...FIXTURE_SOURCES]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { briefUrl, ...data } = source;
+    await db.techSource.upsert({
+      where: { url: source.url },
+      update: {},
+      create: { ...data, validationStatus: source.kind === "fixture" ? "valid" : "unverified" },
+    });
+  }
+
+  // 5. My preferences row (defaults), if it does not exist yet.
+  await db.preference.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } });
+
   console.log(
-    `Seeded ${curriculum.levels.length} levels, ${allLessons.length} strikes and ${cardCount} flashcards.`,
+    `Seeded ${curriculum.levels.length} levels, ${allLessons.length} strikes, ${cardCount} flashcards and ${DEFAULT_SOURCES.length + FIXTURE_SOURCES.length} radar sources.`,
   );
 }
 

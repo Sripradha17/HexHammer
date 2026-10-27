@@ -24,7 +24,12 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules,
   },
   {
-    files: ["apps/api/**/*.ts", "apps/api/**/*.mjs", "apps/web/scripts/**/*.mjs", "*.config.{js,ts}"],
+    files: ["apps/api/**/*.ts", "apps/api/**/*.mjs", "apps/web/scripts/**/*.mjs", "*.config.{js,ts}", "scripts/**/*.mjs", "e2e/**/*.ts", "packages/content/scripts/**/*.ts"],
     languageOptions: { globals: globals.node },
+  },
+  {
+    // The screenshot script runs some code inside the browser page (page.evaluate).
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 );

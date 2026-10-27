@@ -1,8 +1,8 @@
-/* One file to import: fonts, then tokens, then component styles. */
-@import "@fontsource/fredoka/600.css";
-@import "@fontsource/fredoka/700.css";
-@import "@fontsource/nunito/400.css";
-@import "@fontsource/nunito/600.css";
-@import "@fontsource/nunito/700.css";
+/* One file to import: fonts, then tokens, then component styles. All fonts are bundled locally
+   (Fontsource), so the app works fully offline. */
+@import "@fontsource-variable/bricolage-grotesque/index.css";
+@import "@fontsource-variable/inter/index.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/600.css";
 @import "./tokens.css";
 @import "./components.css";

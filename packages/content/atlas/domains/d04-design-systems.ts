@@ -1,0 +1,141 @@
+// Domain 4: Design Systems and UI Engineering.
+import { defineDomain, outline } from "../outline";
+import { dsDesignTokens } from "../topics/ds-design-tokens";
+
+export const d04 = defineDomain(
+  {
+    id: "ds",
+    number: 4,
+    title: "Design Systems & UI Engineering",
+    short: "Design Systems",
+    tagline: "Turn taste into a reusable, accessible, versioned system of decisions and components.",
+    story:
+      "A design system is product code that other teams depend on. It needs the same rigor as an API: clear contracts, tests, versions and a way to change without breaking anyone.",
+    hue: 316,
+    col: 3,
+    row: 0,
+    unlockedBy: ["fe"],
+  },
+  [
+    {
+      id: "ds-foundations",
+      title: "Visual foundations",
+      summary: "Hierarchy, layout, type, color and tokens.",
+      topics: [
+        outline({
+          id: "ds-visual-hierarchy",
+          title: "Visual hierarchy, layout, spacing and alignment",
+          difficulty: "foundation",
+          objectives: ["Use size, weight, space and position to show what matters first.", "Apply a spacing scale and grid consistently."],
+          subtopics: ["Hierarchy", "Spacing scales", "Grids", "Alignment", "Composition"],
+        }),
+        outline({
+          id: "ds-type-color",
+          title: "Typography, readability, color and contrast",
+          difficulty: "foundation",
+          objectives: ["Choose type sizes, line lengths and line heights for readability.", "Build an accessible color palette with roles."],
+          prerequisites: ["ds-visual-hierarchy"],
+          subtopics: ["Type scales", "Line length", "Color roles", "Contrast"],
+        }),
+        dsDesignTokens,
+      ],
+    },
+    {
+      id: "ds-components",
+      title: "Components and patterns",
+      summary: "Composition, variants, states and the common UI patterns.",
+      topics: [
+        outline({
+          id: "ds-component-architecture",
+          title: "Reusable components, composition and atomic design",
+          difficulty: "core",
+          objectives: ["Design component APIs that compose instead of growing endless props.", "Explain atomic design and its limits."],
+          prerequisites: ["ds-design-tokens", "fe-react-components-state"],
+          subtopics: ["Composition", "Slots/children", "Atoms to organisms", "Prop explosion"],
+          strikeIds: ["l4-s17"],
+        }),
+        outline({
+          id: "ds-variants-states",
+          title: "Variants, states and interaction states",
+          difficulty: "core",
+          objectives: ["Define every state a component can be in (hover, focus, active, disabled, loading, error).", "Model variants without combinatorial explosion."],
+          prerequisites: ["ds-component-architecture"],
+          subtopics: ["State matrices", "Focus-visible", "Disabled vs read-only", "Loading states"],
+        }),
+        outline({
+          id: "ds-patterns",
+          title: "Forms, tables, navigation, dialogs and notifications",
+          difficulty: "core",
+          objectives: ["Build accessible dialogs, menus and tables.", "Choose the right feedback pattern (inline, toast, banner, dialog)."],
+          prerequisites: ["ds-variants-states", "web-accessibility"],
+          subtopics: ["Dialogs and focus traps", "Tables", "Navigation", "Toasts and live regions"],
+        }),
+        outline({
+          id: "ds-a11y-keyboard",
+          title: "WCAG, focus, keyboard and screen-reader support",
+          difficulty: "core",
+          objectives: ["Audit a component against WCAG success criteria.", "Make a custom widget fully keyboard and screen-reader operable."],
+          prerequisites: ["web-accessibility"],
+          subtopics: ["WCAG principles", "Focus management", "ARIA patterns", "Screen reader testing"],
+          strikeIds: ["l4-s08", "l4-s11"],
+        }),
+        outline({
+          id: "ds-motion",
+          title: "Motion design and reduced motion",
+          difficulty: "core",
+          objectives: ["Use motion to explain change, not to decorate.", "Respect prefers-reduced-motion everywhere."],
+          prerequisites: ["ds-variants-states"],
+          subtopics: ["Easing and duration", "Meaningful transitions", "Reduced motion", "Performance of animations"],
+        }),
+        outline({
+          id: "ds-responsive-systems",
+          title: "Responsive design systems",
+          difficulty: "core",
+          objectives: ["Design components that adapt to their container.", "Define breakpoints and density as tokens."],
+          prerequisites: ["web-responsive", "ds-component-architecture"],
+          subtopics: ["Container queries", "Fluid tokens", "Density"],
+        }),
+      ],
+    },
+    {
+      id: "ds-operations",
+      title: "Operating a design system",
+      summary: "Workbenches, visual tests, handoff and governance.",
+      topics: [
+        outline({
+          id: "ds-workbench",
+          title: "Storybook and component workbenches",
+          difficulty: "core",
+          objectives: ["Document every component state in a workbench.", "Use stories as test fixtures."],
+          prerequisites: ["ds-variants-states"],
+          subtopics: ["Stories", "Controls", "Docs pages", "Interaction tests"],
+        }),
+        outline({
+          id: "ds-visual-regression",
+          title: "Visual regression testing",
+          difficulty: "advanced",
+          objectives: ["Catch unintended visual changes with screenshot diffs.", "Keep visual tests stable and fast."],
+          prerequisites: ["ds-workbench", "test-pyramid-strategy"],
+          subtopics: ["Screenshot diffs", "Thresholds", "Stable fixtures", "Review workflow"],
+        }),
+        outline({
+          id: "ds-handoff",
+          title: "Design handoff: translating designs into code",
+          difficulty: "core",
+          objectives: ["Read a design spec and map it to tokens and components.", "Ask the questions a design leaves unanswered (states, edge cases, content length)."],
+          prerequisites: ["ds-component-architecture"],
+          subtopics: ["Specs and redlines", "Edge cases", "Content stress tests"],
+        }),
+        outline({
+          id: "ds-governance",
+          title: "Documentation, governance, versioning and deprecation",
+          difficulty: "advanced",
+          objectives: ["Run a contribution and review process for a design system.", "Release breaking changes with deprecation and migration paths."],
+          prerequisites: ["ds-design-tokens"],
+          subtopics: ["Contribution model", "SemVer", "Deprecation", "Adoption metrics"],
+          capstone: true,
+        }),
+      ],
+    },
+  ],
+);

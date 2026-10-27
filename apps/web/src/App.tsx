@@ -1,15 +1,33 @@
-// The app shell: top bar (with the streak) and the four pages.
-import { useEffect, useLayoutEffect, useState } from "react";
-import { Link, Route, Routes, useLocation } from "react-router";
-import { Badge, Button } from "@hexhammer/design-system";
-import { api, type StreakInfo } from "./api";
-import { art } from "./mascots";
-import { CinemaLayers } from "./components/CinemaLayers";
+// The app shell: navigation (a rail on wide screens, a floating dock on phones), the level badge,
+// theme and motion settings, and every page's route.
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { NavLink, Route, Routes, useLocation } from "react-router";
+import { atlas, type Me } from "./atlasApi";
+import { api } from "./api";
+import { RewardsProvider, useRewards } from "./components/Rewards";
+import { MissionControlPage } from "./pages/MissionControlPage";
+import { WorldMapPage } from "./pages/WorldMapPage";
+import { RegionPage } from "./pages/RegionPage";
+import { TopicStudioPage } from "./pages/TopicStudioPage";
+import { ReviewsPage } from "./pages/ReviewsPage";
+import { InterviewArenaPage } from "./pages/InterviewArenaPage";
+import { ProjectsPage } from "./pages/ProjectsPage";
+import { ProjectEditorPage } from "./pages/ProjectEditorPage";
+import { PortfolioPage } from "./pages/PortfolioPage";
+import { GlossaryPage } from "./pages/GlossaryPage";
+import { RadarPage } from "./pages/RadarPage";
+import { RadarUpdatePage } from "./pages/RadarUpdatePage";
+import { ProposalPage } from "./pages/ProposalPage";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
+import { SettingsPage } from "./pages/SettingsPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { Loading } from "./components/PageState";
 import { LevelMapPage } from "./pages/LevelMapPage";
 import { LevelPage } from "./pages/LevelPage";
 import { TrackPage } from "./pages/TrackPage";
-import { StrikePage } from "./pages/StrikePage";
-import { InterviewPage } from "./pages/InterviewPage";
+// The two pages with a code editor are loaded only when opened (the editor is large).
+const StrikePage = lazy(() => import("./pages/StrikePage").then((m) => ({ default: m.StrikePage })));
+const InterviewPage = lazy(() => import("./pages/InterviewPage").then((m) => ({ default: m.InterviewPage })));
 
 type Theme = "light" | "dark";
 const THEME_KEY = "hexhammer-theme";
@@ -25,12 +43,50 @@ function firstTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-export function App() {
-  const [streak, setStreak] = useState<StreakInfo | null>(null);
-  const [theme, setTheme] = useState<Theme>(firstTheme);
-  const location = useLocation(); // a new address means a new "scene"
+// The main places, in order. The first five also appear in the phone dock.
+const NAV = [
+  { to: "/", label: "Mission Control", glyph: "◎", end: true },
+  { to: "/map", label: "World Map", glyph: "⬡" },
+  { to: "/reviews", label: "Reviews", glyph: "↻" },
+  { to: "/interview", label: "Interview Arena", glyph: "✎" },
+  { to: "/projects", label: "Projects", glyph: "⚒" },
+  { to: "/portfolio", label: "Portfolio", glyph: "▦" },
+  { to: "/glossary", label: "Glossary", glyph: "Aa" },
+  { to: "/radar", label: "Tech Radar", glyph: "◉" },
+  { to: "/analytics", label: "Analytics", glyph: "∿" },
+  { to: "/levels", label: "Classic levels", glyph: "▤" },
+  { to: "/settings", label: "Settings", glyph: "⚙" },
+];
 
-  // Put the theme on the <html> tag (the CSS reads it there) and remember it.
+function LevelBadge() {
+  const { xpVersion } = useRewards();
+  const [me, setMe] = useState<Me | null>(null);
+  useEffect(() => {
+    atlas.me().then(setMe).catch(() => setMe(null));
+  }, [xpVersion]);
+  if (!me) return null;
+  const pct = Math.round((me.xpIntoLevel / me.xpForNextLevel) * 100);
+  return (
+    <NavLink to="/analytics" className="level-badge" title={`${me.xp} XP in total. ${me.xpForNextLevel - me.xpIntoLevel} XP to level ${me.level + 1}.`}>
+      <span className="level-badge__level">Lv {me.level}</span>
+      <span className="level-badge__bar" aria-hidden="true">
+        <span style={{ width: `${pct}%` }} />
+      </span>
+      <span className="level-badge__xp">
+        {me.xp} XP<span className="visually-hidden">, {pct}% of the way to level {me.level + 1}</span>
+      </span>
+      {me.streak.current > 0 && <span className="level-badge__streak">{me.streak.current}-day streak</span>}
+    </NavLink>
+  );
+}
+
+function Shell() {
+  const [theme, setTheme] = useState<Theme>(firstTheme);
+  const location = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
+  const firstRender = useRef(true);
+
+  // Put the theme on <html> (the CSS reads it there) and remember it.
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
@@ -40,95 +96,140 @@ export function App() {
     }
   }, [theme]);
 
-  // Mouse parallax: tell the CSS where the mouse is, from -1 (left / top) to 1 (right / bottom).
+  // Motion preference from Settings ("system" leaves it to the operating system).
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let frame = 0;
-    function onMove(event: MouseEvent) {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const root = document.documentElement;
-        root.style.setProperty(
-          "--mouse-x",
-          String((event.clientX / window.innerWidth) * 2 - 1),
-        );
-        root.style.setProperty(
-          "--mouse-y",
-          String((event.clientY / window.innerHeight) * 2 - 1),
-        );
-        // Where the spotlight shines, in pixels.
-        root.style.setProperty("--spot-x", `${event.clientX}px`);
-        root.style.setProperty("--spot-y", `${event.clientY}px`);
-      });
-    }
-    window.addEventListener("mousemove", onMove);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(frame);
-    };
+    atlas
+      .preferences()
+      .then((p) => {
+        if (p.motion === "system") delete document.documentElement.dataset.motion;
+        else document.documentElement.dataset.motion = p.motion;
+      })
+      .catch(() => undefined);
   }, []);
 
-  // Ask the API for the streak when the app opens.
+  // On every page change: move keyboard focus to the main area (so screen readers announce the new
+  // page) and scroll to the top. Skipped on the first load.
   useEffect(() => {
-    api
-      .getStreak()
-      .then(setStreak)
-      .catch(() => setStreak(null));
-  }, []);
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0 });
+    mainRef.current?.focus({ preventScroll: true });
+  }, [location.pathname]);
+
+  // Keep the old streak endpoint warm for the classic pages (they call it after progress).
+  const refreshStreak = () => api.getStreak().catch(() => undefined);
 
   return (
-    <>
-      <CinemaLayers />
-      <div className="app">
-        <header className="topbar">
-          <Link to="/" className="topbar__logo">
-            <img className="logo-img" src={art.logo} alt="" width={44} height={44} />{" "}
-            Hexhammer
-          </Link>
-          <nav className="topbar__nav">
-            <Link to="/">Level Map</Link>
-            <Link to="/interview">Interview</Link>
-          </nav>
-          <div className="topbar__right">
-            <Badge
-              tone={streak?.doneToday ? "success" : "soft"}
-              title="Days in a row that you practiced"
-            >
-              {streak?.current ?? 0} day streak
-            </Badge>
-            <Button
-              size="small"
-              variant="secondary"
-              aria-pressed={theme === "dark"}
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "dark" ? "Light mode" : "Dark mode"}
-            </Button>
-          </div>
-        </header>
+    <div className="shell">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
 
-        <main className="page">
-          <div key={location.pathname} className="scene">
-            <Routes>
-              <Route path="/" element={<LevelMapPage />} />
-              <Route path="/level/:number" element={<LevelPage />} />
-              <Route path="/track/:id" element={<TrackPage />} />
-              <Route
-                path="/strike/:id"
-                element={
-                  <StrikePage onProgress={() => api.getStreak().then(setStreak)} />
-                }
-              />
-              <Route
-                path="/interview"
-                element={
-                  <InterviewPage onProgress={() => api.getStreak().then(setStreak)} />
-                }
-              />
-            </Routes>
-          </div>
-        </main>
-      </div>
-    </>
+      <nav className="rail" aria-label="Main">
+        <NavLink to="/" className="brand" end>
+          <svg className="brand__mark" viewBox="0 0 100 100" aria-hidden="true">
+            <polygon points="50,4 92,27 92,73 50,96 8,73 8,27" />
+            <path d="M35 30 V70 M65 30 V70 M35 50 H65" />
+          </svg>
+          <span className="brand__name">Hexhammer</span>
+        </NavLink>
+        <LevelBadge />
+        <ul className="rail__list">
+          {NAV.map((item) => (
+            <li key={item.to}>
+              <NavLink to={item.to} end={item.end} className="rail__link">
+                <span className="rail__glyph" aria-hidden="true">
+                  {item.glyph}
+                </span>
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+        <button
+          type="button"
+          className="theme-toggle"
+          aria-pressed={theme === "dark"}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          {theme === "dark" ? "☀ Light mode" : "☾ Dark mode"}
+        </button>
+      </nav>
+
+      {/* Phone navigation: a floating dock with the five most-used places plus "More". */}
+      <nav className="dock" aria-label="Quick">
+        {NAV.slice(0, 5).map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.end} className="dock__link">
+            <span aria-hidden="true">{item.glyph}</span>
+            <span className="dock__label">{item.label.split(" ")[0]}</span>
+          </NavLink>
+        ))}
+        <NavLink to="/more" className="dock__link">
+          <span aria-hidden="true">⋯</span>
+          <span className="dock__label">More</span>
+        </NavLink>
+      </nav>
+
+      <main id="main" ref={mainRef} tabIndex={-1} className="main">
+        <div key={location.pathname} className="scene">
+          <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path="/" element={<MissionControlPage />} />
+            <Route path="/map" element={<WorldMapPage />} />
+            <Route path="/map/:regionId" element={<RegionPage />} />
+            <Route path="/topic/:id" element={<TopicStudioPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/interview" element={<InterviewArenaPage />} />
+            <Route path="/interview/flashcards" element={<InterviewPage onProgress={refreshStreak} />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/new" element={<ProjectEditorPage />} />
+            <Route path="/projects/:id" element={<ProjectEditorPage />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/glossary" element={<GlossaryPage />} />
+            <Route path="/radar" element={<RadarPage />} />
+            <Route path="/radar/updates/:id" element={<RadarUpdatePage />} />
+            <Route path="/radar/proposals/:id" element={<ProposalPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/more" element={<MorePage />} />
+            <Route path="/levels" element={<LevelMapPage />} />
+            <Route path="/level/:number" element={<LevelPage />} />
+            <Route path="/track/:id" element={<TrackPage />} />
+            <Route path="/strike/:id" element={<StrikePage onProgress={refreshStreak} />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+          </Suspense>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// "More" on phones: every place that does not fit in the dock.
+function MorePage() {
+  return (
+    <div className="page-narrow">
+      <p className="eyebrow">Navigation</p>
+      <h1 className="page-title">Everywhere else</h1>
+      <ul className="more-list">
+        {NAV.slice(5).map((item) => (
+          <li key={item.to}>
+            <NavLink to={item.to} className="more-list__link">
+              <span aria-hidden="true">{item.glyph}</span> {item.label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <RewardsProvider>
+      <Shell />
+    </RewardsProvider>
   );
 }

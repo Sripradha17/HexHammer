@@ -13,13 +13,30 @@ Hexhammer is a free, open-source, browser-based classroom, with a real back end 
 
 The full charter is in [CLAUDE.md](CLAUDE.md) (identical copies: [TUTOR_RULES.md](TUTOR_RULES.md), [.github/copilot-instructions.md](.github/copilot-instructions.md)).
 
-## What is in Phase 1
+## What is in the app
 
-- Level Map with 8 level cards (Level 1 open, 2-8 and three tracks shown as "coming soon"), % complete and a daily streak
-- 130 strikes (10 in Level 1, 16 in Level 2, 22 in Level 3, 14 in the DSA track, 17 in Level 4, all 37 in Level 5, all 9 in the Professional Skills track, 5 in Level 6 so far) with a Monaco editor, auto-save, tests, 3 hints and a gated "reveal"
-- Level 4 runs in a sandboxed iframe so you see your actual web page live as you type; Level 5 is content-complete and runs real Express code (including real WebSockets, file uploads and GraphQL), and real SQL against a throwaway in-memory database; Level 6 runs real React (see "Five code runners" below)
-- Interview page with a level switcher: Say-It flashcards (spaced repetition), one Solve-It problem and a STAR prompt, for Levels 1 through 5
-- Design system (tokens + Button, Card, Badge, ProgressBar)
+Hexhammer has two layers that work together:
+
+- **The Atlas** (new): a 16-domain curriculum map with Mission Control, a World Map, a Learning Studio, labs, assessments, spaced reviews, an Interview Arena, a Project Workshop and Portfolio, a Glossary, a Technology Radar, Analytics and Settings.
+- **The classic levels** (lessons unchanged): 130 hand-typing "strikes" with a Monaco editor, tests, 3 hints and a gated reveal, in five code runners (see below). Atlas topics link to these strikes for their coding exercises.
+
+| Area | What it does | Where |
+| --- | --- | --- |
+| Mission Control | Next mission, reviews due, active project, latest achievement, relevant radar items, level and XP | `/` |
+| World Map | 16 hexagon regions filled by real progress, unlock paths, locked/review states; also listed as a table | `/map`, `/map/:region` |
+| Learning Studio | Story → mental model → lesson one section at a time → worked examples you step through → lab → exercises → assessment → project → interview → transparent mastery rules → references → "what changed" | `/topic/:id` |
+| Labs (16) | Big O, bits and bytes, event loop, HTTP journey, middleware pipeline, LRU cache, message queue, SQL joins, contrast, CI pipeline, injection, logs and traces, decision boundary, embeddings, RAG, prompt-injection defence. Real computation; simulations say so. | inside topics |
+| Reviews | Spaced repetition with confidence ratings; misses come back tomorrow, nothing resets | `/reviews` |
+| Interview Arena | Searchable bank (143 questions). Answer in your own words before the model answer is revealed; your self-rating schedules reviews | `/interview` |
+| Projects + Portfolio | Templates from topics, milestones, tasks, tests, GitHub/demo URLs (format-checked, never fetched), evidence required to complete, Markdown export | `/projects`, `/portfolio` |
+| Glossary | 90 terms: plain definition, why it matters, example, where you meet it, a line to say in a meeting, linked lessons | `/glossary` |
+| Tech Radar | 13 live sources + test fixtures, rule-based classification, review queue, proposals, lesson versions, audit trail | `/radar` |
+| Analytics | Only real numbers: lessons, assessments, review success, mastery by region, XP per week, what needs practice, achievements, history | `/analytics` |
+| Settings | Goals, path, difficulty, review intensity, motion, notifications, radar categories, theme, data export | `/settings` |
+
+**Honest status:** the curriculum is not finished. 17 of 270 topics are fully written; the rest are outlines with objectives and linked strikes. Every written topic's interview bank is below its 15-question target. See [docs/curriculum/coverage-report.md](docs/curriculum/coverage-report.md) and [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+
+More docs: [Architecture](docs/ARCHITECTURE.md) · [Curriculum guide](docs/CURRICULUM_GUIDE.md) · [Tech Radar guide](docs/TECH_RADAR.md) · [Design references and design system](docs/design-references/README.md) · [Screenshots](docs/screenshots/README.md)
 
 ## Setup
 
@@ -30,11 +47,21 @@ cp .env.example .env         # once (Windows PowerShell: Copy-Item .env.example 
 docker compose up -d         # starts PostgreSQL 16
 npm install
 npx prisma migrate dev       # creates the tables
-npm run seed                 # loads levels, strikes and flashcards
+npm run seed                 # levels, strikes, flashcards and radar sources (never touches your progress)
 npm run dev                  # web on http://localhost:5173, API on http://localhost:4000
 ```
 
-Other commands: `npm test`, `npm run typecheck`, `npm run lint`, `npm run format`.
+| Command | What it does |
+| --- | --- |
+| `npm test` | unit + integration tests (integration uses a throwaway `hexhammer_test` schema; skipped, and reported, if Postgres is down) |
+| `npm run test:e2e` | the 20 user journeys in a real browser (own API on :4190, own `hexhammer_e2e` schema). First time: `npx playwright install chromium` |
+| `npm run curriculum:check` | audits the Atlas and writes `docs/curriculum/coverage-report.md` |
+| `npm run radar:validate` | fetches every radar source once and records valid/invalid (needs internet) |
+| `npm run typecheck`, `npm run lint`, `npm run format` | the usual |
+
+**Optional local AI:** install [Ollama](https://ollama.com) and run `ollama pull llama3.2`. The radar's "Ask the local model" button then works. Nothing else needs it, and no paid API is ever called.
+
+**Backups:** Settings → "Download my data (JSON)" exports everything you have done. For a full database backup run `docker exec hexhammer-db pg_dump -U hexhammer hexhammer > backup.sql`, and restore with `docker exec -i hexhammer-db psql -U hexhammer hexhammer < backup.sql`.
 
 ## How to do a strike
 
@@ -66,25 +93,26 @@ At the end of each level, delete one piece of this app and rebuild it by hand fr
 | 5     | Validation and error-handling middleware in `apps/api/src/middleware` |
 | 6     | `Button` and `Card` in `packages/design-system`                       |
 
-The other levels' pieces are listed in `packages/content/curriculum.json`.
+The other levels' pieces are listed in `packages/content/curriculum.json`. Good Atlas pieces to rebuild by hand: `nextReview` and `masteryChecklist` in `apps/api/src/atlas/rules.ts`, `parseFeed` in `apps/api/src/radar/feed.ts`, and the LRU cache in `apps/web/src/labs/CacheLab.tsx`.
 
 ## Project layout
 
 ```
-apps/web               Vite + React + TypeScript (Monaco editor, code runner in a Web Worker)
-apps/api               Express + TypeScript + Prisma (schema, migration, seed)
-packages/content       curriculum.json and the Level 1 lessons
-packages/design-system tokens and the four plain components
-docs/ROADMAP.md        phases and runner types
+apps/web               Vite + React + TypeScript: shell, Atlas pages, labs, classic strike pages, code runners
+apps/api               Express + TypeScript + Prisma: progress, projects, radar + scheduler, local-only runners
+packages/content       classic strikes (levels/tracks) and the 16-domain Atlas (atlas/) with its audit
+packages/design-system "Forge Atlas" tokens and accessible components
+e2e/                   Playwright user journeys
+docs/                  architecture, curriculum and radar guides, design references, screenshots, roadmap
 ```
 
 ## API notes
 
-The nine routes from the brief, plus one extra: `GET /strikes/:id/solution`. It returns the solution only after 2 failed runs, so solutions never travel to the browser early. `Progress.attempts` counts failed runs.
+Classic routes: levels, strikes, flashcards, streak, and `GET /strikes/:id/solution` (only after 2 failed runs, so solutions never reach the browser early). New routes live under `/atlas/*`, `/projects/*` and `/radar/*`; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Atlas answers (checks, assessments, model answers) are likewise only returned after you answer.
 
 ## Safety
 
-This app has no login. It is for **one local user**. Do not deploy it publicly.
+This app has no login. It is for **one local user**. Do not deploy it publicly: it includes local-only code runners, and its API has no authentication. While the API runs, the Tech Radar fetches public web pages and APIs (set `RADAR_SCHEDULER=off` in `.env` to stop that). Everything it downloads is stored as plain text and never executed.
 
 ## License
 

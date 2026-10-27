@@ -83,3 +83,282 @@ model InterviewCard {
 model StreakDay {
   date String @id // "YYYY-MM-DD" in local time
 }
+
+// =====================================================================================
+// THE ATLAS (added in the Forge Atlas rebuild). Every table below is NEW; nothing above changed,
+// so all existing progress, notes, flashcards and streak days are kept exactly as they were.
+// Curriculum CONTENT lives in code (packages/content/atlas). The database only stores what I DO.
+// =====================================================================================
+
+// My settings. Single local learner, so there is exactly one row (id = 1).
+model Preference {
+  id                Int      @id @default(1)
+  dailyGoalMinutes  Int      @default(30)
+  weeklyGoalTopics  Int      @default(2)
+  difficulty        String   @default("core") // foundation | core | advanced: which topics are suggested first
+  motion            String   @default("system") // system | reduce | full
+  reviewIntensity   String   @default("normal") // relaxed | normal | intense: scales the spaced-review gaps
+  preferredDomainId String? // the learning path I want suggestions from first
+  strictUnlocking   Boolean  @default(false) // true = locked regions cannot be opened at all
+  notifyReviews     Boolean  @default(true) // show "reviews due" on Mission Control
+  notifyRadar       Boolean  @default(true) // show tech radar alerts on Mission Control
+  radarCategories   Json     @default("[\"security\",\"framework\",\"ai-platform\",\"cloud\",\"devops\",\"standards\",\"publication\"]")
+  updatedAt         DateTime @updatedAt
+}
+
+// My progress on one Atlas topic. Keyed by topic id ONLY (never by content version), so a
+// curriculum update can never reset it.
+model TopicProgress {
+  topicId             String    @id
+  firstSeenAt         DateTime  @default(now())
+  lessonReadAt        DateTime? // every lesson section opened (reading alone is NOT mastery)
+  exercisesDone       Json      @default("[]") // exercise keys, e.g. "predict:cs-big-o-p1", "lab:big-o"
+  bestAssessmentScore Float? // 0..1
+  assessmentPassedAt  DateTime?
+  reviewsPassed       Int       @default(0)
+  masteredAt          DateTime?
+  updatedAt           DateTime  @updatedAt
+}
+
+// Every time I submit an end-of-topic assessment (kept, so analytics show real history).
+model AssessmentAttempt {
+  id             Int      @id @default(autoincrement())
+  topicId        String
+  contentVersion Int
+  score          Float // 0..1
+  passed         Boolean
+  answers        Json // { questionId: chosenIndex }
+  createdAt      DateTime @default(now())
+
+  @@index([topicId])
+}
+
+// Every interview question I answer, in my own words, BEFORE seeing the model answer.
+model QuestionAttempt {
+  id          Int      @id @default(autoincrement())
+  questionId  String
+  topicId     String
+  answerText  String
+  elementsHit Json     @default("[]") // which expected elements I said I covered
+  selfRating  String // missed | partial | nailed
+  confidence  Int // 1..5, how sure I felt BEFORE revealing
+  createdAt   DateTime @default(now())
+
+  @@index([questionId])
+  @@index([topicId])
+}
+
+// One spaced-repetition schedule: a topic (after its assessment is passed) or a single question.
+model ReviewItem {
+  id             Int         @id @default(autoincrement())
+  kind           String // topic | question
+  refId          String // topic id or question id
+  topicId        String
+  step           Int         @default(0) // index into the topic's review gaps
+  dueAt          DateTime
+  lastResult     String? // good | hard | missed
+  lastReviewedAt DateTime?
+  createdAt      DateTime    @default(now())
+  logs           ReviewLog[]
+
+  @@unique([kind, refId])
+  @@index([dueAt])
+}
+
+// Performance history for every review (with my confidence). Never deleted.
+model ReviewLog {
+  id           Int        @id @default(autoincrement())
+  reviewItemId Int
+  reviewItem   ReviewItem @relation(fields: [reviewItemId], references: [id], onDelete: Cascade)
+  result       String // good | hard | missed
+  confidence   Int // 1..5
+  createdAt    DateTime   @default(now())
+}
+
+// XP is a log of real things I did. `key` is unique, so the SAME action can never pay twice.
+model XpEvent {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // e.g. "assessment-pass:cs-big-o"
+  amount    Int
+  reason    String
+  topicId   String?
+  createdAt DateTime @default(now())
+}
+
+model Achievement {
+  id         String   @id // e.g. "first-mastery" (rules in apps/api/src/atlas/achievements.ts)
+  unlockedAt DateTime @default(now())
+  detail     String
+}
+
+// My learning history: one row per meaningful thing that happened, mistakes included.
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  type      String // lesson-read | exercise | assessment | review | interview | project | milestone | radar
+  refId     String
+  topicId   String?
+  detail    Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// A project I am building (Project Workshop + Portfolio). Repository and demo URLs are only
+// STORED and format-checked. This app never claims to have inspected, built or run them.
+model Project {
+  id                 Int                @id @default(autoincrement())
+  title              String
+  description        String
+  topicId            String?
+  domainId           String?
+  type               String // exercise | debugging-lab | implementation | architecture | application
+  difficulty         String // foundation | core | advanced
+  status             String             @default("planned") // idea | planned | in_progress | blocked | complete | archived
+  objectives         Json               @default("[]")
+  prerequisites      Json               @default("[]")
+  requirements       Json               @default("[]")
+  acceptanceCriteria Json               @default("[]")
+  technologies       Json               @default("[]")
+  tasks              Json               @default("[]") // [{ title, done }]
+  tests              Json               @default("[]") // [{ title, done }]
+  stretchGoals       Json               @default("[]")
+  repoUrl            String?
+  demoUrl            String?
+  evidence           String? // what proves it is done, in my own words
+  reflection         String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  completedAt        DateTime?
+  milestones         ProjectMilestone[]
+}
+
+model ProjectMilestone {
+  id        Int       @id @default(autoincrement())
+  projectId Int
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  order     Int
+  title     String
+  doneWhen  String
+  doneAt    DateTime?
+}
+
+// ---------------------------- TECHNOLOGY RADAR ----------------------------
+
+// A place the radar watches. Its URL is checked before it is trusted (see radar/validateSource.ts).
+model TechSource {
+  id                  Int          @id @default(autoincrement())
+  name                String
+  url                 String       @unique
+  kind                String // atom | rss | github-advisories | nvd | page-watch | fixture
+  category            String // security | framework | ai-platform | cloud | devops | standards | publication
+  technology          String // e.g. "React", "Node.js"
+  topicIds            Json         @default("[]") // Atlas topics this source usually affects
+  enabled             Boolean      @default(true)
+  checkIntervalHours  Int          @default(168) // weekly by default; security sources use 24
+  validationStatus    String       @default("unverified") // unverified | valid | invalid
+  lastValidatedAt     DateTime?
+  lastCheckedAt       DateTime?
+  lastSuccessAt       DateTime?
+  lastError           String?
+  consecutiveFailures Int          @default(0)
+  pageHash            String? // page-watch only: hash of the last content seen
+  createdAt           DateTime     @default(now())
+  updates             TechUpdate[]
+  runs                RadarRun[]
+}
+
+// One discovered change. canonicalUrl is unique, so the same item is never stored twice.
+model TechUpdate {
+  id                   Int                  @id @default(autoincrement())
+  canonicalUrl         String               @unique
+  titleKey             String // normalised title, used to spot the same news from another source
+  sourceId             Int
+  source               TechSource           @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  title                String
+  summary              String // plain text from the source, stripped of HTML, never executed
+  publishedAt          DateTime? // from the source, when it says (may be missing)
+  discoveredAt         DateTime             @default(now()) // when THIS app first saw it
+  technology           String
+  topicIds             Json                 @default("[]")
+  classification       String // critical-security | breaking | capability | practice-change | emerging | minor | irrelevant
+  classificationReason String
+  analysisBy           String               @default("rules") // rules | ollama | learner
+  aiAnalysis           String? // only from a LOCAL model; always labelled as AI-generated
+  verificationStatus   String               @default("unverified") // unverified | verified | disputed
+  reviewStatus         String               @default("new") // new | approved | rejected | deferred | already-covered | needs-verification
+  seenCount            Int                  @default(1)
+  alsoSeenIn           Json                 @default("[]") // other source ids that reported the same thing
+  lastSeenAt           DateTime             @default(now())
+  proposals            CurriculumProposal[]
+
+  @@index([titleKey])
+}
+
+// History of every check (scheduled, manual, fixture or curriculum audit).
+model RadarRun {
+  id             Int         @id @default(autoincrement())
+  sourceId       Int?
+  source         TechSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+  kind           String      @default("source-check") // source-check | curriculum-audit | question-review
+  trigger        String // schedule | manual | fixture | test
+  status         String // ok | error | skipped
+  itemsFound     Int         @default(0)
+  itemsNew       Int         @default(0)
+  itemsDuplicate Int         @default(0)
+  error          String?
+  detail         Json        @default("{}")
+  startedAt      DateTime    @default(now())
+  finishedAt     DateTime?
+}
+
+// A suggested change to the curriculum. Nothing reaches a lesson until I approve it.
+model CurriculumProposal {
+  id                Int           @id @default(autoincrement())
+  updateId          Int?
+  update            TechUpdate?   @relation(fields: [updateId], references: [id], onDelete: SetNull)
+  topicId           String
+  kind              String // learning-mission | lesson-update | migration-exercise | interview-questions | project-enhancement
+  title             String
+  changeReason      String
+  sources           Json          @default("[]") // [{ title, url }]
+  content           Json // the mission fields (see radar/missions.ts)
+  affectedExercises Json          @default("[]")
+  affectedQuestions Json          @default("[]")
+  migrationNotes    String        @default("")
+  status            String        @default("proposed") // proposed | approved | rejected | deferred
+  decisionNote      String?
+  createdAt         DateTime      @default(now())
+  decidedAt         DateTime?
+  version           TopicVersion?
+}
+
+// Lesson version history. Version 1 is the content in code; each approved proposal adds one.
+// Old versions are never deleted, and TopicProgress is never touched by a new version.
+model TopicVersion {
+  id              Int                @id @default(autoincrement())
+  topicId         String
+  version         Int
+  previousVersion Int
+  proposalId      Int                @unique
+  proposal        CurriculumProposal @relation(fields: [proposalId], references: [id])
+  changeReason    String
+  sources         Json               @default("[]")
+  addendum        Json // what learners see in the "What changed" part of the lesson
+  migrationNotes  String             @default("")
+  approvedAt      DateTime           @default(now())
+
+  @@unique([topicId, version])
+}
+
+// Audit trail: source registration, ingestion, proposals, approvals and publication.
+model AuditLog {
+  id       Int      @id @default(autoincrement())
+  actor    String // learner | scheduler | system
+  action   String
+  entity   String
+  entityId String
+  detail   Json     @default("{}")
+  at       DateTime @default(now())
+
+  @@index([entity, entityId])
+}

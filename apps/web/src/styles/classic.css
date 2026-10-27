@@ -1,0 +1,370 @@
+/* CLASSIC PAGES: the original level map, level, track, strike and flashcard pages, restyled in the
+   Forge Atlas look. The class names are unchanged, so those pages work exactly as before. */
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hh-space-5);
+  margin-bottom: var(--hh-space-6);
+}
+.hero__art {
+  width: 150px;
+  border-radius: var(--hh-radius-lg);
+  box-shadow: var(--hh-shadow-2);
+}
+.scribble {
+  margin: 0 0 var(--hh-space-3);
+  font: 750 var(--hh-text-2xl) / 1.08 var(--hh-font-display);
+  letter-spacing: -0.03em;
+}
+.start-here {
+  display: none;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--hh-space-4);
+  margin-bottom: var(--hh-space-6);
+}
+.card-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  border-radius: var(--hh-radius-lg);
+  transition: transform var(--hh-speed-fast) var(--hh-ease);
+}
+.card-link:hover {
+  transform: translateY(-2px);
+}
+.card-link .hh-card {
+  height: 100%;
+}
+.card-art {
+  float: right;
+  width: 76px;
+  margin: 0 0 var(--hh-space-2) var(--hh-space-3);
+  border-radius: var(--hh-radius-md);
+}
+.card-art--small {
+  width: 56px;
+}
+.level-art {
+  width: 100%;
+  max-width: 120px;
+  border-radius: var(--hh-radius-md);
+}
+.level-art--locked {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+.topics {
+  margin: var(--hh-space-2) 0;
+  padding-left: var(--hh-space-5);
+  font-size: var(--hh-text-sm);
+}
+.strike-list {
+  display: grid;
+  gap: var(--hh-space-2);
+  padding: 0;
+  list-style: none;
+}
+.strike-list > * {
+  margin: 0;
+}
+.stack > * + * {
+  margin-top: var(--hh-space-4);
+}
+.divider {
+  height: 1px;
+  margin: var(--hh-space-5) 0;
+  background: var(--hh-line);
+  border: 0;
+}
+.level-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-2);
+  margin-bottom: var(--hh-space-4);
+}
+.rebuild-lab {
+  margin-top: var(--hh-space-6);
+  padding: var(--hh-space-4) var(--hh-space-5);
+  background: var(--hh-surface-2);
+  border-radius: var(--hh-radius-md);
+}
+
+/* ---------- strike page ---------- */
+.strike-header {
+  margin-bottom: var(--hh-space-5);
+}
+.strike-grid {
+  display: grid;
+  gap: var(--hh-space-5);
+}
+@media (min-width: 1100px) {
+  .strike-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+  .strike-right {
+    position: sticky;
+    top: var(--hh-space-4);
+  }
+}
+.strike-left,
+.strike-right {
+  display: grid;
+  gap: var(--hh-space-4);
+  min-width: 0;
+}
+.lesson-text {
+  margin: 0;
+  white-space: pre-wrap;
+  font: 400 var(--hh-text-md) / 1.6 var(--hh-font-body);
+}
+.editor-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--hh-space-2);
+  margin-bottom: var(--hh-space-2);
+}
+.editor-frame {
+  overflow: hidden;
+  border-radius: var(--hh-radius-md);
+  border: 1px solid var(--hh-line);
+}
+.live-preview {
+  width: 100%;
+  min-height: 260px;
+  background: #ffffff;
+  border: 1px solid var(--hh-line);
+  border-radius: var(--hh-radius-md);
+}
+.run-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-3);
+  align-items: center;
+}
+.say-box {
+  margin-bottom: var(--hh-space-3);
+}
+.results {
+  display: grid;
+  gap: var(--hh-space-2);
+  padding: 0;
+  list-style: none;
+}
+.result {
+  padding: var(--hh-space-2) var(--hh-space-3);
+  border-left: 3px solid var(--hh-line-strong);
+  background: var(--hh-surface-2);
+  border-radius: 0 var(--hh-radius-sm) var(--hh-radius-sm) 0;
+}
+.result--pass {
+  border-left-color: var(--hh-success);
+}
+.result--fail {
+  border-left-color: var(--hh-danger);
+}
+.result__message {
+  font-family: var(--hh-font-mono);
+  font-size: var(--hh-text-sm);
+  color: var(--hh-text-muted);
+}
+.message {
+  padding: var(--hh-space-3) var(--hh-space-4);
+  border-radius: var(--hh-radius-md);
+}
+.message--bad {
+  background: var(--hh-danger-soft);
+}
+.message--info {
+  background: var(--hh-warning-soft);
+}
+.console__lines,
+.solution__code {
+  padding: var(--hh-space-3);
+  color: var(--hh-code-text);
+  background: var(--hh-code-bg);
+  border-radius: var(--hh-radius-md);
+  font-family: var(--hh-font-mono);
+  font-size: var(--hh-text-sm);
+  white-space: pre-wrap;
+}
+.solution__explain {
+  white-space: pre-wrap;
+}
+.hint {
+  padding: var(--hh-space-3) var(--hh-space-4);
+  background: var(--hh-warning-soft);
+  border-radius: var(--hh-radius-md);
+}
+.hint-art {
+  width: 56px;
+  float: right;
+  border-radius: var(--hh-radius-sm);
+}
+.done-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-4);
+  align-items: center;
+  margin-top: var(--hh-space-5);
+  padding: var(--hh-space-4) var(--hh-space-5);
+  background: var(--hh-success-soft);
+  border-radius: var(--hh-radius-lg);
+}
+.done-banner p {
+  margin: 0;
+}
+.done-banner__art {
+  width: 72px;
+  border-radius: var(--hh-radius-md);
+}
+
+/* ---------- celebration (all tests pass) ---------- */
+.celebration {
+  position: relative;
+  padding: var(--hh-space-5);
+  text-align: center;
+  background: var(--hh-surface);
+  border: 1px solid var(--hh-action);
+  border-radius: var(--hh-radius-lg);
+  overflow: hidden;
+  perspective: 700px;
+}
+.celebration__art {
+  width: 110px;
+  border-radius: var(--hh-radius-md);
+}
+.celebration__confetti span {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  animation: hh-fall 1.8s ease-in forwards;
+}
+.confetti--0 {
+  background: var(--hh-action);
+}
+.confetti--1 {
+  background: var(--p-spark-400);
+}
+.confetti--2 {
+  background: var(--p-violet-300);
+}
+.confetti--3 {
+  background: var(--p-green-300);
+}
+@keyframes hh-fall {
+  to {
+    transform: translateY(380px) rotate(540deg);
+    opacity: 0;
+  }
+}
+.coin {
+  position: relative;
+  width: 72px;
+  height: 82px;
+  margin: 0 auto var(--hh-space-3);
+  transform-style: preserve-3d;
+  animation: hh-coin 2.6s linear infinite;
+}
+.coin__layer,
+.coin__face {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+.coin__layer {
+  background: var(--p-ember-700);
+}
+.coin__face {
+  display: grid;
+  place-items: center;
+  background: var(--hh-action);
+  color: var(--hh-action-ink);
+  font: 750 2rem var(--hh-font-display);
+  transform: translateZ(7px);
+}
+@keyframes hh-coin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .coin,
+  :root:not([data-motion="full"]) .celebration__confetti span {
+    animation: none;
+  }
+}
+:root[data-motion="reduce"] .coin,
+:root[data-motion="reduce"] .celebration__confetti span {
+  animation: none;
+}
+
+/* ---------- flashcards (functional flip: the hidden face is truly hidden) ---------- */
+.flashcard {
+  margin-bottom: var(--hh-space-4);
+}
+.flashcard__answer {
+  white-space: pre-wrap;
+}
+.flip {
+  perspective: 1200px;
+}
+.flip__inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform var(--hh-speed-slow) var(--hh-ease);
+}
+.flip--flipped .flip__inner {
+  transform: rotateY(180deg);
+}
+.flip__face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip__back {
+  transform: rotateY(180deg);
+}
+.flip--flipped .flip__front,
+.flip:not(.flip--flipped) .flip__back {
+  visibility: hidden;
+  transition: visibility 0s 200ms;
+}
+.flip__question {
+  margin: 0 0 var(--hh-space-2);
+  color: var(--hh-text-muted);
+  font-weight: 700;
+}
+.flip--leaving {
+  animation: hh-away var(--hh-speed-slow) ease-in forwards;
+}
+@keyframes hh-away {
+  to {
+    transform: translate3d(60px, 20px, 0) rotateZ(6deg);
+    opacity: 0;
+  }
+}
+
+/* The old full-screen "cinema" layers are retired (constant motion distracts while reading). */
+.cinema {
+  display: none;
+}
+.loading {
+  display: flex;
+  gap: var(--hh-space-3);
+  align-items: center;
+  color: var(--hh-text-muted);
+}
+.loading__art {
+  width: 48px;
+  border-radius: var(--hh-radius-sm);
+}

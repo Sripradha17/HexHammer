@@ -1,0 +1,190 @@
+// Domain 2: Web and Browser Fundamentals.
+import { defineDomain, outline } from "../outline";
+import { webHttpLifecycle } from "../topics/web-http-lifecycle";
+
+export const d02 = defineDomain(
+  {
+    id: "web",
+    number: 2,
+    title: "Web & Browser Fundamentals",
+    short: "The Web",
+    tagline: "How a request crosses the internet and how a browser turns bytes into pixels.",
+    story:
+      "Most 'mystery' bugs at work (CORS errors, stale caches, layout jumps, cookies that vanish) are web platform rules you can learn once and spot forever.",
+    hue: 196,
+    col: 1,
+    row: 0,
+    unlockedBy: [],
+  },
+  [
+    {
+      id: "web-network",
+      title: "How the internet carries a request",
+      summary: "Addresses, DNS, transport, TLS and the HTTP conversation.",
+      topics: [
+        outline({
+          id: "web-internet-dns",
+          title: "Clients, servers, IP addresses, ports and DNS",
+          difficulty: "foundation",
+          objectives: [
+            "Explain the client/server model and what IP addresses and ports identify.",
+            "Trace a DNS lookup through caches and resolvers, and explain TTL.",
+          ],
+          subtopics: ["IPv4 / IPv6", "Ports", "DNS records (A, AAAA, CNAME, MX)", "TTL and caching"],
+        }),
+        outline({
+          id: "web-tcp-tls",
+          title: "TCP, UDP, TLS, HTTPS and certificates",
+          difficulty: "core",
+          objectives: [
+            "Compare TCP and UDP and say when each is used.",
+            "Explain what TLS guarantees and how a certificate chain is verified.",
+          ],
+          prerequisites: ["web-internet-dns"],
+          subtopics: ["Handshakes", "Reliability vs latency", "Certificates and CAs", "HTTPS"],
+        }),
+        webHttpLifecycle,
+        outline({
+          id: "web-caching-cookies",
+          title: "HTTP caching and cookies",
+          difficulty: "core",
+          objectives: [
+            "Use Cache-Control, ETag and 304 responses correctly.",
+            "Set cookies with the right Secure, HttpOnly, SameSite and expiry attributes.",
+          ],
+          prerequisites: ["web-http-lifecycle"],
+          subtopics: ["Freshness vs revalidation", "CDN caching", "Cookie attributes", "Third-party cookies"],
+          strikeIds: ["l5-s11"],
+        }),
+        outline({
+          id: "web-rest-resources",
+          title: "REST and resource-oriented APIs",
+          difficulty: "core",
+          objectives: [
+            "Design resource URLs and map operations onto HTTP methods.",
+            "Add pagination, filtering and versioning that clients can rely on.",
+          ],
+          prerequisites: ["web-http-lifecycle"],
+          subtopics: ["Resources and collections", "Pagination", "Filtering", "Versioning"],
+          strikeIds: ["l5-s12", "l5-s13"],
+        }),
+      ],
+    },
+    {
+      id: "web-browser",
+      title: "Inside the browser",
+      summary: "HTML, CSS, the DOM, layout, storage and how pixels reach the screen.",
+      topics: [
+        outline({
+          id: "web-rendering-pipeline",
+          title: "Browser rendering: DOM, CSSOM, layout, paint, composite",
+          difficulty: "core",
+          objectives: [
+            "Describe the steps from HTML bytes to pixels.",
+            "Explain what triggers layout (reflow) versus paint versus composite only.",
+          ],
+          prerequisites: ["web-html-semantics"],
+          subtopics: ["Parsing", "Render tree", "Layout", "Paint", "Compositing layers"],
+          strikeIds: ["l4-s12"],
+        }),
+        outline({
+          id: "web-html-semantics",
+          title: "Semantic HTML and forms",
+          difficulty: "foundation",
+          objectives: [
+            "Choose semantic elements that give structure and meaning for free.",
+            "Build accessible forms with labels, validation and helpful errors.",
+          ],
+          subtopics: ["Landmarks", "Headings", "Form controls and labels", "Native validation", "SEO basics"],
+          strikeIds: ["l4-s01", "l4-s02", "l4-s16"],
+        }),
+        outline({
+          id: "web-css-layout",
+          title: "CSS cascade, specificity, positioning, Flexbox and Grid",
+          difficulty: "foundation",
+          objectives: [
+            "Predict which CSS rule wins using the cascade and specificity.",
+            "Lay out a page with Flexbox and Grid and choose between them.",
+          ],
+          prerequisites: ["web-html-semantics"],
+          subtopics: ["Cascade and specificity", "Box model", "Positioning", "Flexbox", "Grid", "Custom properties"],
+          strikeIds: ["l4-s03", "l4-s04", "l4-s05", "l4-s06"],
+        }),
+        outline({
+          id: "web-responsive",
+          title: "Responsive design and media queries",
+          difficulty: "foundation",
+          objectives: ["Build a layout that works from 320px phones to wide screens.", "Use media queries, fluid units and container-aware patterns."],
+          prerequisites: ["web-css-layout"],
+          subtopics: ["Mobile first", "Fluid type", "Media queries", "Container queries"],
+          strikeIds: ["l4-s09"],
+        }),
+        outline({
+          id: "web-dom-events",
+          title: "The DOM and events",
+          difficulty: "foundation",
+          objectives: ["Select and update DOM nodes safely.", "Explain event bubbling and use event delegation."],
+          prerequisites: ["web-html-semantics"],
+          subtopics: ["Querying", "textContent vs innerHTML", "Bubbling and capturing", "Delegation"],
+          strikeIds: ["l4-s07", "l4-s10"],
+        }),
+        outline({
+          id: "web-storage",
+          title: "Browser storage",
+          difficulty: "foundation",
+          objectives: ["Compare cookies, localStorage, sessionStorage and IndexedDB.", "Decide what must never be stored in the browser."],
+          prerequisites: ["web-dom-events"],
+          subtopics: ["Cookies", "Web Storage", "IndexedDB", "Storage and security"],
+          strikeIds: ["l4-s13"],
+        }),
+      ],
+    },
+    {
+      id: "web-platform-quality",
+      title: "Security, accessibility and performance",
+      summary: "The browser's safety rules, inclusive interfaces and measurable speed.",
+      topics: [
+        outline({
+          id: "web-same-origin-cors-csp",
+          title: "Same-origin policy, CORS and CSP",
+          difficulty: "core",
+          objectives: [
+            "Explain what the same-origin policy blocks and why.",
+            "Configure CORS correctly and read a CORS error.",
+            "Use a Content Security Policy to limit script sources.",
+          ],
+          prerequisites: ["web-http-lifecycle"],
+          subtopics: ["Origins", "Preflight requests", "Credentials", "CSP directives"],
+          strikeIds: ["l4-s15", "l4-s14"],
+        }),
+        outline({
+          id: "web-accessibility",
+          title: "Accessibility and keyboard navigation",
+          difficulty: "foundation",
+          objectives: ["Make every interaction reachable and usable by keyboard.", "Test a page with a screen reader and fix what it reveals."],
+          prerequisites: ["web-html-semantics"],
+          subtopics: ["Focus order", "ARIA (and when not to use it)", "WCAG basics", "Screen readers"],
+          strikeIds: ["l4-s08", "l4-s11"],
+        }),
+        outline({
+          id: "web-devtools-network",
+          title: "Browser DevTools and network inspection",
+          difficulty: "foundation",
+          objectives: ["Inspect requests, headers and timing in the Network panel.", "Use the Elements and Console panels to debug a page live."],
+          prerequisites: ["web-http-lifecycle"],
+          subtopics: ["Network panel", "Request timing", "Throttling", "Console and Elements"],
+          strikeIds: ["l3-s18"],
+        }),
+        outline({
+          id: "web-performance-vitals",
+          title: "Web performance and Core Web Vitals",
+          difficulty: "core",
+          objectives: ["Explain LCP, INP and CLS in plain words.", "Find and fix the biggest cause of a slow page load."],
+          prerequisites: ["web-rendering-pipeline", "web-devtools-network"],
+          subtopics: ["LCP", "INP", "CLS", "Lazy loading", "Image optimisation"],
+          strikeIds: ["l4-s12"],
+        }),
+      ],
+    },
+  ],
+);

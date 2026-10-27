@@ -1,0 +1,109 @@
+[
+  {
+    "file": "02-recent-design-via-godly-redirect.png",
+    "url": "https://godly.website/",
+    "capturedAt": "2026-10-26T21:37:40.823Z",
+    "status": 200,
+    "finalUrl": "https://recent.design/?ref=godly",
+    "title": "Recent — Design Inspiration",
+    "saved": true
+  },
+  {
+    "file": "03-refero-home.png",
+    "url": "https://refero.design/",
+    "capturedAt": "2026-10-26T21:37:46.182Z",
+    "status": 200,
+    "finalUrl": "https://refero.design/",
+    "title": "Refero — UI/UX Design Inspiration for Your Next Project",
+    "saved": true
+  },
+  {
+    "file": "04-mobbin-home.png",
+    "url": "https://mobbin.com/",
+    "capturedAt": "2026-10-26T21:37:50.598Z",
+    "status": 200,
+    "finalUrl": "https://mobbin.com/",
+    "title": "Mobbin — UI & UX design inspiration for mobile & web apps",
+    "saved": true
+  },
+  {
+    "file": "05-hoverstates-home.png",
+    "url": "https://www.hoverstat.es/",
+    "capturedAt": "2026-10-26T21:37:54.944Z",
+    "status": 200,
+    "finalUrl": "https://www.hoverstat.es/",
+    "title": "HOVERSTAT.ES | The home of alternative web-design.",
+    "saved": true
+  },
+  {
+    "file": "06-siteinspire-home.png",
+    "url": "https://www.siteinspire.com/",
+    "capturedAt": "2026-10-26T21:37:59.289Z",
+    "status": 200,
+    "finalUrl": "https://www.siteinspire.com/",
+    "title": "Best Website Design Inspiration | Siteinspire",
+    "saved": true
+  },
+  {
+    "file": "07-motion-react-docs.png",
+    "url": "https://motion.dev/docs/react",
+    "capturedAt": "2026-10-26T21:38:03.686Z",
+    "status": 200,
+    "finalUrl": "https://motion.dev/docs/react",
+    "title": "Motion for React: Get started - React Animation Library | Motion for React",
+    "saved": true
+  },
+  {
+    "file": "08-shadcn-components.png",
+    "url": "https://ui.shadcn.com/docs/components",
+    "capturedAt": "2026-10-26T21:38:08.352Z",
+    "status": 200,
+    "finalUrl": "https://ui.shadcn.com/docs/components",
+    "title": "Components - shadcn/ui",
+    "saved": true
+  },
+  {
+    "file": "09-shadcn-dialog.png",
+    "url": "https://ui.shadcn.com/docs/components/dialog",
+    "capturedAt": "2026-10-26T21:38:13.193Z",
+    "status": 200,
+    "finalUrl": "https://ui.shadcn.com/docs/components/base/dialog",
+    "title": "Dialog - shadcn/ui",
+    "saved": true
+  },
+  {
+    "file": "10-r3f-docs.png",
+    "url": "https://r3f.docs.pmnd.rs/getting-started/introduction",
+    "capturedAt": "2026-10-26T21:38:18.295Z",
+    "status": 200,
+    "finalUrl": "https://r3f.docs.pmnd.rs/getting-started/introduction",
+    "title": "Introduction - React Three Fiber",
+    "saved": true
+  },
+  {
+    "file": "11-awwwards-scrolled.png",
+    "url": "https://www.awwwards.com/",
+    "scrollY": 1400,
+    "capturedAt": "2026-10-26T21:38:23.075Z",
+    "status": 200,
+    "finalUrl": "https://www.awwwards.com/",
+    "title": "Awwwards - Website Awards - Best Web Design Trends",
+    "saved": true
+  },
+  {
+    "file": "01-awwwards-home.png",
+    "url": "https://www.awwwards.com/",
+    "capturedAt": "2026-10-26T21:38:52.851Z",
+    "saved": false,
+    "error": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://www.awwwards.com/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "file": "12-godly-design-sites.png",
+    "url": "https://godly.design/sites/",
+    "capturedAt": "2026-10-26T21:45:54.120Z",
+    "status": 200,
+    "finalUrl": "https://godly.design/sites/",
+    "title": "Godly Website Design Inspiration",
+    "saved": true
+  }
+]

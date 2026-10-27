@@ -40,7 +40,7 @@ export function LevelPage() {
         </div>
         <img className="hero__art" src={levelArt[level.number]} alt="" />
       </div>
-      <ProgressBar level={level.number} percent={level.percentComplete} />
+      <ProgressBar name={`Level ${level.number} complete`} level={level.number} percent={level.percentComplete} />
 
       <div className="strike-list">
         {level.strikes.map((strike) => (

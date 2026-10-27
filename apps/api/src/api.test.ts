@@ -120,7 +120,8 @@ describe("routes", () => {
       .post("/strikes/l1-s01/attempt")
       .send({ passed: false, code: "x" });
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: "in_progress", attempts: 2, canReveal: true });
+    // A failed run earns nothing, so no achievements can unlock.
+    expect(res.body).toEqual({ status: "in_progress", attempts: 2, canReveal: true, achievements: [] });
     expect(db.progress.upsert.mock.calls[0][0].update.attempts).toBe(2);
   });
 

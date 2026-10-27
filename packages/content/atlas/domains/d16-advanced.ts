@@ -1,0 +1,165 @@
+// Domain 16: Advanced Engineering and Specializations.
+// These paths EXTEND earlier topics (see prerequisites) instead of repeating them.
+import { defineDomain, outline } from "../outline";
+
+export const d16 = defineDomain(
+  {
+    id: "adv",
+    number: 16,
+    title: "Advanced Engineering & Specializations",
+    short: "Advanced Paths",
+    tagline: "Go deep: specialist paths that build on everything before them.",
+    story:
+      "Once the foundations are solid, depth is what makes you the person others ask. Each path here assumes the core regions and goes further, ending in a capstone you can show.",
+    hue: 240,
+    col: 3,
+    row: 3,
+    unlockedBy: ["arch", "ai"],
+  },
+  [
+    {
+      id: "adv-frontend",
+      title: "Frontend specialisations",
+      summary: "Type-driven design and advanced React.",
+      topics: [
+        outline({
+          id: "adv-ts-type-driven",
+          title: "Advanced TypeScript and type-driven design",
+          difficulty: "advanced",
+          objectives: ["Make illegal states unrepresentable with discriminated unions and branded types.", "Use conditional and mapped types to derive APIs from data."],
+          prerequisites: ["fe-ts-generics"],
+          subtopics: ["Branded types", "Conditional types", "Mapped types", "Template literal types", "Type-level tests"],
+        }),
+        outline({
+          id: "adv-react-architecture",
+          title: "Advanced React architecture and performance",
+          difficulty: "advanced",
+          objectives: ["Structure a large React app by feature with clear boundaries.", "Diagnose and fix rendering performance at scale."],
+          prerequisites: ["fe-performance", "fe-state-server-state"],
+          subtopics: ["Feature-based structure", "Server components", "Concurrent rendering", "Profiling at scale"],
+          capstone: true,
+        }),
+      ],
+    },
+    {
+      id: "adv-backend-data",
+      title: "Backend, data and distributed specialisations",
+      summary: "Concurrency, event-driven systems, GraphQL, search, realtime and streaming.",
+      topics: [
+        outline({
+          id: "adv-backend-concurrency",
+          title: "Backend concurrency and scalability",
+          difficulty: "advanced",
+          objectives: ["Use worker threads, queues and pools to scale CPU and I/O work.", "Find and remove contention bottlenecks."],
+          prerequisites: ["be-performance", "db-connection-pools"],
+          subtopics: ["Worker threads", "Contention", "Back-pressure", "Horizontal scaling"],
+        }),
+        outline({
+          id: "adv-event-driven",
+          title: "Distributed systems and event-driven design",
+          difficulty: "advanced",
+          objectives: ["Design an event-driven system with event sourcing or CQRS where justified.", "Reason about ordering, replay and consistency."],
+          prerequisites: ["dist-sagas-consistency", "dist-schema-evolution"],
+          subtopics: ["Event sourcing", "CQRS", "Replay", "Ordering guarantees"],
+        }),
+        outline({
+          id: "adv-graphql-federation",
+          title: "GraphQL and API federation",
+          difficulty: "advanced",
+          objectives: ["Design a GraphQL schema with batching to avoid N+1.", "Explain federation across team-owned subgraphs."],
+          prerequisites: ["dist-api-styles", "db-orm-raw-sql"],
+          subtopics: ["Schema design", "DataLoader batching", "Federation", "Query cost limits"],
+        }),
+        outline({
+          id: "adv-search-data-intensive",
+          title: "Search infrastructure and data-intensive systems",
+          difficulty: "advanced",
+          objectives: ["Design an indexing pipeline and relevance tuning loop.", "Reason about data-intensive trade-offs (storage engines, logs, partitioning)."],
+          prerequisites: ["db-object-search", "db-scaling"],
+          subtopics: ["Inverted indexes", "Relevance", "LSM trees vs B-trees", "Logs as the source of truth"],
+        }),
+        outline({
+          id: "adv-realtime",
+          title: "Realtime systems",
+          difficulty: "advanced",
+          objectives: ["Scale WebSocket connections across many servers.", "Handle presence, ordering and reconnection at scale."],
+          prerequisites: ["be-realtime", "dist-messaging"],
+          subtopics: ["Connection fan-out", "Pub/sub backplanes", "Presence", "CRDTs (intro)"],
+        }),
+        outline({
+          id: "adv-data-streaming",
+          title: "Data engineering and streaming",
+          difficulty: "advanced",
+          objectives: ["Build a streaming pipeline with exactly-once-effect processing.", "Model data for analytics (warehouses, star schemas)."],
+          prerequisites: ["db-pipelines-streaming", "dist-retries-idempotency"],
+          subtopics: ["Stream processing", "Windows", "Warehouses", "Star schemas", "Data quality checks"],
+          capstone: true,
+        }),
+      ],
+    },
+    {
+      id: "adv-platform",
+      title: "Platform, security and cloud specialisations",
+      summary: "Kubernetes and cloud architecture, security and platform engineering.",
+      topics: [
+        outline({
+          id: "adv-k8s-cloud-architecture",
+          title: "Kubernetes and cloud architecture",
+          difficulty: "advanced",
+          objectives: ["Design a multi-environment cloud architecture with IaC.", "Operate workloads on Kubernetes with autoscaling and policies."],
+          prerequisites: ["ops-kubernetes", "ops-terraform"],
+          subtopics: ["Autoscaling", "Network policies", "Multi-account setups", "GitOps"],
+        }),
+        outline({
+          id: "adv-security-platform",
+          title: "Security engineering and platform engineering",
+          difficulty: "advanced",
+          objectives: ["Build paved roads (templates, pipelines) that make the secure way the easy way.", "Run a threat model and security review for a platform."],
+          prerequisites: ["sec-secure-coding-testing", "ops-secrets-supply-chain"],
+          subtopics: ["Internal developer platforms", "Golden paths", "Policy as code", "Security champions"],
+          capstone: true,
+        }),
+      ],
+    },
+    {
+      id: "adv-ai",
+      title: "AI and ML specialisations",
+      summary: "MLOps, LLMOps and evaluation infrastructure.",
+      topics: [
+        outline({
+          id: "adv-mlops",
+          title: "ML engineering and MLOps",
+          difficulty: "advanced",
+          objectives: ["Build a reproducible training-to-serving pipeline.", "Monitor models in production and automate safe retraining."],
+          prerequisites: ["ml-reproducibility", "ml-monitoring-drift"],
+          subtopics: ["Feature stores", "Pipelines", "Model registries", "Canary models"],
+        }),
+        outline({
+          id: "adv-llmops-evals",
+          title: "LLMOps and AI evaluation infrastructure",
+          difficulty: "advanced",
+          objectives: ["Build an evaluation harness that runs on every prompt or model change.", "Operate LLM features with tracing, budgets and fallbacks."],
+          prerequisites: ["ai-evaluation", "ai-observability"],
+          subtopics: ["Eval harnesses", "Prompt registries", "Cost budgets", "Model routing"],
+          capstone: true,
+        }),
+      ],
+    },
+    {
+      id: "adv-leadership",
+      title: "Leadership",
+      summary: "Advanced system design and engineering leadership.",
+      topics: [
+        outline({
+          id: "adv-system-design-leadership",
+          title: "Advanced system design and engineering leadership",
+          difficulty: "advanced",
+          objectives: ["Lead a system design from requirements to rollout with stakeholders.", "Grow a team's engineering practices and technical direction."],
+          prerequisites: ["arch-design-storage-search", "pt-specs-rfcs-adrs"],
+          subtopics: ["Design reviews", "Technical strategy", "Org design", "Influence without authority"],
+          capstone: true,
+        }),
+      ],
+    },
+  ],
+);

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE. Entirely fictional data for tests and demos of the Tech Radar.
+  "Fixture Framework" is not a real product; every URL points at example.com (reserved for examples).
+  The <script> and HTML in one entry are here on purpose, to prove the radar strips them.
+-->
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Fixture Framework releases (test fixture)</title>
+  <link href="https://example.com/fixture-framework/releases" rel="alternate"/>
+  <entry>
+    <title>Fixture Framework v3.0.0</title>
+    <link rel="alternate" href="https://example.com/fixture-framework/releases/v3.0.0?utm_source=feed"/>
+    <updated>2026-10-20T09:00:00Z</updated>
+    <content type="html">&lt;p&gt;Breaking change: the legacy &lt;code&gt;onNext()&lt;/code&gt; middleware hook was removed. Use the async pipeline API instead.&lt;/p&gt;&lt;script&gt;alert("this must never run")&lt;/script&gt;</content>
+  </entry>
+  <entry>
+    <title>Fixture Framework v2.4.0</title>
+    <link rel="alternate" href="https://example.com/fixture-framework/releases/v2.4.0"/>
+    <updated>2026-09-15T09:00:00Z</updated>
+    <content type="html">&lt;p&gt;Adds a scheduler hook that runs callbacks as microtasks.&lt;/p&gt;</content>
+  </entry>
+  <entry>
+    <title>Fixture Framework v2.3.1</title>
+    <link rel="alternate" href="https://example.com/fixture-framework/releases/v2.3.1"/>
+    <updated>2026-09-01T09:00:00Z</updated>
+    <content type="html">&lt;p&gt;Bug fixes only.&lt;/p&gt;</content>
+  </entry>
+</feed>

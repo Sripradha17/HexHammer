@@ -8,7 +8,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:4000",
+        // API_URL lets the end-to-end tests point at their own throwaway API instance.
+        target: process.env.API_URL ?? "http://localhost:4000",
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

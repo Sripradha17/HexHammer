@@ -1,0 +1,44 @@
+# Continuous integration: every push and pull request is checked on a clean machine.
+# Free: runs on GitHub's free runners for public repos; no secrets, no paid services.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read # least privilege for the default token
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres: # a throwaway database for the integration and end-to-end tests
+        image: postgres:16
+        env:
+          POSTGRES_USER: hexhammer
+          POSTGRES_PASSWORD: hexhammer
+          POSTGRES_DB: hexhammer
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hexhammer"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hexhammer:hexhammer@localhost:5432/hexhammer?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: cp .env.example .env
+      # Cheapest checks first, so most mistakes fail within a minute.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run curriculum:check
+      - run: npx prisma migrate deploy
+      - run: npm test
+      - run: npm run build -w apps/web
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

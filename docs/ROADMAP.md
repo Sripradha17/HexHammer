@@ -1,5 +1,7 @@
 # Roadmap
 
+> **October 2026: the Forge Atlas layer.** On top of the levels below, Hexhammer now has a 16-domain curriculum map (the Atlas) with Mission Control, a Learning Studio, labs, reviews, an Interview Arena, projects, a portfolio, a glossary, a Technology Radar and analytics. Classic strikes are the Atlas's hands-on exercises. Status and backlog: [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) and [curriculum/coverage-report.md](curriculum/coverage-report.md).
+
 Each phase adds levels. The Professional Skills and Interview tracks grow in every phase.
 
 | Phase | Scope                                       | Runner types                                                                      |

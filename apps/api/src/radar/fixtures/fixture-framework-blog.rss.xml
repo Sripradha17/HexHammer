@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEST FIXTURE. Fictional blog feed that reports the SAME release as the Atom fixture, under a
+  different URL. Used to prove cross-source deduplication. Not a real product.
+-->
+<rss version="2.0">
+  <channel>
+    <title>Fixture Framework blog (test fixture)</title>
+    <link>https://example.com/fixture-blog</link>
+    <item>
+      <title>Fixture Framework v3.0.0</title>
+      <link>https://example.com/fixture-blog/posts/fixture-framework-3</link>
+      <pubDate>Tue, 20 Oct 2026 10:00:00 GMT</pubDate>
+      <description><![CDATA[<p>Our write-up of the 3.0.0 release.</p>]]></description>
+    </item>
+    <item>
+      <title>Introducing Fixture Streams (experimental preview)</title>
+      <link>https://example.com/fixture-blog/posts/streams-preview</link>
+      <pubDate>Mon, 26 Oct 2026 10:00:00 GMT</pubDate>
+      <description>An experimental preview of event streams for the event loop.</description>
+    </item>
+  </channel>
+</rss>

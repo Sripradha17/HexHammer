@@ -18,7 +18,13 @@ export function errorHandler(
 ) {
   if (err instanceof HttpError) {
     // An error we threw on purpose (like "not found"): safe to show its message.
-    res.status(err.status).json({ error: err.message });
+    res.status(err.status).json(err.fields ? { error: err.message, fields: err.fields } : { error: err.message });
+    return;
+  }
+
+  // express.json() could not read the body (broken JSON). That is the client's mistake: 400, not 500.
+  if ((err as { type?: string })?.type === "entity.parse.failed") {
+    res.status(400).json({ error: "The request body is not valid JSON." });
     return;
   }
 

@@ -1,0 +1,22 @@
+[
+  {
+    "ghsa_id": "GHSA-fixt-ure0-0001",
+    "cve_id": null,
+    "html_url": "https://example.com/fixture-advisories/GHSA-fixt-ure0-0001",
+    "summary": "TEST FIXTURE: SQL injection in fixture-query-builder raw() helper",
+    "description": "Fictional advisory for tests. Interpolated values in raw() reach the database unescaped. This is not a real package.",
+    "severity": "critical",
+    "published_at": "2026-10-22T12:00:00Z",
+    "vulnerabilities": [{ "package": { "ecosystem": "npm", "name": "fixture-query-builder" } }]
+  },
+  {
+    "ghsa_id": "GHSA-fixt-ure0-0002",
+    "cve_id": null,
+    "html_url": "https://example.com/fixture-advisories/GHSA-fixt-ure0-0002",
+    "summary": "TEST FIXTURE: Low-severity log injection in fixture-logger",
+    "description": "Fictional advisory for tests. Newlines in user input can forge log lines. This is not a real package.",
+    "severity": "low",
+    "published_at": "2026-10-23T12:00:00Z",
+    "vulnerabilities": [{ "package": { "ecosystem": "npm", "name": "fixture-logger" } }]
+  }
+]

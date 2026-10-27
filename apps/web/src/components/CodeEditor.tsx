@@ -1,5 +1,7 @@
 // The Monaco code editor. The AI-style suggestion features are turned OFF on purpose:
 // the whole point is that I type everything by hand.
+// Monaco is set up here (not in main.tsx), so its large bundle only loads on pages that have an editor.
+import "../monacoSetup";
 import Editor from "@monaco-editor/react";
 
 interface CodeEditorProps {
