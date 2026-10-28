@@ -23,63 +23,95 @@ async function toast(page: Page, text: RegExp | string) {
   await expect(page.locator(".toasts").getByText(text).first()).toBeVisible();
 }
 
-test("1. launch: Home shows the next mission, one action, and a live scene", async ({ page }) => {
+// Click "Next" through Bram's lines until a button with this name appears, then click it.
+async function talkThrough(page: Page, finalButton: string | RegExp) {
+  const panel = page.locator(".quest__panel");
+  for (let i = 0; i < 8; i++) {
+    const final = panel.getByRole("button", { name: finalButton });
+    if (await final.count()) {
+      await final.first().click();
+      return;
+    }
+    await panel.getByRole("button", { name: /^Next/ }).click();
+  }
+  throw new Error(`never reached the button ${finalButton}`);
+}
+
+// Light exactly these lanterns (by their value) using the accessible lantern buttons.
+async function light(page: Page, values: number[]) {
+  for (const v of values) await page.getByRole("button", { name: `Lantern worth ${v}`, exact: true }).click();
+}
+
+test("1. launch: Home is the 3D kingdom with today's quest and one big button", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(TOPIC.title);
-  await expect(page.getByRole("link", { name: "Enter mission" })).toBeVisible();
-  // The encoding scene is real: pick € and see its code point and UTF-8 bytes.
-  await page.getByRole("button", { name: "€", exact: true }).click();
-  await expect(page.getByText("U+20AC")).toBeVisible();
-  await expect(page.getByText("E2 82 AC")).toBeVisible();
-  // Classic Levels are gone from the product.
+  await expect(page.getByRole("heading", { level: 2, name: "The Broken Bridge of Byteford" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Start quest/ })).toBeVisible();
+  await expect(page.locator(".kingdom3d canvas")).toBeVisible(); // the 3D world is really there
   await expect(page.getByText(/Classic Levels/i)).toHaveCount(0);
+  await page.waitForTimeout(2500); // let the camera finish its fly-in
   await page.screenshot({ path: `${SHOTS}/01-mission-control.png` });
 });
 
-test("2 + 19. navigate the world map with the keyboard only", async ({ page }) => {
+test("2 + 19. explore the world map with the keyboard only", async ({ page }) => {
   await page.goto("/map");
-  // The skip link is the first stop.
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
-  // A district is a focusable button: select The Web with Enter, then come back to Foundations.
-  const web = page.getByRole("button", { name: /^The Web\./ });
-  await web.focus();
+  // Every island has a real button (its name tag). Select one with Enter.
+  await page.getByRole("button", { name: "Webmoor Harbor" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/map\/web$/);
-  await expect(page.getByRole("heading", { level: 2, name: "The Web" })).toBeVisible();
-  // A locked district explains why.
-  await page.getByRole("button", { name: /^Frontend\./ }).focus();
+  await expect(page.locator(".rpanel").getByRole("heading", { level: 2 })).toContainText("Webmoor Harbor");
+  // A locked town says how to open it.
+  await page.getByRole("button", { name: "Pixel Gardens" }).focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByText(/Opens when you pass one assessment/)).toBeVisible();
-  await page.getByRole("button", { name: /^Foundations\./ }).focus();
+  await expect(page.getByText(/Opens when you finish a quest/)).toBeVisible();
+  await page.getByRole("button", { name: "Byteford" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/map\/cs$/);
+  await page.waitForTimeout(1500);
   await page.screenshot({ path: `${SHOTS}/02-region.png` });
-  // Enter the next mission straight from the region panel.
-  await page.locator(".rpanel").getByRole("link", { name: "Enter mission" }).focus();
+  await page.locator(".rpanel").getByRole("link", { name: /Start quest/ }).focus();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`/topic/${TOPIC.id}`));
+  await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
 });
 
-test("3. Discover: read the briefing card by card (XP once)", async ({ page }) => {
-  await page.goto(`/topic/${TOPIC.id}#discover`);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(TOPIC.title);
-  for (let i = 1; i < TOPIC.lessonSections.length; i++) {
-    await page.getByRole("button", { name: "Next card" }).click();
-  }
-  await toast(page, "+10 XP");
-  await expect(page.getByText("Briefing complete")).toBeVisible();
-  await page.getByRole("button", { name: "Unlock" }).click();
-  await expect(page.locator(".seals li.is-met", { hasText: "Read every lesson section" })).toBeVisible();
+test("3. the quest story: lanterns, hex marks, and fixing the sign (lesson read, lab goal)", async ({ page }) => {
+  await page.goto(`/topic/${TOPIC.id}`); // a topic with a quest opens as the quest
+  await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
+  await talkThrough(page, /Go to the forge/);
+  // Chapter 2: light 5 = 4 + 1
+  await light(page, [4, 1]);
+  await expect(page.getByText(/You wrote the number 5/)).toBeVisible();
+  await page.locator(".quest__panel").getByRole("button", { name: /Continue/ }).click();
+  // Chapter 3: the biggest rune, 255
+  await light(page, [128, 64, 32, 16, 8, 4, 2, 1]);
+  await expect(page.getByText(/255!/)).toBeVisible();
+  await page.locator(".quest__panel").getByRole("button", { name: /Continue/ }).click();
+  // Chapter 4: hex mark A5 = 128 + 32 + 4 + 1
+  await talkThrough(page, /Let me try/);
+  await light(page, [128, 32, 4, 1]);
+  await expect(page.getByText(/The lock opens/)).toBeVisible();
+  await page.locator(".quest__panel").getByRole("button", { name: /Continue/ }).click();
+  // Chapter 5: find the letter that needs two runes
+  await talkThrough(page, /Find the broken letter/);
+  await page.getByRole("button", { name: /^J/ }).click();
+  await expect(page.getByText(/small enough for one rune/)).toBeVisible();
+  await page.getByRole("button", { name: /^é/ }).click();
+  await toast(page, "+10 XP"); // the lesson counts as read
+  await toast(page, /Lab goal reached/);
+  await expect(page.getByText(/Fixed!/)).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/03-quest-sign.png` });
+  await talkThrough(page, /On to the riddles/);
 });
 
-test("4. Solve: a challenge (predict the output), wrong first then right", async ({ page }) => {
-  await page.goto(`/topic/${TOPIC.id}#solve`);
-  const n = TOPIC.exercises.findIndex((e) => e.kind === "predict");
-  const ex = TOPIC.exercises[n];
+test("4. a riddle (predict the output), wrong first then right", async ({ page }) => {
+  await page.goto(`/quest/${TOPIC.id}`); // the quest remembers the chapter: Riddles
+  const riddles = TOPIC.exercises.filter((e) => e.kind === "predict" || e.kind === "debug");
+  const n = riddles.findIndex((e) => e.kind === "predict");
+  const ex = riddles[n];
   if (!ex || ex.kind !== "predict") throw new Error("fixture topic has no predict exercise");
-  await page.getByRole("button", { name: new RegExp(`Challenge ${n + 1}$`) }).click();
-  const card = page.locator("fieldset.choice").filter({ hasText: "Predict the output" });
+  for (let i = 0; i < n; i++) await page.getByRole("button", { name: "Next riddle" }).click();
+  const card = page.locator("fieldset.choice").filter({ hasText: "What will it print?" });
   const wrong = (ex.question.answerIndex + 1) % ex.question.choices.length;
   await card.getByLabel(ex.question.choices[wrong], { exact: true }).check();
   await card.getByRole("button", { name: "Check my answer" }).click();
@@ -89,35 +121,39 @@ test("4. Solve: a challenge (predict the output), wrong first then right", async
   await card.getByRole("button", { name: "Check my answer" }).click();
   await expect(card.getByText("✓ Right.")).toBeVisible();
   await toast(page, "+20 XP");
+  await page.getByRole("button", { name: /I'm ready for the trial/ }).click();
 });
 
-test("5 + 6. Prove: the assessment one question at a time, then review the explanations", async ({ page }) => {
-  await page.goto(`/topic/${TOPIC.id}#prove`);
+test("5 + 6. the Bridge Trial (the real assessment), then every answer explained", async ({ page }) => {
+  await page.goto(`/quest/${TOPIC.id}`);
+  await talkThrough(page, /Begin the trial/);
   const questions = TOPIC.assessment!.questions;
+  const plain = (s: string) => s.replace(/`/g, "");
   for (let i = 0; i < questions.length; i++) {
-    const prompt = (await page.locator(".quiz__prompt").innerText()).trim();
-    const q = questions.find((x) => prompt.startsWith(x.prompt.replace(/`/g, "").slice(0, 25)))!;
-    await page.getByRole("radio", { name: q.choices[q.answerIndex].replace(/`/g, ""), exact: true }).check();
-    if (i < questions.length - 1) await page.getByRole("button", { name: "Next question" }).click();
+    const prompt = (await page.locator(".trial__q").innerText()).trim();
+    const q = questions.find((x) => prompt.startsWith(plain(x.prompt).slice(0, 25)))!;
+    await page.locator(".choice-btn").filter({ has: page.getByText(plain(q.choices[q.answerIndex]), { exact: true }) }).click();
+    if (i < questions.length - 1) await expect(page.locator(".trial__q")).not.toHaveText(prompt);
   }
-  await page.getByRole("button", { name: /^Submit/ }).click();
-  await expect(page.getByText("Proven.")).toBeVisible();
+  await expect(page.getByText(/The planks are flying back into place/)).toBeVisible();
   await toast(page, /Achievement unlocked: Proved it/);
-  await page.getByText("Review every answer").click();
-  await expect(page.getByText(questions[0].explanation.replace(/`/g, "").slice(0, 40)).first()).toBeVisible();
+  await page.getByText("See every answer explained").click();
+  await expect(page.getByText(plain(questions[0].explanation).slice(0, 40)).first()).toBeVisible();
+  await page.waitForTimeout(1500); // watch the bridge rebuild
   await page.screenshot({ path: `${SHOTS}/05-assessment.png` });
+  await page.locator(".quest__panel").getByRole("button", { name: /Celebrate/ }).click();
+  await expect(page.getByText(/Byteford is saved/)).toBeVisible();
 });
 
-test("7. reload: progress persisted (proven, not mastered)", async ({ page }) => {
-  await page.goto(`/topic/${TOPIC.id}#unlock`);
+test("7. reload: progress persisted (the quest is done on the map)", async ({ page }) => {
+  await page.goto("/map/cs");
   await page.reload();
-  await expect(page.locator(".path li.is-done", { hasText: "Prove" })).toBeVisible();
-  await expect(page.locator(".path li.is-done", { hasText: "Unlock" })).toHaveCount(0);
-  await expect(page.getByText(/Pass 2 spaced reviews after the assessment/)).toBeVisible();
+  const row = page.locator(".rpanel .mrow", { hasText: TOPIC.title });
+  await expect(row).toContainText("Done ✓");
 });
 
 test("8-11. Workshop: start a build, run the workbench, finish a milestone, edit the blueprint, complete, portfolio", async ({ page }) => {
-  await page.goto(`/projects?start=${TOPIC.id}`);
+  await page.goto(`/projects?start=${TOPIC.id}`); // opens the "From your quests" shelf
   await page.locator(`#build-${TOPIC.id}`).getByRole("button", { name: "Start build" }).click();
   await expect(page).toHaveURL(/\/projects\/\d+$/);
   await toast(page, "Build bay open");
@@ -245,8 +281,8 @@ test("14-18. radar: discover from a fixture, deduplicate, propose, approve, vers
   await expect(page.getByText("Only the async pipeline API exists.", { exact: false })).toBeVisible();
 
   // 18: earlier progress on another topic is untouched.
-  await page.goto(`/topic/${TOPIC.id}#unlock`);
-  await expect(page.locator(".path li.is-done", { hasText: "Prove" })).toBeVisible();
+  await page.goto("/map/cs");
+  await expect(page.locator(".rpanel .mrow", { hasText: TOPIC.title })).toContainText("Done ✓");
 });
 
 test("20. representative layouts on desktop and phone, and automated accessibility checks", async ({

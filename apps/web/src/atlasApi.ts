@@ -271,7 +271,10 @@ export interface Project {
 
 // A project a written topic suggests (from GET /projects/templates), with where it sits on the map.
 export type ProjectTemplate = ProjectDraft & {
-  topicId: string;
+  key: string; // what to start it by: a fun build id ("build-...") or a topic id
+  kind: "game" | "creative" | "app" | "ai" | "lesson";
+  emoji: string | null;
+  quest: string | null; // one sentence of story (fun builds only)
   topicTitle: string;
   region: { id: string; short: string; hue: number };
   prerequisiteTopics: { id: string; title: string }[];

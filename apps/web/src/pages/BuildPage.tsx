@@ -14,7 +14,6 @@ import { ApiError, projectsApi, type CheckItem, type Project } from "../atlasApi
 import { ErrorState, Loading } from "../components/PageState";
 import { useRewards } from "../components/Rewards";
 import { Icon } from "../components/Icon";
-import { BuildArt } from "../components/BuildArt";
 import { NotFoundPage } from "./NotFoundPage";
 import { PROJECT_TYPE_LABEL, formatDate } from "../labels";
 import type { RunResult } from "../runner/execute";
@@ -229,7 +228,12 @@ export function BuildPage() {
               </p>
             </div>
             <div className="stage-box">
-              <BuildArt type={project.type} hue={hue} preview={project.acceptanceCriteria[0] ?? project.title} progress={total ? done / total : 0} />
+              <div className="build-poster" aria-hidden="true">
+                <span>⚒️</span>
+                <span className="build-poster__bar">
+                  <span style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+                </span>
+              </div>
               <p className="kicker" style={{ marginTop: 16 }}>
                 Your route
               </p>

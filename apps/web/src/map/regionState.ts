@@ -37,10 +37,10 @@ export function nodeState(t: MapTopic): NodeState {
 
 export const NODE_STATE_LABEL: Record<NodeState, string> = {
   locked: "Locked",
-  available: "Ready to start",
+  available: "Ready",
   progress: "In progress",
-  done: "Assessment passed",
-  unwritten: "Lesson not written yet",
+  done: "Done ✓",
+  unwritten: "Coming soon",
 };
 
 const DONE: TopicStatus[] = ["assessed", "mastered"];

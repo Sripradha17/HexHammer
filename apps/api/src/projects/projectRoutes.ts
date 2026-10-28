@@ -1,7 +1,7 @@
 // Project Workshop + Portfolio API: create, read, update, delete projects and their milestones.
 import { Router } from "express";
 import type { PrismaClient, Prisma } from "@prisma/client";
-import { domains, getTopic, topics } from "@hexhammer/content";
+import { domains, funBuilds, getFunBuild, getTopic, topics, type FunBuild } from "@hexhammer/content";
 import { HttpError } from "../httpError";
 import { validate } from "../middleware/validate";
 import { validateProject } from "./validateProject";
@@ -44,19 +44,38 @@ export function createProjectRouter(db: PrismaClient) {
   // Ordered from small guided builds (foundation) to bigger ones (advanced).
   router.get("/projects/templates", (_req, res) => {
     const rank = { foundation: 0, core: 1, advanced: 2 } as const;
-    const templates = topics
+    const regionOf = (domainId: string | null | undefined) => {
+      const domain = domains.find((d) => d.id === domainId);
+      return domain ? { id: domain.id, short: domain.short, hue: domain.hue } : { id: "", short: "Any", hue: 36 };
+    };
+    // Fun builds first (games, creative tools, apps, AI toys), then the builds each lesson suggests.
+    const fun = funBuilds.map((build) => {
+      const topic = build.topicId ? getTopic(build.topicId) : undefined;
+      return {
+        ...funBuildTemplate(build),
+        key: build.id,
+        kind: build.kind,
+        emoji: build.emoji,
+        quest: build.quest,
+        topicTitle: topic?.title ?? "",
+        region: regionOf(topic?.domainId),
+        prerequisiteTopics: topic ? [{ id: topic.id, title: topic.title }] : [],
+      };
+    });
+    const lessons = topics
       .filter((t) => t.project)
-      .sort((a, b) => rank[a.difficulty] - rank[b.difficulty])
-      .map((topic) => {
-        const domain = domains.find((d) => d.id === topic.domainId)!;
-        return {
-          ...templateFor(topic.id)!,
-          topicTitle: topic.title,
-          region: { id: domain.id, short: domain.short, hue: domain.hue },
-          prerequisiteTopics: topic.prerequisites.map((id) => ({ id, title: getTopic(id)?.title ?? id })),
-        };
-      });
-    res.json({ templates });
+      .sort((x, y) => rank[x.difficulty] - rank[y.difficulty])
+      .map((topic) => ({
+        ...templateFor(topic.id)!,
+        key: topic.id,
+        kind: "lesson" as const,
+        emoji: null,
+        quest: null,
+        topicTitle: topic.title,
+        region: regionOf(topic.domainId),
+        prerequisiteTopics: topic.prerequisites.map((id) => ({ id, title: getTopic(id)?.title ?? id })),
+      }));
+    res.json({ templates: [...fun, ...lessons] });
   });
 
   router.get("/projects/:id", validate({ params: { id: "numeric" } }), async (req, res) => {
@@ -70,8 +89,33 @@ export function createProjectRouter(db: PrismaClient) {
     res.json(template);
   });
 
-  // A topic's project template in the shape the project form uses (or null if it has none).
+  // A fun build in the shape the project form uses.
+  function funBuildTemplate(build: FunBuild) {
+    const topic = build.topicId ? getTopic(build.topicId) : undefined;
+    return {
+      title: build.title,
+      description: build.summary,
+      topicId: build.topicId,
+      domainId: topic?.domainId ?? null,
+      type: build.type,
+      difficulty: build.difficulty,
+      objectives: [build.quest],
+      prerequisites: topic ? [topic.title] : [],
+      requirements: [],
+      acceptanceCriteria: build.acceptanceCriteria,
+      technologies: build.technologies,
+      tests: build.testIdeas.map((title) => ({ title, done: false })),
+      tasks: [],
+      stretchGoals: build.stretchGoals,
+      milestones: build.milestones.map((m) => ({ title: m.title, doneWhen: m.doneWhen })),
+    };
+  }
+
+  // A template in the shape the project form uses: a fun build (id "build-...") or the project a
+  // topic suggests (by topic id). Null if there is none.
   function templateFor(topicId: string) {
+    const build = getFunBuild(topicId);
+    if (build) return funBuildTemplate(build);
     const topic = getTopic(topicId);
     if (!topic?.project) return null;
     const p = topic.project;

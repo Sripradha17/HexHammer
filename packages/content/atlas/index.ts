@@ -19,6 +19,8 @@ import { d16 } from "./domains/d16-advanced";
 
 export type * from "./types";
 export { glossary } from "./glossary";
+export { funBuilds, getFunBuild } from "./funBuilds";
+export type { FunBuild, BuildKind } from "./funBuilds";
 export { auditAtlas, topicCompleteness, TOPIC_PARTS, INTERVIEW_MINIMUM, INTERVIEW_TARGET } from "./validate";
 export type { Finding } from "./validate";
 

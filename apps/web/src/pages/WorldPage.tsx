@@ -1,14 +1,16 @@
 // WORLD: explore the engineering regions. The map fills the screen; selecting a district opens
 // its panel: what it is, what is open, what is locked and WHY, and its missions, each one a
 // click away. The URL remembers the selection (/map/web), so links and the back button work.
-import { useEffect, useRef, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useRef, type CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { atlas, type MapTopic, type Region } from "../atlasApi";
 import { useLoad } from "../useLoad";
+const Kingdom3D = lazy(() => import("../world3d/Kingdom3D").then((m) => ({ default: m.Kingdom3D })));
 import { ErrorState, Loading } from "../components/PageState";
 import { Glyph, Icon, REGION_GLYPHS } from "../components/Icon";
-import { AtlasMap } from "../map/AtlasMap";
-import { NODE_STATE_LABEL, REGION_STATE_LABEL, nextTopicIn, nodeState, regionState, useNewlyUnlocked } from "../map/regionState";
+import { Kinetic } from "./HomePage";
+import { TOWNS, playPath } from "../story/quests";
+import { NODE_STATE_LABEL, REGION_STATE_LABEL, nextTopicIn, nodeState, regionState } from "../map/regionState";
 
 function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; number: number; blocked: boolean; isNext: boolean }) {
   const state = nodeState(topic);
@@ -30,7 +32,7 @@ function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; numbe
       {body}
     </span>
   ) : (
-    <Link to={`/topic/${topic.id}`} className={`mrow ${isNext ? "is-next" : ""}`}>
+    <Link to={playPath(topic.id)} className={`mrow ${isNext ? "is-next" : ""}`}>
       {body}
     </Link>
   );
@@ -53,11 +55,12 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
         </span>
         <div>
           <p className="rpanel__state">
-            Region {String(region.number).padStart(2, "0")} · {REGION_STATE_LABEL[state]}
+            {REGION_STATE_LABEL[state]} town
           </p>
           <h2 id="rpanel-title" className="rpanel__title">
-            {region.short}
+            {TOWNS[region.id]?.icon} {TOWNS[region.id]?.name ?? region.short}
           </h2>
+          <p className="rpanel__sub">{region.short}</p>
         </div>
       </header>
       <p className="rpanel__tagline">{region.tagline}</p>
@@ -67,7 +70,7 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
           <span style={{ width: `${pct}%` }} />
         </div>
         <span>
-          {region.counts.assessed}/{region.counts.topics} passed · {region.counts.written} lessons ready
+          {region.counts.assessed} of {region.counts.topics} quests done
         </span>
       </div>
 
@@ -75,11 +78,11 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
         <p className="rpanel__locked" role="note">
           <Icon name="lock" size={16} />
           <span>
-            Opens when you pass one assessment (or 3 strikes) in{" "}
+            Opens when you finish a quest in{" "}
             {unlockers.map((u, i) => (
               <span key={u.id}>
                 {i > 0 && " or "}
-                <Link to={`/map/${u.id}`}>{u.short}</Link>
+                <Link to={`/map/${u.id}`}>{TOWNS[u.id]?.name ?? u.short}</Link>
               </span>
             ))}
             .{!blocked && " You can still peek inside."}
@@ -88,8 +91,8 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
       )}
 
       {next && !blocked && (
-        <Link to={`/topic/${next.id}`} className="cta rpanel__cta">
-          <Icon name="play" size={17} /> {next.status === "new" ? "Enter mission" : "Resume mission"}
+        <Link to={playPath(next.id)} className="cta rpanel__cta">
+          <Icon name="play" size={17} /> {next.status === "new" ? "Start quest" : "Continue quest"}
         </Link>
       )}
 
@@ -110,11 +113,11 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
 
       {opens.length > 0 && (
         <p className="rpanel__opens">
-          Progress here opens{" "}
+          Finish a quest here to open{" "}
           {opens.map((o, i) => (
             <span key={o.id}>
               {i > 0 && ", "}
-              <Link to={`/map/${o.id}`}>{o.short}</Link>
+              <Link to={`/map/${o.id}`}>{TOWNS[o.id]?.name ?? o.short}</Link>
             </span>
           ))}
         </p>
@@ -127,7 +130,6 @@ export function WorldPage() {
   const { regionId } = useParams();
   const navigate = useNavigate();
   const { data, error, loading, reload } = useLoad(() => Promise.all([atlas.map(), atlas.missionControl()]));
-  const fresh = useNewlyUnlocked(data?.[0].regions);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // On phones the panel sits under the map: scroll to it when I pick a district.
@@ -146,49 +148,20 @@ export function WorldPage() {
   const total = map.regions.reduce((s, r) => s + r.counts.topics, 0);
 
   return (
-    <div className="world">
-      <header className="world__head">
-        <div>
-          <p className="kicker">The engineering world</p>
-          <h1 className="screen-title">Choose where to go.</h1>
-        </div>
-        <dl className="stats">
-          <div>
-            <dt>regions open</dt>
-            <dd>
-              {open}/{map.regions.length}
-            </dd>
-          </div>
-          <div>
-            <dt>missions passed</dt>
-            <dd>
-              {passed}/{total}
-            </dd>
-          </div>
-        </dl>
+    <div className="realm realm--world">
+      <Suspense fallback={<div className="kingdom3d kingdom3d--loading" />}>
+        <Kingdom3D regions={map.regions} selectedId={selected.id} hereId={hereId} onSelect={(id) => navigate(`/map/${id}`, { replace: Boolean(regionId) })} />
+      </Suspense>
+      <header className="realm__title">
+        <h1>
+          <Kinetic text="Choose your island" />
+        </h1>
+        <p className="realm__bram">
+          {open} of {map.regions.length} towns open · {passed} of {total} quests done
+        </p>
       </header>
-
-      <div className="world__layout">
-        <div className="world__map">
-          <AtlasMap regions={map.regions} selectedId={selected.id} hereId={hereId} fresh={fresh} onSelect={(id) => navigate(`/map/${id}`, { replace: Boolean(regionId) })} />
-          <ul className="world__legend" aria-label="Legend">
-            <li>
-              <span className="lg lg--here" /> You are here
-            </li>
-            <li>
-              <span className="lg lg--open" /> Open
-            </li>
-            <li>
-              <span className="lg lg--locked" /> Locked
-            </li>
-            <li>
-              <span className="lg lg--tower" /> Towers grow as you pass missions
-            </li>
-          </ul>
-        </div>
-        <div ref={panelRef} className="world__panel">
-          <RegionPanel key={selected.id} region={selected} regions={map.regions} strict={map.strictUnlocking} />
-        </div>
+      <div ref={panelRef} className="realm__panel">
+        <RegionPanel key={selected.id} region={selected} regions={map.regions} strict={map.strictUnlocking} />
       </div>
     </div>
   );

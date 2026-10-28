@@ -1,150 +1,98 @@
-// HOME (Mission Control): entering the game. One screen, one job: start the next mission.
-//
-//   left   where I am (region + mission number), the mission title, one line of "why",
-//          ENTER MISSION (the one obvious action) and a smaller EXPLORE WORLD
-//   right  a live, touchable scene for THIS mission's topic (see MissionScene.tsx)
-//   below  my route through the current region (one hexagon per mission, real statuses),
-//          and a compact "next unlock" line
-//
-// Everything comes from /atlas/mission-control and /atlas/map: no invented progress.
+// HOME: the Kingdom of Hex, in 3D, filling the screen. On top of it, only three things:
+//   1. a big animated title and one line from Bram
+//   2. today's quest, with ONE big button
+//   3. when I tap an island: that town's name, progress and a way in
+// Real data only: /atlas/mission-control (next quest, streak) and /atlas/map (islands, progress).
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router";
-import type { CSSProperties } from "react";
-import { atlas, type MapTopic, type Region } from "../atlasApi";
+import { atlas } from "../atlasApi";
 import { useLoad } from "../useLoad";
 import { ErrorState, Loading } from "../components/PageState";
-import { Icon } from "../components/Icon";
-import { MissionScene } from "../components/MissionScene";
-import { missionNumber, nodeState, NODE_STATE_LABEL } from "../map/regionState";
+import { QUESTS, TOWNS, playPath } from "../story/quests";
+// The 3D world is big (three.js), so it loads on its own, after the page appears.
+const Kingdom3D = lazy(() => import("../world3d/Kingdom3D").then((m) => ({ default: m.Kingdom3D })));
 
-// The region route: every mission in the region as a small hexagon, in map order.
-function RegionRoute({ region, currentId }: { region: Region; currentId: string | null }) {
-  const topics: MapTopic[] = region.modules.flatMap((m) => m.topics);
-  const passed = topics.filter((t) => nodeState(t) === "done").length;
+// Letters that rise in one after another: kinetic type, the way cinematic sites open.
+export function Kinetic({ text, className = "" }: { text: string; className?: string }) {
   return (
-    <section className="route" aria-label={`Your route through ${region.short}`} style={{ "--hue": region.hue } as CSSProperties}>
-      <div className="route__head">
-        <span className="route__name">{region.short}</span>
-        <span className="route__count">
-          {passed} of {topics.length} missions passed
+    <span className={`kinetic ${className}`} aria-label={text}>
+      {text.split(" ").map((word, w) => (
+        <span key={w} className="kinetic__word" aria-hidden="true">
+          {[...word].map((ch, i) => (
+            <span key={i} className="kinetic__ch" style={{ animationDelay: `${0.25 + w * 0.12 + i * 0.035}s` }}>
+              {ch}
+            </span>
+          ))}
         </span>
-      </div>
-      <ol className="route__nodes">
-        {topics.map((t, i) => {
-          const state = nodeState(t);
-          const here = t.id === currentId;
-          const node = (
-            <>
-              <span className="visually-hidden">
-                Mission {i + 1}: {t.title}. {NODE_STATE_LABEL[state]}
-                {here ? ". You are here." : ""}
-              </span>
-            </>
-          );
-          return (
-            <li key={t.id} className={`route__node is-${state} ${here ? "is-here" : ""}`} title={`${i + 1}. ${t.title} · ${NODE_STATE_LABEL[state]}`}>
-              {state === "locked" || state === "unwritten" ? <span className="route__hex">{node}</span> : <Link to={`/topic/${t.id}`} className="route__hex">{node}</Link>}
-            </li>
-          );
-        })}
-      </ol>
-    </section>
+      ))}
+    </span>
   );
 }
 
 export function HomePage() {
   const { data, error, loading, reload } = useLoad(() => Promise.all([atlas.missionControl(), atlas.map()]));
-  if (loading && !data) return <Loading label="Entering the world" />;
+  const [picked, setPicked] = useState<string | null>(null);
+  if (loading && !data) return <Loading label="Opening the kingdom gates" />;
   if (error) return <ErrorState message={error} onRetry={reload} />;
   if (!data) return null;
   const [mc, map] = data;
   const mission = mc.nextMission;
-  const region = map.regions.find((r) => r.id === (mission?.regionId ?? mc.path.id)) ?? null;
-  const number = region && mission ? missionNumber(region, mission.id) : null;
-
-  // What opens next: a locked region that THIS region unlocks; otherwise the next achievement.
-  const nextRegion = map.regions.find((r) => !r.unlocked && region && r.unlockedBy.includes(region.id));
-  const reviewsDue = mc.reviews.enabled ? mc.reviews.dueTopics + mc.reviews.dueQuestions : 0;
+  const quest = mission ? QUESTS[mission.id] : undefined;
+  const hereId = mission?.regionId ?? mc.path.id;
+  const town = TOWNS[hereId];
+  const pickedRegion = map.regions.find((r) => r.id === picked && r.id !== hereId);
 
   return (
-    <div className="home" style={{ "--hue": region?.hue ?? 36 } as CSSProperties}>
-      <section className="home__hero">
-        <div className="home__brief">
-          {mission ? (
-            <>
-              <p className="kicker">
-                <span className="home__beacon" aria-hidden="true" />
-                {region?.short} · Mission {number}
-                {mission.status !== "new" && <span className="pill pill--amber">In progress</span>}
-              </p>
-              <h1 className="home__title">{mission.title}</h1>
-              {mission.objective && <p className="home__objective">{mission.objective}</p>}
-              <div className="home__actions">
-                <Link to={`/topic/${mission.id}`} className="cta">
-                  <Icon name="play" size={18} /> {mission.status === "new" ? "Enter mission" : "Resume mission"}
-                </Link>
-                <Link to="/map" className="cta cta--ghost cta--small">
-                  <Icon name="map" size={17} /> Explore world
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="kicker">Every open mission is passed</p>
-              <h1 className="home__title">The map is waiting.</h1>
-              <div className="home__actions">
-                <Link to="/map" className="cta">
-                  <Icon name="map" size={18} /> Explore world
-                </Link>
-              </div>
-            </>
-          )}
+    <div className="realm">
+      <Suspense fallback={<div className="kingdom3d kingdom3d--loading" />}>
+        <Kingdom3D regions={map.regions} selectedId={picked} hereId={hereId} onSelect={setPicked} />
+      </Suspense>
 
-          <ul className="home__signals">
-            {nextRegion && (
-              <li>
-                <Icon name="lock" size={16} />
-                <span>
-                  Next unlock: <strong>{nextRegion.short}</strong> <span className="muted">· pass one assessment here</span>
-                </span>
-              </li>
-            )}
-            {!nextRegion && mc.nextAchievement && (
-              <li>
-                <Icon name="trophy" size={16} />
-                <span>
-                  Next badge: <strong>{mc.nextAchievement.title}</strong>
-                </span>
-              </li>
-            )}
-            {reviewsDue > 0 && (
-              <li>
-                <Icon name="reviews" size={16} />
-                <Link to="/reviews">
-                  {reviewsDue} review{reviewsDue > 1 ? "s" : ""} due today
-                </Link>
-              </li>
-            )}
-            {mc.activeProject && (
-              <li>
-                <Icon name="workshop" size={16} />
-                <Link to={`/projects/${mc.activeProject.id}`}>
-                  Build: {mc.activeProject.title} ({mc.activeProject.milestonesDone}/{mc.activeProject.milestonesTotal})
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
+      <header className="realm__title">
+        <h1>
+          <Kinetic text="The Kingdom of Hex" />
+        </h1>
+        <p className="realm__bram">
+          <span className="realm__who">⚒ Bram</span> {mc.streak.current > 1 ? `${mc.streak.current} days in a row! ` : ""}
+          {quest ? `${town?.name} needs you, apprentice.` : "Pick an island and let's learn something new."}
+        </p>
+      </header>
 
-        <div className="home__stage">
-          <div className="home__stage-glow" aria-hidden="true" />
-          <p className="home__stage-label">
-            <Icon name="spark" size={14} /> Try it now
+      {mission && (
+        <section className="realm__quest" aria-labelledby="today-quest">
+          <p className="realm__kicker">
+            {town?.icon} {town?.name} · Today's quest
           </p>
-          <MissionScene kind={mission?.visualization ?? "none"} region={region} />
-        </div>
-      </section>
+          <h2 id="today-quest" className="realm__quest-title">
+            {quest ? quest.title : mission.title}
+          </h2>
+          <p className="realm__teaser">{quest ? quest.teaser : mission.objective}</p>
+          <Link to={playPath(mission.id)} className="btn btn--go btn--big">
+            {mission.status === "new" ? "Start quest" : "Continue quest"} <span aria-hidden="true">▶</span>
+          </Link>
+        </section>
+      )}
 
-      {region && <RegionRoute region={region} currentId={mission?.id ?? null} />}
+      {pickedRegion && (
+        <aside className="realm__town" key={pickedRegion.id}>
+          <p className="realm__kicker">{pickedRegion.unlocked ? "Town" : "Locked town"}</p>
+          <h2 className="realm__town-name">
+            {TOWNS[pickedRegion.id]?.icon} {TOWNS[pickedRegion.id]?.name}
+          </h2>
+          <p className="realm__teaser">{pickedRegion.tagline}</p>
+          <p className="realm__small">
+            {pickedRegion.unlocked ? `${pickedRegion.counts.assessed} of ${pickedRegion.counts.topics} quests done` : `Opens after progress in ${pickedRegion.unlockedBy.map((id) => TOWNS[id]?.name).join(" or ")}`}
+          </p>
+          <div className="realm__row">
+            <Link to={`/map/${pickedRegion.id}`} className="btn btn--soft">
+              Visit town
+            </Link>
+            <button type="button" className="btn btn--ghost" onClick={() => setPicked(null)}>
+              Close
+            </button>
+          </div>
+        </aside>
+      )}
     </div>
   );
 }

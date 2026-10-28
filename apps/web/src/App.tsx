@@ -9,7 +9,7 @@
 //   Progress  mastery, achievements, reviews
 // Secondary tools (reviews, portfolio, glossary, tech radar, settings) live in the utility menu.
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Navigate, NavLink, Route, Routes, useLocation } from "react-router";
+import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router";
 import { atlas, type Me } from "./atlasApi";
 import { api } from "./api";
 import { RewardsProvider, useRewards } from "./components/Rewards";
@@ -33,6 +33,8 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { Loading } from "./components/PageState";
 import { Icon, type IconName } from "./components/Icon";
 import { setSoundOn, soundOn } from "./sound";
+import { QuestPage } from "./story/QuestPage";
+import { QUESTS } from "./story/quests";
 // The strike runner pulls in the Monaco editor, so it loads only when a strike opens.
 const StrikePage = lazy(() => import("./pages/StrikePage").then((m) => ({ default: m.StrikePage })));
 
@@ -144,6 +146,17 @@ function UtilityMenu() {
   );
 }
 
+// A topic with a written story quest is played as that quest; other topics open as a mission.
+function TopicRoute() {
+  const { id = "" } = useParams();
+  return QUESTS[id] ? <Navigate to={`/quest/${id}`} replace /> : <MissionPage />;
+}
+function QuestRoute() {
+  const { id = "" } = useParams();
+  const quest = QUESTS[id];
+  return quest ? <QuestPage key={id} topicId={id} title={quest.title} chapters={quest.chapters} /> : <Navigate to={`/topic/${id}`} replace />;
+}
+
 function Shell() {
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
@@ -173,7 +186,7 @@ function Shell() {
   const refreshStreak = () => api.getStreak().catch(() => undefined);
 
   return (
-    <div className="shell">
+    <div className={`shell ${location.pathname === "/" || location.pathname.startsWith("/map") || location.pathname === "/projects" ? "shell--kingdom" : ""}`}>
       <WorldBackdrop />
       <a className="skip-link" href="#main">
         Skip to content
@@ -216,7 +229,7 @@ function Shell() {
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<WorldPage />} />
               <Route path="/map/:regionId" element={<WorldPage />} />
-              <Route path="/topic/:id" element={<MissionPage />} />
+              <Route path="/topic/:id" element={<TopicRoute />} />
               <Route path="/strike/:id" element={<StrikePage onProgress={refreshStreak} />} />
               <Route path="/projects" element={<WorkshopPage />} />
               <Route path="/projects/new" element={<ProjectEditorPage />} />
@@ -248,10 +261,22 @@ function Shell() {
   );
 }
 
+// Quests are full-screen stories, so they live outside the shell (no top bar, no dock).
+function Root() {
+  const location = useLocation();
+  if (location.pathname.startsWith("/quest/"))
+    return (
+      <Routes>
+        <Route path="/quest/:id" element={<QuestRoute />} />
+      </Routes>
+    );
+  return <Shell />;
+}
+
 export function App() {
   return (
     <RewardsProvider>
-      <Shell />
+      <Root />
     </RewardsProvider>
   );
 }

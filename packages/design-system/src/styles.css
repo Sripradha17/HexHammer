@@ -2,6 +2,9 @@
    (Fontsource), so the app works fully offline. */
 @import "@fontsource-variable/bricolage-grotesque/index.css";
 @import "@fontsource-variable/inter/index.css";
+@import "@fontsource-variable/fredoka/index.css";
+@import "@fontsource-variable/nunito/index.css";
+@import "@fontsource-variable/fraunces/index.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/600.css";
 @import "./tokens.css";

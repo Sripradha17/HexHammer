@@ -9,7 +9,9 @@ const e2eDatabaseUrl = (process.env.DATABASE_URL ?? "").replace(/schema=[^&]+/, 
 
 export default defineConfig({
   testDir: "e2e",
-  timeout: 60_000,
+  timeout: 120_000,
+  // The 3D pages render with software WebGL in headless Chrome, which is slow: allow more time.
+  expect: { timeout: 15_000 },
   fullyParallel: false, // the journeys build on each other's data, in order
   workers: 1,
   reporter: [["list"]],
