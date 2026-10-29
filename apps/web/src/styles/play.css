@@ -37,12 +37,12 @@
 }
 .mode__count {
   color: var(--hh-text-faint);
-  font: 600 0.8rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
 }
 .mode__record {
   grid-column: 1 / -1;
   color: var(--hh-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
 }
 .mode[aria-selected="true"] {
   background: rgba(255, 181, 71, 0.1);
@@ -210,10 +210,10 @@
   display: grid;
   place-content: center;
   text-align: center;
-  font: 800 3.2rem/1 var(--hh-font-display);
+  font: 800 2.6rem/1 var(--hh-font-display);
 }
 .pcrest__n small {
-  font: 600 0.8rem/1.4 var(--hh-font-mono);
+  font: 600 0.875rem/1.4 var(--hh-font-mono);
   color: var(--p-ember-300);
 }
 .pcrest__info .screen-title {
@@ -309,7 +309,7 @@
 .k.is-mastered { background: var(--hh-action); }
 .pregions__n {
   color: var(--hh-text-muted);
-  font: 600 0.8rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
   text-align: right;
 }
 .pregions__key {
@@ -363,7 +363,7 @@
   filter: drop-shadow(0 0 10px rgba(255, 170, 60, 0.5));
 }
 .badges__name {
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.25;
 }
@@ -375,7 +375,7 @@
 }
 .history time {
   color: var(--hh-text-faint);
-  font: 500 0.8rem/1 var(--hh-font-mono);
+  font: 500 0.875rem/1 var(--hh-font-mono);
 }
 
 /* the weekly XP chart */
@@ -397,13 +397,13 @@
 }
 .chart__tick {
   fill: var(--hh-text-faint);
-  font: 500 11px/1 var(--hh-font-mono);
+  font: 500 14px/1 var(--hh-font-mono);
 }
 .chart__tooltip {
   position: absolute;
   top: 0;
   padding: 4px 8px;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   white-space: nowrap;
   background: var(--hh-surface-3);
   border-radius: 6px;

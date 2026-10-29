@@ -160,3 +160,6 @@ apps/web/public/react-env.js
 # docs/screenshots/ ARE committed; these working folders are not.
 test-results/
 playwright-report/
+
+# Canva export bundle (a 237 MB copy of the PNGs in the same folder); too big for git
+apps/web/src/assets/webdesign/*.zip

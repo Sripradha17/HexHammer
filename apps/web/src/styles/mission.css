@@ -21,16 +21,13 @@
 }
 .mission__title {
   margin: 0 0 var(--hh-space-5);
-  font-size: clamp(1.9rem, 1.2rem + 2.4vw, 3.2rem);
+  font-size: var(--hh-text-display);
   line-height: 1.02;
   letter-spacing: -0.03em;
   text-wrap: balance;
 }
 .mission__step {
   animation: step-in 450ms var(--hh-ease) both;
-}
-@keyframes step-in {
-  from { opacity: 0; transform: translateX(18px); }
 }
 .mission__foot {
   display: flex;
@@ -79,7 +76,7 @@
 .model__label {
   margin: 0 0 4px;
   color: var(--hh-cyan);
-  font: 600 0.8rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
 }
 .model__plain {
   margin: 0;
@@ -140,7 +137,7 @@
 .briefing__n {
   margin: 0 0 6px;
   color: var(--hh-text-faint);
-  font: 600 0.8rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
 }
 .briefing__title {
   margin: 0 0 var(--hh-space-3);
@@ -220,7 +217,7 @@
   place-items: center;
   width: 22px;
   height: 22px;
-  font: 700 0.72rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
   background: rgba(255, 255, 255, 0.07);
   border-radius: 50%;
 }
@@ -299,7 +296,7 @@
   width: 36px;
   height: 36px;
   color: var(--hh-text-muted);
-  font: 700 0.85rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--hh-line-strong);
   border-radius: 50%;
@@ -414,7 +411,7 @@
   flex-shrink: 0;
   width: 30px;
   height: 30px;
-  font: 700 0.85rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
   background: rgba(255, 255, 255, 0.07);
   border-radius: 8px;
 }
@@ -461,9 +458,6 @@
 .score.is-pass .score__fill {
   stroke: var(--hh-success);
   filter: drop-shadow(0 0 8px var(--hh-success));
-}
-@keyframes score-fill {
-  from { stroke-dasharray: 0 326.7; }
 }
 .score__n {
   position: absolute;
@@ -674,7 +668,7 @@
 .code-block__label {
   padding: 8px 14px;
   color: var(--hh-code-muted);
-  font: 600 0.75rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
   border-bottom: 1px solid var(--hh-line);
 }
 .code-block pre {
@@ -696,4 +690,11 @@
 fieldset.choice,
 fieldset.quiz__q {
   min-width: 0;
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(18px); }
+}
+@keyframes score-fill {
+  from { stroke-dasharray: 0 326.7; }
 }

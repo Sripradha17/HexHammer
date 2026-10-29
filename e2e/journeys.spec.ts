@@ -14,9 +14,13 @@ const db = new PrismaClient({
   ),
 });
 const TOPIC = getTopic("cs-binary-encoding")!; // no prerequisites, so it is open from the start
+const FIRST = getTopic("cs-hardware-os")!; // the first quest on the map: Home offers it first
 const SHOTS = "docs/screenshots/e2e";
 
 test.describe.configure({ mode: "serial" });
+// E2E_VIDEO=1 npm run test:e2e  also records a video of every journey (test-results/), to watch the
+// animations play.
+if (process.env.E2E_VIDEO) test.use({ video: { mode: "on", size: { width: 1440, height: 900 } } });
 test.afterAll(() => db.$disconnect());
 
 async function toast(page: Page, text: RegExp | string) {
@@ -28,6 +32,8 @@ async function talkThrough(page: Page, finalButton: string | RegExp) {
   const panel = page.locator(".quest__panel");
   for (let i = 0; i < 8; i++) {
     const final = panel.getByRole("button", { name: finalButton });
+    // Wait until the panel shows one of the two (it may still be loading).
+    await expect(panel.getByRole("button", { name: /^Next/ }).or(final).first()).toBeVisible();
     if (await final.count()) {
       await final.first().click();
       return;
@@ -37,18 +43,28 @@ async function talkThrough(page: Page, finalButton: string | RegExp) {
   throw new Error(`never reached the button ${finalButton}`);
 }
 
+// Open the quest at a chapter. The player remembers its chapter in the browser's storage, and
+// every test starts with an empty browser, so later tests set it first (0 = Arrival, 5 = Riddles,
+// 6 = Bridge Trial). Progress itself (XP, exercises, the assessment) is still the server's.
+async function openChapter(page: Page, chapter: number) {
+  await page.goto("/");
+  await page.evaluate(([id, n]) => localStorage.setItem(`hexhammer-quest-${id}`, n), [TOPIC.id, String(chapter)]);
+  await page.goto(`/quest/${TOPIC.id}`);
+}
+
 // Light exactly these lanterns (by their value) using the accessible lantern buttons.
 async function light(page: Page, values: number[]) {
   for (const v of values) await page.getByRole("button", { name: `Lantern worth ${v}`, exact: true }).click();
 }
 
-test("1. launch: Home is the 3D kingdom with today's quest and one big button", async ({ page }) => {
+test("1. launch: Home is the painted kingdom with today's quest and one big button", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 2, name: "The Broken Bridge of Byteford" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: FIRST.title })).toBeVisible();
   await expect(page.getByRole("link", { name: /Start quest/ })).toBeVisible();
-  await expect(page.locator(".kingdom3d canvas")).toBeVisible(); // the 3D world is really there
+  await expect(page.locator(".rmap__base")).toBeVisible(); // the painted realm map is really there
+  await expect(page.getByRole("button", { name: /Bram, the guide/ })).toBeVisible(); // the owl guide
   await expect(page.getByText(/Classic Levels/i)).toHaveCount(0);
-  await page.waitForTimeout(2500); // let the camera finish its fly-in
+  await page.waitForTimeout(2500); // let the entrance animations finish
   await page.screenshot({ path: `${SHOTS}/01-mission-control.png` });
 });
 
@@ -72,6 +88,10 @@ test("2 + 19. explore the world map with the keyboard only", async ({ page }) =>
   await page.screenshot({ path: `${SHOTS}/02-region.png` });
   await page.locator(".rpanel").getByRole("link", { name: /Start quest/ }).focus();
   await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(new RegExp(`/quest/${FIRST.id}`)); // the town's first quest
+  // Byteford's own hand-written story is one row further down the town's list.
+  await page.goto("/map/cs");
+  await page.locator(".rpanel .mrow", { hasText: TOPIC.title }).click();
   await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
 });
 
@@ -79,13 +99,23 @@ test("3. the quest story: lanterns, hex marks, and fixing the sign (lesson read,
   await page.goto(`/topic/${TOPIC.id}`); // a topic with a quest opens as the quest
   await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
   await talkThrough(page, /Go to the forge/);
-  // Chapter 2: light 5 = 4 + 1
-  await light(page, [4, 1]);
+  // Chapter 2: light 5 = 4 + 1. The Rune Engine only opens after a real solve.
+  await light(page, [4]);
+  await expect(page.locator(".readout__bits")).toHaveText("00000100"); // the binary digits follow the lanterns
+  await expect(page.locator(".stone.is-on .stone__beam")).toHaveCount(1); // one beam of energy to the crystal
+  await expect(page.locator(".engine__pillar")).toHaveCount(0); // the engine has not woken
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${SHOTS}/03a-quest-lantern-lit.png` });
+  await light(page, [1]);
   await expect(page.getByText(/You wrote the number 5/)).toBeVisible();
+  await expect(page.locator(".engine__pillar")).toBeVisible(); // a real solve wakes the Rune Engine
+  await expect(page.getByText("The Rune Engine wakes!")).toBeVisible();
+  await page.waitForTimeout(2300); // the crystal flares, the pillar of light drops, the floor ring lights
+  await page.screenshot({ path: `${SHOTS}/03b-quest-rune-engine-opens.png` });
   await page.locator(".quest__panel").getByRole("button", { name: /Continue/ }).click();
   // Chapter 3: the biggest rune, 255
   await light(page, [128, 64, 32, 16, 8, 4, 2, 1]);
-  await expect(page.getByText(/255!/)).toBeVisible();
+  await expect(page.getByText(/255!/).first()).toBeVisible();
   await page.locator(".quest__panel").getByRole("button", { name: /Continue/ }).click();
   // Chapter 4: hex mark A5 = 128 + 32 + 4 + 1
   await talkThrough(page, /Let me try/);
@@ -96,16 +126,18 @@ test("3. the quest story: lanterns, hex marks, and fixing the sign (lesson read,
   await talkThrough(page, /Find the broken letter/);
   await page.getByRole("button", { name: /^J/ }).click();
   await expect(page.getByText(/small enough for one rune/)).toBeVisible();
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: `${SHOTS}/03c-quest-sign-broken.png` });
   await page.getByRole("button", { name: /^é/ }).click();
   await toast(page, "+10 XP"); // the lesson counts as read
   await toast(page, /Lab goal reached/);
-  await expect(page.getByText(/Fixed!/)).toBeVisible();
+  await expect(page.getByText(/Fixed!/).first()).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/03-quest-sign.png` });
   await talkThrough(page, /On to the riddles/);
 });
 
 test("4. a riddle (predict the output), wrong first then right", async ({ page }) => {
-  await page.goto(`/quest/${TOPIC.id}`); // the quest remembers the chapter: Riddles
+  await openChapter(page, 5); // Riddles
   const riddles = TOPIC.exercises.filter((e) => e.kind === "predict" || e.kind === "debug");
   const n = riddles.findIndex((e) => e.kind === "predict");
   const ex = riddles[n];
@@ -125,7 +157,7 @@ test("4. a riddle (predict the output), wrong first then right", async ({ page }
 });
 
 test("5 + 6. the Bridge Trial (the real assessment), then every answer explained", async ({ page }) => {
-  await page.goto(`/quest/${TOPIC.id}`);
+  await openChapter(page, 6); // Bridge Trial
   await talkThrough(page, /Begin the trial/);
   const questions = TOPIC.assessment!.questions;
   const plain = (s: string) => s.replace(/`/g, "");
@@ -135,11 +167,14 @@ test("5 + 6. the Bridge Trial (the real assessment), then every answer explained
     await page.locator(".choice-btn").filter({ has: page.getByText(plain(q.choices[q.answerIndex]), { exact: true }) }).click();
     if (i < questions.length - 1) await expect(page.locator(".trial__q")).not.toHaveText(prompt);
   }
-  await expect(page.getByText(/The planks are flying back into place/)).toBeVisible();
+  await expect(page.getByText(/The light is running back across the bridge/)).toBeVisible();
   await toast(page, /Achievement unlocked: Proved it/);
+  await expect(page.locator(".toast--achievement .medal__img")).toBeVisible(); // the painted medal
+  await page.waitForTimeout(1000);
+  await page.screenshot({ path: `${SHOTS}/05a-achievement-medal.png` });
   await page.getByText("See every answer explained").click();
   await expect(page.getByText(plain(questions[0].explanation).slice(0, 40)).first()).toBeVisible();
-  await page.waitForTimeout(1500); // watch the bridge rebuild
+  await page.waitForTimeout(2200); // watch the light sweep back across the bridge
   await page.screenshot({ path: `${SHOTS}/05-assessment.png` });
   await page.locator(".quest__panel").getByRole("button", { name: /Celebrate/ }).click();
   await expect(page.getByText(/Byteford is saved/)).toBeVisible();
@@ -339,4 +374,123 @@ test("20. representative layouts on desktop and phone, and automated accessibili
     });
     expect(overflow, `${path} scrolls sideways on a phone: ${culprits.join(", ")}`).toBeLessThanOrEqual(1);
   }
+});
+
+test("21. the art is alive: map, clouds, Bram and quest animate, unlocks play, and reduced motion stills them", async ({ page }) => {
+  // How many animations are running on the first element that matches.
+  const running = (selector: string) =>
+    page.locator(selector).first().evaluate((el) => el.getAnimations().filter((a) => a.playState === "running").length);
+
+  await page.goto("/map");
+  await expect(page.locator(".rnode").first()).toBeVisible();
+  expect(await running(".rmap__flow")).toBeGreaterThan(0); // light travelling along the roads
+  expect(await running(".rmap__cool")).toBeGreaterThan(0); // crystals breathing
+  expect(await running(".rmap__cloud")).toBeGreaterThan(0); // painted clouds drifting
+
+  // A town unlocked since my last visit plays the unlock sequence. Make the browser "forget" it
+  // had seen Webmoor Harbor open, then come back.
+  await page.evaluate(() => {
+    const seen: string[] = JSON.parse(localStorage.getItem("hexhammer-unlocked-regions") ?? "[]");
+    localStorage.setItem("hexhammer-unlocked-regions", JSON.stringify(seen.filter((id) => id !== "web")));
+  });
+  await page.goto("/map/web");
+  await expect(page.locator('.rnode.is-fresh[aria-label="Webmoor Harbor"]')).toBeVisible();
+  await expect(page.locator(".rnode.is-fresh .rnode__lock.is-breaking")).toBeVisible();
+  await page.waitForTimeout(1300); // mid-sequence: the lock breaking away, the colour flooding in
+  await page.screenshot({ path: `${SHOTS}/21a-unlock-sequence.png` });
+
+  // Bram breathes and blinks on Home; tapping him swaps to a reaction painting and the next tip.
+  await page.goto("/");
+  await page.waitForTimeout(1300); // he flies in and lands
+  expect(await running(".owl-hero .owl__breath")).toBeGreaterThan(0);
+  expect(await running(".owl-hero .owl__blink")).toBeGreaterThan(0);
+  const firstTip = await page.locator(".owl-hero__line").innerText();
+  await page.getByRole("button", { name: /Bram, the guide/ }).click();
+  await expect(page.locator(".owl-hero .owl__pose.is-on")).not.toHaveAttribute("src", /owl-stand/);
+  await expect(page.locator(".owl-hero__line")).not.toHaveText(firstTip);
+  await page.screenshot({ path: `${SHOTS}/21b-owl-reacts.png` });
+  // On a quest his painting follows his mood.
+  await page.goto(`/quest/${TOPIC.id}`);
+  await expect(page.locator(".stage .owl__pose.is-on")).toHaveCount(1);
+  await page.waitForTimeout(1300);
+  expect(await running(".stage .owl__breath")).toBeGreaterThan(0);
+  // Every other page stands in a painted place, with Bram's tip in the corner.
+  await page.goto("/interview");
+  await expect(page.locator(".backdrop__scene")).toBeVisible();
+  await expect(page.locator(".buddy__bubble")).toBeVisible();
+
+  // Reduced motion: no flowing light, no packets, the art simply stands still (and still shows).
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/map");
+  await expect(page.locator(".rmap__base")).toBeVisible();
+  await expect(page.locator(".rmap__flow")).toBeHidden();
+  expect(await running(".rmap__cool")).toBe(0);
+  expect(await running(".rmap__cloud")).toBe(0);
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: /Bram, the guide/ })).toBeVisible();
+  expect(await running(".owl-hero .owl__breath")).toBe(0);
+  await page.screenshot({ path: `${SHOTS}/21c-home-reduced-motion.png` });
+});
+
+test("22. the new Foundations topics are real missions, and the references lab reaches its goal", async ({ page }) => {
+  // The five language building blocks are written lessons now, not "Coming soon".
+  await page.goto("/map/cs");
+  for (const title of ["Variables, values, types and coercion", "Conditionals and loops", "Functions, scope and closures", "Values, references, mutability and copying", "Exceptions and error handling"]) {
+    await expect(page.locator(".rpanel .mrow", { hasText: title })).not.toContainText("Coming soon");
+  }
+  // The lab: share one box, see a change through b reach a; then copy and change b alone.
+  await page.goto("/topic/cs-references-mutability#try");
+  const lab = page.getByRole("region", { name: "Names and boxes lab" });
+  await lab.getByRole("button", { name: "let b = a;" }).click();
+  await lab.getByRole("button", { name: "b.push(4);" }).click();
+  await expect(lab.locator(".refs__box.is-shared")).toContainText("[1, 2, 3, 4]");
+  await lab.getByRole("button", { name: "Start again" }).click();
+  await lab.getByRole("button", { name: "let b = [...a];" }).click();
+  await lab.getByRole("button", { name: "b.push(4);" }).click();
+  await expect(lab.getByText("✓ Goal reached")).toBeVisible();
+  await expect(lab.locator(".refs__log")).toContainText("console.log(a); // [1, 2, 3]");
+  await toast(page, /Lab goal reached/);
+  await page.screenshot({ path: `${SHOTS}/22-references-lab.png` });
+});
+
+test("23. any written topic plays as a story quest: learn, run the example, a riddle, the real trial", async ({ page }) => {
+  const topic = getTopic("cs-control-flow")!;
+  await page.goto(`/quest/${topic.id}`);
+  await expect(page.locator(".quest__name")).toContainText(topic.title);
+  // 1. Arrival, in the town's own painting
+  await talkThrough(page, /Let's learn/);
+  // 2. Learn: one card at a time, each in the study hall painting; finishing marks the lesson read
+  await expect(page.locator(".stage__art")).toHaveAttribute("src", /scene-7/);
+  for (let i = 0; i < 12 && (await page.getByRole("button", { name: /Next card/ }).count()); i++) await page.getByRole("button", { name: /Next card/ }).click();
+  await page.getByRole("button", { name: /I've got it/ }).click();
+  await toast(page, "+10 XP");
+  // 3. The worked example: guess first, then run it
+  await page.getByRole("button", { name: /Run it/ }).click();
+  await expect(page.locator(".qexample__output")).toContainText("excellent pass try again");
+  await talkThrough(page, /Time to practise/);
+  // 4. Practice: the topic's real riddle, checked by the server
+  const riddle = topic.exercises.find((e) => e.kind === "predict")!;
+  if (riddle.kind !== "predict") throw new Error("fixture needs a predict exercise");
+  const card = page.locator("fieldset.choice").first();
+  await card.getByLabel(riddle.question.choices[riddle.question.answerIndex], { exact: true }).check();
+  await card.getByRole("button", { name: "Check my answer" }).click();
+  await expect(card.getByText("✓ Right.")).toBeVisible();
+  await page.getByRole("button", { name: /I'm ready for the trial/ }).click();
+  // 5. The trial: the topic's real assessment
+  await talkThrough(page, /Begin the trial/);
+  const questions = topic.assessment!.questions;
+  const plain = (s: string) => s.replace(/`/g, "");
+  for (let i = 0; i < questions.length; i++) {
+    const prompt = (await page.locator(".trial__q").innerText()).trim();
+    const q = questions.find((x) => prompt.startsWith(plain(x.prompt).slice(0, 25)))!;
+    await page.locator(".choice-btn").filter({ has: page.getByText(plain(q.choices[q.answerIndex]), { exact: true }) }).click();
+    if (i < questions.length - 1) await expect(page.locator(".trial__q")).not.toHaveText(prompt);
+  }
+  await expect(page.getByText(/You proved it/).first()).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/23-auto-quest-trial.png` });
+  await page.locator(".quest__panel").getByRole("button", { name: /Celebrate/ }).click();
+  await expect(page.getByText(/Quest complete/).first()).toBeVisible();
+  // Saved for real: the map shows it done after a reload
+  await page.goto("/map/cs");
+  await expect(page.locator(".rpanel .mrow", { hasText: topic.title })).toContainText("Done ✓");
 });

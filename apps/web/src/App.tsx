@@ -14,6 +14,7 @@ import { atlas, type Me } from "./atlasApi";
 import { api } from "./api";
 import { RewardsProvider, useRewards } from "./components/Rewards";
 import { WorldBackdrop } from "./components/WorldBackdrop";
+import { OwlBuddy } from "./components/OwlBuddy";
 import { HomePage } from "./pages/HomePage";
 import { WorldPage } from "./pages/WorldPage";
 import { MissionPage } from "./pages/MissionPage";
@@ -35,6 +36,7 @@ import { Icon, type IconName } from "./components/Icon";
 import { setSoundOn, soundOn } from "./sound";
 import { QuestPage } from "./story/QuestPage";
 import { QUESTS } from "./story/quests";
+import { AUTO_CHAPTERS } from "./story/autoQuest";
 // The strike runner pulls in the Monaco editor, so it loads only when a strike opens.
 const StrikePage = lazy(() => import("./pages/StrikePage").then((m) => ({ default: m.StrikePage })));
 
@@ -146,7 +148,8 @@ function UtilityMenu() {
   );
 }
 
-// A topic with a written story quest is played as that quest; other topics open as a mission.
+// Byteford's hand-written story opens even from its old mission address. Every other topic's
+// /topic/ page is the mission (lesson notes, labs, project); its story lives at /quest/.
 function TopicRoute() {
   const { id = "" } = useParams();
   return QUESTS[id] ? <Navigate to={`/quest/${id}`} replace /> : <MissionPage />;
@@ -154,7 +157,7 @@ function TopicRoute() {
 function QuestRoute() {
   const { id = "" } = useParams();
   const quest = QUESTS[id];
-  return quest ? <QuestPage key={id} topicId={id} title={quest.title} chapters={quest.chapters} /> : <Navigate to={`/topic/${id}`} replace />;
+  return quest ? <QuestPage key={id} topicId={id} title={quest.title} chapters={quest.chapters} /> : <QuestPage key={id} topicId={id} chapters={AUTO_CHAPTERS} />;
 }
 
 function Shell() {
@@ -184,9 +187,13 @@ function Shell() {
   }, [location.pathname]);
 
   const refreshStreak = () => api.getStreak().catch(() => undefined);
+  // Home and World are the living world map itself; every other page stands in a painted place
+  // (WorldBackdrop). Typing pages get a darker veil, so code is easy to read.
+  const realm = location.pathname === "/" || location.pathname.startsWith("/map");
+  const typing = location.pathname.startsWith("/strike");
 
   return (
-    <div className={`shell ${location.pathname === "/" || location.pathname.startsWith("/map") || location.pathname === "/projects" ? "shell--kingdom" : ""}`}>
+    <div className={`shell ${realm ? "shell--realm" : ""} ${typing ? "shell--typing" : ""}`}>
       <WorldBackdrop />
       <a className="skip-link" href="#main">
         Skip to content
@@ -257,6 +264,7 @@ function Shell() {
           </Suspense>
         </div>
       </main>
+      {!realm && <OwlBuddy />}
     </div>
   );
 }

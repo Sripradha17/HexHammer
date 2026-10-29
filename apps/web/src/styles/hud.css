@@ -1,7 +1,7 @@
 /* THE SHELL: world backdrop, top HUD, mobile dock, and shared "world" building blocks
    (glass panels, glowing buttons, the step path). Every page builds on these. */
 
-/* ================================================================ BACKDROP (4 parallax layers) */
+/* ================================================================ BACKDROP: the painted place */
 :root {
   --px: 0; /* pointer position, -1..1, written by WorldBackdrop.tsx */
   --py: 0;
@@ -14,76 +14,26 @@
   pointer-events: none;
   background: var(--hh-bg);
 }
-.backdrop > * {
+/* The painting: a little larger than the screen, so drifting and parallax never show an edge. A new
+   place fades in over the old one (the cross-fade). */
+.backdrop__scene {
   position: absolute;
-  inset: -40px; /* a margin, so moving layers never show an edge */
-  transition: transform 600ms var(--hh-ease);
+  inset: -50px;
+  width: calc(100% + 100px);
+  height: calc(100% + 100px);
+  object-fit: cover;
+  translate: calc(var(--px) * -14px) calc(var(--py) * -10px);
+  transition: translate 900ms var(--hh-ease);
+  animation: bd-arrive 1.2s ease both, bd-drift 40s ease-in-out infinite alternate;
 }
-.backdrop__far {
+/* The veil: darker at the top and bottom and on the left (where the page's words are), lighter
+   on the right, so the place stays visible but text always reads clearly. */
+.backdrop__veil {
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(900px 600px at 78% 8%, rgba(255, 168, 60, 0.13), transparent 60%),
-    radial-gradient(800px 600px at 8% 92%, rgba(60, 190, 235, 0.11), transparent 60%),
-    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
-    radial-gradient(1px 1px at 34% 62%, #fff6 50%, transparent 51%),
-    radial-gradient(1px 1px at 57% 28%, #fff7 50%, transparent 51%),
-    radial-gradient(1px 1px at 76% 74%, #fff5 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 88% 40%, #9fe8ff88 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 22% 84%, #ffd08a77 50%, transparent 51%),
-    linear-gradient(180deg, #070b16 0%, #060912 55%, #04060c 100%);
-  transform: translate(calc(var(--px) * -6px), calc(var(--py) * -6px));
-}
-.backdrop__grid {
-  width: calc(100% + 80px);
-  height: calc(100% + 80px);
-  opacity: 0.9;
-  transform: translate(calc(var(--px) * -14px), calc(var(--py) * -14px));
-  mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%);
-}
-.backdrop__gridline {
-  stroke: rgba(130, 170, 255, 0.05);
-  stroke-width: 1;
-}
-.backdrop__trace {
-  fill: none;
-  stroke: rgba(130, 170, 255, 0.1);
-  stroke-width: 1.5;
-}
-.backdrop__pulse {
-  fill: none;
-  stroke: var(--hh-cyan);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 6 94;
-  opacity: 0.55;
-  animation: bd-pulse 9s linear infinite;
-}
-@keyframes bd-pulse {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: 0; }
-}
-.backdrop__motes {
-  transform: translate(calc(var(--px) * -26px), calc(var(--py) * -26px));
-}
-.backdrop__mote {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--p-ember-300);
-  box-shadow: 0 0 8px var(--p-ember-400);
-  opacity: 0;
-  animation: bd-float 18s ease-in-out infinite;
-}
-.backdrop__mote.is-cyan {
-  background: var(--hh-cyan);
-  box-shadow: 0 0 8px var(--hh-cyan);
-}
-@keyframes bd-float {
-  0% { opacity: 0; transform: translateY(30px); }
-  25% { opacity: 0.55; }
-  75% { opacity: 0.35; }
-  100% { opacity: 0; transform: translateY(-90px); }
-}
-.backdrop__vignette {
-  background: radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(2, 3, 8, 0.75) 100%);
+    linear-gradient(90deg, rgba(4, 7, 15, 0.86) 0%, rgba(4, 7, 15, 0.72) 45%, rgba(4, 7, 15, 0.45) 100%),
+    linear-gradient(180deg, rgba(4, 7, 15, 0.55), transparent 25%, transparent 70%, rgba(4, 7, 15, 0.7));
 }
 
 /* ================================================================ SHELL */
@@ -115,9 +65,6 @@
   max-width: 1360px;
   margin: 0 auto;
   animation: hh-scene var(--hh-speed-slow) var(--hh-ease) both;
-}
-@keyframes hh-scene {
-  from { opacity: 0; transform: translateY(10px) scale(0.995); }
 }
 
 /* ---------------------------------------------------------------- HUD (top bar) */
@@ -223,7 +170,7 @@
   gap: 4px;
 }
 .player__xp {
-  font: 600 0.8rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
 }
 .player__bar {
   width: 80px;
@@ -244,7 +191,7 @@
   align-items: center;
   gap: 3px;
   color: var(--p-ember-300);
-  font: 700 0.8rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
 }
 
 /* Utility menu. */
@@ -307,9 +254,6 @@
   border-top: 1px solid var(--hh-line);
   border-radius: 0 0 var(--hh-radius-sm) var(--hh-radius-sm);
 }
-@keyframes hh-pop {
-  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-}
 
 /* Mobile dock: hidden on wide screens. */
 .dock {
@@ -350,7 +294,7 @@
     border-radius: 14px;
   }
   .dock__label {
-    font-size: 0.72rem;
+    font-size: 0.875rem;
     font-weight: 600;
   }
   .dock__link[aria-current="page"] {
@@ -433,14 +377,14 @@
   gap: 8px;
   margin: 0 0 var(--hh-space-2);
   color: var(--hh-cyan);
-  font: 600 0.85rem/1.2 var(--hh-font-mono);
+  font: 600 0.875rem/1.2 var(--hh-font-mono);
 }
 .kicker--amber {
   color: var(--p-ember-300);
 }
 .screen-title {
   margin: 0 0 var(--hh-space-3);
-  font-size: clamp(2rem, 1.3rem + 2.6vw, 3.4rem);
+  font-size: var(--hh-text-display);
   line-height: 1.02;
   letter-spacing: -0.03em;
 }
@@ -472,7 +416,7 @@
 .stats dt {
   order: 2;
   color: var(--hh-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
 }
 .stats dd {
   margin: 0;
@@ -531,7 +475,7 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  font: 700 0.8rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
   background: var(--hh-surface-3);
   border-radius: 50%;
 }
@@ -557,7 +501,7 @@
   gap: 5px;
   padding: 3px 10px;
   color: var(--hh-text-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--hh-line);
@@ -638,10 +582,6 @@
   border-color: var(--hh-cyan);
   animation-delay: 0.3s;
 }
-@keyframes hh-burst {
-  0% { opacity: 0.9; transform: scale(0.6); }
-  100% { opacity: 0; transform: scale(2.2); }
-}
 
 /* Reduced motion: no ambient or decorative animation anywhere. */
 @media (prefers-reduced-motion: reduce) {
@@ -652,9 +592,8 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0ms !important;
   }
-  :root:not([data-motion="full"]) .backdrop__mote,
-  :root:not([data-motion="full"]) .backdrop__pulse {
-    display: none;
+  :root:not([data-motion="full"]) .backdrop__scene {
+    translate: none;
   }
 }
 :root[data-motion="reduce"] *,
@@ -664,7 +603,26 @@
   animation-iteration-count: 1 !important;
   transition-duration: 0ms !important;
 }
-:root[data-motion="reduce"] .backdrop__mote,
-:root[data-motion="reduce"] .backdrop__pulse {
-  display: none;
+:root[data-motion="reduce"] .backdrop__scene {
+  translate: none;
+}
+
+@keyframes hh-scene {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
+}
+@keyframes hh-pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+@keyframes hh-burst {
+  0% { opacity: 0.9; transform: scale(0.6); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+/* the painted place: fades in when you arrive, then drifts very slowly */
+@keyframes bd-arrive {
+  from { opacity: 0; filter: blur(6px); }
+}
+@keyframes bd-drift {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
 }

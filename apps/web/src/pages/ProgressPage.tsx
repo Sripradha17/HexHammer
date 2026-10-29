@@ -12,6 +12,7 @@ import { ErrorState, Loading } from "../components/PageState";
 import { Icon } from "../components/Icon";
 import { WeeklyXp } from "../components/WeeklyXp";
 import { formatDate, relativeDays } from "../labels";
+import { medalFor } from "../art/realm";
 
 export function ProgressPage() {
   const { data, error, loading, reload } = useLoad(() => Promise.all([atlas.analytics(), atlas.me(), atlas.history(30), atlas.missionControl()]));
@@ -121,9 +122,14 @@ export function ProgressPage() {
           <ul className="badges">
             {me.achievements.map((x) => (
               <li key={x.id} className={x.unlockedAt ? "is-unlocked" : ""} title={`${x.title}: ${x.description}`}>
-                <span className="badges__icon" aria-hidden="true">
-                  {x.icon}
-                </span>
+                {/* Earned: its painted medal, gently glowing. Not yet: a dim, empty socket. */}
+                {x.unlockedAt ? (
+                  <img className="badges__medal" src={medalFor(x.id)} alt="" />
+                ) : (
+                  <span className="badges__icon" aria-hidden="true">
+                    {x.icon}
+                  </span>
+                )}
                 <span className="badges__name">{x.title}</span>
                 <span className="visually-hidden">
                   {x.description} {x.unlockedAt ? `Unlocked ${formatDate(x.unlockedAt)}` : "Locked"}

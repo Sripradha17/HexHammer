@@ -1,9 +1,13 @@
 // XP and achievement celebrations. Any page calls `celebrate(result)` after an action; this shows a
-// small toast for XP, and a bigger moment for a newly unlocked achievement. It announces itself to
-// screen readers (aria-live) and its animation turns off under reduced motion (see app.css).
+// small toast for XP, and a bigger moment for a newly unlocked achievement: its painted medal
+// appears with a burst of light, and Bram grins. It only ever shows what the server says was
+// earned. It announces itself to screen readers (aria-live); its animation turns off under reduced
+// motion (see styles/realm.css).
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import type { Rewards as RewardResult, UnlockedAchievement } from "../atlasApi";
 import { chime } from "../sound";
+import { medalFor } from "../art/realm";
+import { BramFace } from "../art/Bram";
 
 interface Toast {
   id: number;
@@ -50,14 +54,15 @@ export function RewardsProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) =>
           t.achievement ? (
             <div key={t.id} className="toast toast--achievement" role="status">
-              <span className="toast__icon" aria-hidden="true">
-                {t.achievement.icon}
+              <span className="medal" aria-hidden="true">
+                <span className="medal__rays" />
+                <img className="medal__img" src={medalFor(t.achievement.id)} alt="" />
               </span>
-              <span>
+              <span className="toast__body">
                 <strong>Achievement unlocked: {t.achievement.title}</strong>
-                <br />
                 <span className="muted">{t.achievement.description}</span>
               </span>
+              <BramFace mood="happy" size={44} />
             </div>
           ) : (
             <div key={t.id} className="toast" role="status">

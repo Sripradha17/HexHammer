@@ -40,7 +40,8 @@ export type VisualizationType =
   | "contrast" // WCAG contrast ratio between two real colors
   | "log-trace" // structured logs and a trace waterfall for one request
   | "injection" // the same input glued into SQL vs sent as a parameter
-  | "big-o"; // operation counts growing with n
+  | "big-o" // operation counts growing with n
+  | "references"; // names pointing at boxes in memory: sharing vs copying
 
 // A source you can trust. `kind` says how authoritative it is.
 export interface Reference {

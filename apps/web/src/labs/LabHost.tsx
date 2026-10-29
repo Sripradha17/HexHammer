@@ -22,6 +22,7 @@ const LABS = {
   rag: lazy(() => import("./RagLab")),
   "prompt-injection": lazy(() => import("./PromptInjectionLab")),
   sorting: lazy(() => import("./BigOLab")),
+  references: lazy(() => import("./ReferencesLab")),
 } as const;
 
 export function LabHost({ kind, onGoal }: { kind: Topic["visualizationType"]; onGoal?: (detail: string) => void }) {

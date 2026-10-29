@@ -103,12 +103,11 @@ export function WorkshopPage() {
   return (
     <div className="workshop2">
       <header className="realm__title">
+        <p className="realm__eyebrow">The night market</p>
         <h1>
           <Kinetic text="The Workshop" />
         </h1>
-        <p className="realm__bram">
-          <span className="realm__who">⚒ Bram</span> Pick something fun to build. I'll guide you one step at a time.
-        </p>
+        <p className="realm__sub">Pick something fun to build. Every build is in small steps you write yourself.</p>
       </header>
 
       {active.length > 0 && (
@@ -151,7 +150,7 @@ export function WorkshopPage() {
             <Poster t={t} hue={current.id === "lesson" ? t.region.hue : current.hue} busy={starting === t.key} highlight={t.key === highlight} onStart={() => start(t)} />
           </div>
         ))}
-        {shown.length === 0 && <p className="realm__bram">You've started every build on this shelf. Try another!</p>}
+        {shown.length === 0 && <p className="realm__sub">You've started every build on this shelf. Try another!</p>}
       </div>
 
       {finished.length > 0 && (

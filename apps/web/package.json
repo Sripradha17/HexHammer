@@ -9,7 +9,9 @@
     "build": "npm run build:react-env && tsc -p . && vite build",
     "preview": "vite preview",
     "test": "npm run build:react-env && vitest run",
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "cut-art": "node scripts/cut-art.mjs",
+    "prepare-art": "node scripts/prepare-art.mjs"
   },
   "dependencies": {
     "@hexhammer/content": "*",
@@ -28,6 +30,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "esbuild": "^0.28.2",
     "happy-dom": "^20.14.5",
+    "sharp": "^0.33.5",
     "vite": "^6.0.7",
     "vitest": "^3.0.0"
   }

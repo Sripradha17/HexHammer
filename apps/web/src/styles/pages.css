@@ -1,16 +1,5 @@
 /* PAGES: the secondary screens (reviews, glossary, radar, portfolio, settings, blueprint form),
    plus small shared pieces (code wells, choice questions). The main screens have their own files. */
-
-.analytics__columns {
-  display: grid;
-  gap: var(--hh-space-6);
-  margin-bottom: var(--hh-space-6);
-}
-@media (min-width: 900px) {
-  .analytics__columns {
-    grid-template-columns: 1fr 1fr;
-  }
-}
 .facts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -26,17 +15,6 @@
 .facts dd {
   margin: 0;
   font: 700 var(--hh-text-lg) / 1.2 var(--hh-font-display);
-}
-.region-link {
-  color: var(--hh-text);
-  text-decoration: none;
-}
-.region-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background: var(--hh-region);
-  border-radius: 50%;
 }
 
 .code-block {
@@ -54,7 +32,7 @@
   color: var(--hh-code-text);
   background: var(--hh-code-bg);
   border-radius: var(--hh-radius-md);
-  font-size: 0.86rem;
+  font-size: 0.875rem;
   line-height: 1.55;
 }
 .lab__code--wrap,
@@ -124,25 +102,6 @@
 .choice__verdict {
   font-weight: 700;
 }
-.assessment__submit {
-  position: sticky;
-  bottom: calc(var(--hh-dock-offset) + var(--hh-space-2));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--hh-space-3);
-  padding: var(--hh-space-3) var(--hh-space-4);
-  background: color-mix(in srgb, var(--hh-surface) 92%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--hh-line);
-  border-radius: var(--hh-radius-pill);
-}
-.assessment-result__score {
-  font: 750 var(--hh-text-xl) / 1.2 var(--hh-font-display);
-}
-.assessment-result__score.is-pass {
-  color: var(--hh-success);
-}
 .assessment-review {
   display: grid;
   gap: var(--hh-space-3);
@@ -204,10 +163,6 @@
   background: var(--hh-surface-2);
   border-radius: var(--hh-radius-md);
 }
-.reveal__mine {
-  white-space: pre-wrap;
-  color: var(--hh-text-muted);
-}
 
 /* ---------- Interview Arena ---------- */
 .search {
@@ -243,71 +198,11 @@
   padding: 4px 12px;
   font-size: var(--hh-text-sm);
 }
-.arena__layout {
-  display: grid;
-  gap: var(--hh-space-5);
-}
-@media (min-width: 1000px) {
-  .arena__layout {
-    grid-template-columns: minmax(300px, 0.85fr) 1.15fr;
-    align-items: start;
-  }
-  .arena__practice {
-    position: sticky;
-    top: var(--hh-space-5);
-  }
-}
-.question-list {
-  display: grid;
-  gap: var(--hh-space-2);
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 2px;
-  list-style: none;
-  margin: 0;
-}
-.question-item {
-  display: grid;
-  gap: 4px;
-  width: 100%;
-  padding: var(--hh-space-3);
-  text-align: left;
-  color: var(--hh-text);
-  background: var(--hh-surface);
-  border: 1px solid var(--hh-line);
-  border-radius: var(--hh-radius-md);
-  font: inherit;
-  cursor: pointer;
-}
-.question-item:hover {
-  border-color: var(--hh-line-strong);
-}
-.question-item.is-current {
-  border-color: var(--hh-action);
-  box-shadow: inset 3px 0 0 var(--hh-action);
-}
-.question-item__prompt {
-  font-weight: 550;
-}
-.question-item__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--hh-space-2);
-  align-items: center;
-  font-size: var(--hh-text-sm);
-}
 .practice {
   padding: var(--hh-space-5);
   background: var(--hh-surface);
   border: 1px solid var(--hh-line);
   border-radius: var(--hh-radius-lg);
-}
-.practice__q {
-  font-size: var(--hh-text-xl);
-}
-.element-checks {
-  padding: 0;
-  list-style: none;
 }
 
 /* ---------- Workshop, editor, portfolio ---------- */
@@ -319,34 +214,6 @@
   .board {
     grid-template-columns: repeat(3, 1fr);
   }
-}
-.board__title {
-  font-size: var(--hh-text-lg);
-}
-.board__list {
-  display: grid;
-  gap: var(--hh-space-3);
-  padding: 0;
-  list-style: none;
-}
-.project-card {
-  display: grid;
-  gap: var(--hh-space-2);
-  padding: var(--hh-space-4);
-  background: var(--hh-surface);
-  border: 1px solid var(--hh-line);
-  border-radius: var(--hh-radius-md);
-}
-.project-card__link {
-  color: var(--hh-text);
-  font: 650 var(--hh-text-lg) / 1.25 var(--hh-font-display);
-  text-decoration: none;
-}
-.project-card__link:hover {
-  text-decoration: underline;
-}
-.project-card__date {
-  font-size: var(--hh-text-xs);
 }
 .archived {
   margin-top: var(--hh-space-6);

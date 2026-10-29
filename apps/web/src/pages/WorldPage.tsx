@@ -1,16 +1,24 @@
-// WORLD: explore the engineering regions. The map fills the screen; selecting a district opens
-// its panel: what it is, what is open, what is locked and WHY, and its missions, each one a
-// click away. The URL remembers the selection (/map/web), so links and the back button work.
-import { lazy, Suspense, useEffect, useRef, type CSSProperties } from "react";
+// WORLD: explore the engineering regions. The painted map fills the screen; selecting a town opens
+// its panel: its painted scene, what it is, what is open, what is locked and WHY, and its quests,
+// each one a click away. The URL remembers the selection (/map/web), so links and the back button
+// work. Entering a quest plays a short "fly into the town" transition first.
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { atlas, type MapTopic, type Region } from "../atlasApi";
 import { useLoad } from "../useLoad";
-const Kingdom3D = lazy(() => import("../world3d/Kingdom3D").then((m) => ({ default: m.Kingdom3D })));
 import { ErrorState, Loading } from "../components/PageState";
-import { Glyph, Icon, REGION_GLYPHS } from "../components/Icon";
+import { Icon } from "../components/Icon";
 import { Kinetic } from "./HomePage";
 import { TOWNS, playPath } from "../story/quests";
-import { NODE_STATE_LABEL, REGION_STATE_LABEL, nextTopicIn, nodeState, regionState } from "../map/regionState";
+import { NODE_STATE_LABEL, REGION_STATE_LABEL, nextTopicIn, nodeState, regionState, useNewlyUnlocked } from "../map/regionState";
+import { RealmMap } from "../map/RealmMap";
+import { regionArt, scene } from "../art/realm";
+
+// How long the fly-in plays before the quest opens (matches .realm.is-entering in realm.css).
+const ENTER_MS = 1300;
+const reducedMotion = () =>
+  document.documentElement.dataset.motion === "reduce" ||
+  (document.documentElement.dataset.motion !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
 function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; number: number; blocked: boolean; isNext: boolean }) {
   const state = nodeState(topic);
@@ -32,13 +40,13 @@ function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; numbe
       {body}
     </span>
   ) : (
-    <Link to={playPath(topic.id)} className={`mrow ${isNext ? "is-next" : ""}`}>
+    <Link to={playPath(topic.id, topic.stage)} className={`mrow ${isNext ? "is-next" : ""}`}>
       {body}
     </Link>
   );
 }
 
-function RegionPanel({ region, regions, strict }: { region: Region; regions: Region[]; strict: boolean }) {
+function RegionPanel({ region, regions, strict, onEnter }: { region: Region; regions: Region[]; strict: boolean; onEnter: (e: MouseEvent<HTMLAnchorElement>, to: string) => void }) {
   const state = regionState(region);
   const next = nextTopicIn(region);
   const blocked = !region.unlocked && strict;
@@ -48,17 +56,18 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
   let n = 0;
 
   return (
-    <aside className="rpanel glass" style={{ "--hue": region.hue } as CSSProperties} aria-labelledby="rpanel-title">
+    <aside className={`rpanel rm-panel is-${state}`} style={{ "--hue": region.hue } as CSSProperties} aria-labelledby="rpanel-title">
+      <div className="rpanel__scene rm-scene">
+        <img src={scene(regionArt(region.id).scene, true)} alt={`${TOWNS[region.id]?.name ?? region.short}, painted`} />
+      </div>
       <header className="rpanel__head">
-        <span className="rpanel__emblem" aria-hidden="true">
-          <Glyph d={REGION_GLYPHS[region.id] ?? REGION_GLYPHS.adv} size={26} />
-        </span>
+        <img className="rpanel__emblem" src={regionArt(region.id).icon} alt="" />
         <div>
           <p className="rpanel__state">
             {REGION_STATE_LABEL[state]} town
           </p>
           <h2 id="rpanel-title" className="rpanel__title">
-            {TOWNS[region.id]?.icon} {TOWNS[region.id]?.name ?? region.short}
+            {TOWNS[region.id]?.name ?? region.short}
           </h2>
           <p className="rpanel__sub">{region.short}</p>
         </div>
@@ -66,8 +75,8 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
       <p className="rpanel__tagline">{region.tagline}</p>
 
       <div className="rpanel__progress">
-        <div className="meter" aria-hidden="true">
-          <span style={{ width: `${pct}%` }} />
+        <div className="rm-meter" aria-hidden="true">
+          <span style={{ "--to": `${pct}%` } as CSSProperties} />
         </div>
         <span>
           {region.counts.assessed} of {region.counts.topics} quests done
@@ -91,7 +100,7 @@ function RegionPanel({ region, regions, strict }: { region: Region; regions: Reg
       )}
 
       {next && !blocked && (
-        <Link to={playPath(next.id)} className="cta rpanel__cta">
+        <Link to={playPath(next.id, next.stage)} className="btn btn--go rpanel__cta" onClick={(e) => onEnter(e, playPath(next.id, next.stage))}>
           <Icon name="play" size={17} /> {next.status === "new" ? "Start quest" : "Continue quest"}
         </Link>
       )}
@@ -131,6 +140,8 @@ export function WorldPage() {
   const navigate = useNavigate();
   const { data, error, loading, reload } = useLoad(() => Promise.all([atlas.map(), atlas.missionControl()]));
   const panelRef = useRef<HTMLDivElement>(null);
+  const [entering, setEntering] = useState(false);
+  const fresh = useNewlyUnlocked(data?.[0].regions);
 
   // On phones the panel sits under the map: scroll to it when I pick a district.
   useEffect(() => {
@@ -147,21 +158,35 @@ export function WorldPage() {
   const passed = map.regions.reduce((s, r) => s + r.counts.assessed, 0);
   const total = map.regions.reduce((s, r) => s + r.counts.topics, 0);
 
+  // Entering a town: the map flies into it and fades, THEN the quest opens. A plain click
+  // (or reduced motion) skips the show and goes straight there.
+  function enter(e: MouseEvent<HTMLAnchorElement>, to: string) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || reducedMotion()) return;
+    e.preventDefault();
+    setEntering(true);
+    setTimeout(() => navigate(to), ENTER_MS);
+  }
+
   return (
-    <div className="realm realm--world">
-      <Suspense fallback={<div className="kingdom3d kingdom3d--loading" />}>
-        <Kingdom3D regions={map.regions} selectedId={selected.id} hereId={hereId} onSelect={(id) => navigate(`/map/${id}`, { replace: Boolean(regionId) })} />
-      </Suspense>
+    <div className={`realm realm--world ${entering ? "is-entering" : ""}`}>
+      <RealmMap mode="world" regions={map.regions} selectedId={selected.id} hereId={hereId} fresh={fresh} onSelect={(id) => navigate(`/map/${id}`, { replace: Boolean(regionId) })} />
       <header className="realm__title">
         <h1>
-          <Kinetic text="Choose your island" />
+          <Kinetic text="Choose your town" />
         </h1>
         <p className="realm__bram">
           {open} of {map.regions.length} towns open · {passed} of {total} quests done
         </p>
       </header>
+      {/* Entering: the town's own painting fades in as the map flies towards it. */}
+      {entering && (
+        <div className="realm__arrive" aria-hidden="true">
+          <img src={scene(regionArt(selected.id).scene)} alt="" />
+          <p>{TOWNS[selected.id]?.name}</p>
+        </div>
+      )}
       <div ref={panelRef} className="realm__panel">
-        <RegionPanel key={selected.id} region={selected} regions={map.regions} strict={map.strictUnlocking} />
+        <RegionPanel key={selected.id} region={selected} regions={map.regions} strict={map.strictUnlocking} onEnter={enter} />
       </div>
     </div>
   );

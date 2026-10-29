@@ -3,112 +3,14 @@
 .home {
   --region: hsl(var(--hue) 85% 66%);
 }
-.home__hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  gap: clamp(24px, 4vw, 64px);
-  align-items: center;
-  min-height: calc(100vh - 240px);
-  padding: var(--hh-space-6) 0 var(--hh-space-5);
-}
-.home__brief {
-  animation: hh-rise 700ms var(--hh-ease) both;
-}
-.home__beacon {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--hh-cyan);
-  box-shadow: 0 0 0 0 rgba(95, 216, 245, 0.7);
-  animation: hh-ping 2.2s ease-out infinite;
-}
-@keyframes hh-ping {
-  0% { box-shadow: 0 0 0 0 rgba(95, 216, 245, 0.7); }
-  80%, 100% { box-shadow: 0 0 0 12px rgba(95, 216, 245, 0); }
-}
-@keyframes hh-rise {
-  from { opacity: 0; transform: translateY(18px); }
-}
-.home__title {
-  margin: var(--hh-space-2) 0 var(--hh-space-4);
-  font-size: clamp(2.4rem, 1.4rem + 3.6vw, 4.6rem);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
-  text-wrap: balance;
-  background: linear-gradient(180deg, #fff 30%, #c8d3ea);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.home__objective {
-  max-width: 46ch;
-  margin: 0 0 var(--hh-space-6);
-  color: var(--hh-text-muted);
-  font-size: 1.15rem;
-  line-height: 1.5;
-}
 .home__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--hh-space-3);
 }
-.home__signals {
-  display: grid;
-  gap: var(--hh-space-2);
-  margin: var(--hh-space-6) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.home__signals li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--hh-text);
-  font-size: 0.95rem;
-}
-.home__signals svg {
-  flex-shrink: 0;
-  color: var(--p-ember-300);
-}
-.home__signals a {
-  color: var(--hh-text);
-}
 
 /* The stage: a lit platform the scene sits on. */
-.home__stage {
-  position: relative;
-  padding: clamp(20px, 3vw, 36px);
-  background: linear-gradient(160deg, rgba(20, 30, 52, 0.75), rgba(10, 15, 27, 0.85));
-  border: 1px solid var(--hh-line-strong);
-  border-radius: 28px;
-  box-shadow: var(--hh-shadow-3), 0 0 80px -30px hsl(var(--hue) 90% 60% / 0.6);
-  animation: hh-rise 800ms var(--hh-ease) 120ms both;
-}
-.home__stage::before {
-  /* a thin lit edge along the top */
-  content: "";
-  position: absolute;
-  inset: 0 20% auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--hh-cyan), transparent);
-}
-.home__stage-glow {
-  position: absolute;
-  inset: auto 10% -30px;
-  height: 60px;
-  background: radial-gradient(ellipse, hsl(var(--hue) 90% 60% / 0.35), transparent 70%);
-  filter: blur(10px);
-  pointer-events: none;
-}
-.home__stage-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 var(--hh-space-4);
-  color: var(--hh-cyan);
-  font: 600 0.8rem/1 var(--hh-font-mono);
-}
 
 /* The region route: one hexagon per mission. */
 .route {
@@ -116,67 +18,6 @@
   background: rgba(12, 18, 31, 0.6);
   border: 1px solid var(--hh-line);
   border-radius: var(--hh-radius-lg);
-}
-.route__head {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--hh-space-3);
-  margin-bottom: var(--hh-space-3);
-  font-size: 0.92rem;
-}
-.route__name {
-  color: var(--region);
-  font-weight: 700;
-}
-.route__count {
-  color: var(--hh-text-muted);
-}
-.route__nodes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.route__hex {
-  display: block;
-  width: 26px;
-  height: 30px;
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  background: rgba(255, 255, 255, 0.07);
-  transition: transform var(--hh-speed) var(--hh-ease-spring);
-}
-a.route__hex:hover {
-  transform: translateY(-3px) scale(1.12);
-}
-.is-available .route__hex {
-  background: hsl(var(--hue) 50% 40% / 0.6);
-}
-.is-progress .route__hex {
-  background: linear-gradient(0deg, var(--region) 45%, hsl(var(--hue) 50% 30% / 0.7) 45%);
-}
-.is-done .route__hex {
-  background: var(--hh-success);
-}
-.is-unwritten .route__hex {
-  background: rgba(255, 255, 255, 0.04);
-  outline: 1px dashed rgba(255, 255, 255, 0.2);
-}
-.route__node.is-here .route__hex {
-  background: var(--hh-action);
-  animation: hh-here 1.8s ease-in-out infinite;
-}
-@keyframes hh-here {
-  50% { filter: drop-shadow(0 0 8px var(--p-ember-400)) brightness(1.25); transform: scale(1.12); }
-}
-
-@media (max-width: 900px) {
-  .home__hero {
-    grid-template-columns: 1fr;
-    min-height: 0;
-    padding-top: var(--hh-space-4);
-  }
 }
 
 /* ================================================================ ENCODING FLOW */
@@ -255,10 +96,6 @@ a.route__hex:hover {
   background: linear-gradient(90deg, var(--hh-cyan), var(--p-ember-300));
   box-shadow: 0 0 8px var(--hh-cyan);
 }
-@keyframes flow-in {
-  from { opacity: 0; transform: translateY(10px) scale(0.96); }
-  to { opacity: 1; transform: none; }
-}
 .flow__station--wide {
   flex: 1 1 100%;
   order: 0;
@@ -268,7 +105,7 @@ a.route__hex:hover {
 }
 .flow__label {
   color: var(--hh-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 .flow__glyph {
@@ -284,7 +121,7 @@ a.route__hex:hover {
 }
 .flow__sub {
   color: var(--hh-text-faint);
-  font: 500 0.75rem/1 var(--hh-font-mono);
+  font: 500 0.875rem/1 var(--hh-font-mono);
 }
 .flow__sub.is-ok {
   color: var(--hh-success);
@@ -305,7 +142,7 @@ a.route__hex:hover {
   width: 15px;
   height: 22px;
   color: var(--hh-text-faint);
-  font: 600 0.75rem/1 var(--hh-font-mono);
+  font: 600 0.875rem/1 var(--hh-font-mono);
   background: rgba(255, 255, 255, 0.04);
   border-radius: 4px;
   animation: flow-bit 400ms var(--hh-ease) both;
@@ -325,9 +162,6 @@ a.route__hex:hover {
   background: var(--hh-action);
   box-shadow: 0 0 8px rgba(255, 170, 60, 0.6);
 }
-@keyframes flow-bit {
-  from { opacity: 0; transform: translateY(-6px); }
-}
 .flow__note {
   display: flex;
   flex-wrap: wrap;
@@ -335,7 +169,7 @@ a.route__hex:hover {
   gap: 8px;
   margin: var(--hh-space-4) 0 0;
   color: var(--hh-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
 }
 .flow__key {
   width: 12px;
@@ -414,7 +248,7 @@ a.route__hex:hover {
   justify-items: center;
   gap: 8px;
   color: var(--hh-text-muted);
-  font: 600 0.82rem/1.2 var(--hh-font-body);
+  font: 600 0.875rem/1.2 var(--hh-font-body);
   text-align: center;
   background: none;
   border: 0;
@@ -426,7 +260,7 @@ a.route__hex:hover {
   width: 36px;
   height: 36px;
   color: var(--hh-text);
-  font: 700 0.8rem/1 var(--hh-font-mono);
+  font: 700 0.875rem/1 var(--hh-font-mono);
   background: var(--hh-surface);
   border: 2px solid var(--hh-line-strong);
   border-radius: 50%;
@@ -474,9 +308,6 @@ a.route__hex:hover {
   animation: beacon-spin 80s linear infinite;
   transform-origin: 0 0;
 }
-@keyframes beacon-spin {
-  to { transform: rotate(360deg); }
-}
 .beacon__module {
   fill: #0b1120;
   stroke: rgba(255, 255, 255, 0.2);
@@ -509,4 +340,15 @@ a.route__hex:hover {
   gap: 6px;
   color: var(--hh-text-muted);
   font-size: 0.9rem;
+}
+
+@keyframes flow-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes flow-bit {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes beacon-spin {
+  to { transform: rotate(360deg); }
 }

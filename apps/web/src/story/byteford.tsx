@@ -1,11 +1,11 @@
 // QUEST: "The Broken Bridge of Byteford" (topic: cs-binary-encoding, bits, bytes, hex and text).
 //
-// The story: the bridge to Byteford's market fell, and Rosa's bakery sign reads "JosÃ©'s Bakery".
+// The story: the bridge to Byteford's market went dark, and Rosa's bakery sign reads "JosÃ©'s Bakery".
 // Bram teaches me that runes (bytes) are rows of lanterns (bits), how smiths name runes in hex,
 // and why "é" needs two runes. I fix the sign, pass the Bridge Trial (the topic's REAL assessment,
-// checked by the server) and watch the bridge rebuild itself in 3D.
+// checked by the server) and watch the light run back across the bridge.
 //
-// Each chapter says what the 3D stage starts with (`stage`) and what I do (`Play`).
+// Each chapter says what the painted stage starts with (`stage`) and what I do (`Play`).
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import { atlas, type TopicView } from "../atlasApi";
@@ -17,8 +17,8 @@ import { useStage, type StageState } from "./stage";
 export interface ChapterProps {
   view: TopicView;
   next: () => void;
-  markRead: () => void;
-  completeLab: (detail: string) => void;
+  markRead: () => Promise<unknown>;
+  completeLab: (lab: string, detail: string) => void;
   celebrate: (r: { xpAwarded?: number; achievements?: { id: string; title: string; description: string; icon: string }[]; message?: string }) => void;
   reload: () => void;
 }
@@ -26,7 +26,7 @@ export interface Chapter {
   id: string;
   title: string;
   icon: string;
-  stage: Partial<StageState>; // what the 3D stage shows when the chapter starts
+  stage: Partial<StageState>; // what the painted stage shows when the chapter starts
   Play: (p: ChapterProps) => ReactNode;
 }
 
@@ -52,8 +52,8 @@ function SignPlay({ next, markRead, completeLab }: ChapterProps) {
       setPhase("fixed");
       set({ signFixed: true, shot: "sign", mood: "proud" });
       cheer();
-      markRead(); // the whole lesson story has now been told
-      completeLab("Lit 0xA5 with the lanterns and found that é is the first letter needing 2 bytes (C3 A9).");
+      // The whole lesson story has now been told; then the lab goal is saved (one after the other).
+      markRead().finally(() => completeLab("binary", "Lit 0xA5 with the lanterns and found that é is the first letter needing 2 bytes (C3 A9)."));
     } else setWrong(ch);
   }
 
@@ -221,7 +221,7 @@ function TrialPlay({ view, next, celebrate, reload }: ChapterProps) {
     return (
       <Dialogue
         lines={[
-          { mood: "think", shot: "bridge", text: `The Bridge Trial! ${questions.length} questions. Get ${need} right and the bridge rises again.` },
+          { mood: "think", shot: "bridge", text: `The Bridge Trial! ${questions.length} questions. Get ${need} right and the bridge lights up again.` },
           ...(best !== null ? [{ mood: "happy" as const, shot: "bridge" as const, text: `Your best so far is ${Math.round(best * 100)}%. Every try counts.` }] : []),
         ]}
       >
@@ -236,7 +236,7 @@ function TrialPlay({ view, next, celebrate, reload }: ChapterProps) {
         <Dialogue
           lines={[
             result.passed
-              ? { mood: "proud", shot: "bridge", text: `${result.correct} out of ${result.total}! Look! The planks are flying back into place!` }
+              ? { mood: "proud", shot: "bridge", text: `${result.correct} out of ${result.total}! Look! The light is running back across the bridge!` }
               : { mood: "happy", shot: "bridge", text: `${result.correct} out of ${result.total}. So close! You need ${need}. Let's look at the tricky ones and try again.` },
           ]}
         >
@@ -307,7 +307,7 @@ function RewardPlay({ view }: ChapterProps) {
   return (
     <Dialogue
       lines={[
-        { mood: "proud", shot: "bridge", text: "The bridge stands and Rosa's sign shines. Byteford is saved, apprentice!" },
+        { mood: "proud", shot: "bridge", text: "The bridge shines and so does Rosa's sign. Byteford is saved, apprentice!" },
         { mood: "happy", shot: "wide", text: `You hold ${met} of ${view.mastery.length} mastery seals for this skill. I'll quiz you again in a few days so it stays sharp.` },
       ]}
     >
@@ -333,7 +333,7 @@ export const BYTEFORD: Chapter[] = [
       <Dialogue
         lines={[
           { mood: "happy", shot: "bram", text: "Welcome to Byteford, apprentice! I'm Bram, the oldest smith in the Kingdom of Hex." },
-          { mood: "wow", shot: "bridge", text: "But look! Last night our bridge fell into the clouds. Nobody can reach the market." },
+          { mood: "wow", shot: "bridge", text: "But look! Last night the rune-lights on our bridge went dark. Nobody dares cross to the market." },
           { mood: "wow", shot: "sign", text: "And Rosa's bakery sign has gone all wrong. It should say \"José's Bakery\"." },
           { mood: "think", shot: "bram", text: "Everything in our kingdom is built from runes, and every rune is a row of tiny lanterns. Come to my forge. I'll show you." },
         ]}

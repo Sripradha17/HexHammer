@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button, Card } from "@hexhammer/design-system";
 import { api } from "../api";
-import { art } from "../mascots";
+import { BramFace } from "../art/Bram";
 
 interface HintLadderProps {
   strikeId: string;
@@ -45,7 +45,9 @@ export function HintLadder({ strikeId, hints, failedRuns, level }: HintLadderPro
 
   return (
     <Card title="Need a nudge?" level={level}>
-      <img className="hint-art" src={art.hint} alt="" />
+      <span className="hint-art">
+        <BramFace mood="think" size={56} />
+      </span>
       {hints.slice(0, hintsShown).map((hint, index) => (
         <p key={index} className="hint">
           <strong>Hint {index + 1}:</strong> {hint}

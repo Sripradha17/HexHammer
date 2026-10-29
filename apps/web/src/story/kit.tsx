@@ -1,12 +1,12 @@
-// THE STORY KIT: the pieces every quest is built from, drawn as a panel over the 3D stage.
+// THE STORY KIT: the pieces every quest is built from, drawn as a panel beside the painted stage.
 //
-//   <Dialogue>       Bram speaks one short line at a time. His 3D figure changes mood and gestures
-//                    while he talks. The words float in one by one.
+//   <Dialogue>       Bram speaks one short line at a time. His face (here) and his pose (on stage)
+//                    change with his mood. The words float in one by one.
 //   <Term>           a word card: the real tech word, then what it means in plain words
 //   <LanternPuzzle>  light lanterns (bits) until the rune shows a target number. The lanterns are
-//                    both in 3D (click them) and here as buttons (keyboard and screen readers).
+//                    both on stage (click them) and here as buttons (keyboard and screen readers).
 import { useEffect, useState, type ReactNode } from "react";
-import type { Mood } from "../world3d/parts";
+import { BramFace, type Mood } from "../art/Bram";
 import { LANTERN_VALUES, runeValue, useStage, type Shot } from "./stage";
 
 export interface Line {
@@ -32,7 +32,8 @@ export function Term({ word, plain }: TermDef) {
 // Words that float in one after another (each line replays it).
 function Spoken({ text }: { text: string }) {
   return (
-    <span className="spoken" aria-label={text}>
+    <span className="spoken">
+      <span className="visually-hidden">{text}</span>
       {text.split(" ").map((w, i) => (
         <span key={i} aria-hidden="true" style={{ animationDelay: `${i * 0.045}s` }}>
           {w}{" "}
@@ -59,10 +60,7 @@ export function Dialogue({ lines, children }: { lines: Line[]; children?: ReactN
   return (
     <div className="talk">
       <p className="talk__who">
-        <span className="talk__badge" aria-hidden="true">
-          ⚒
-        </span>{" "}
-        Bram
+        <BramFace mood={line.mood} /> Bram
       </p>
       <p className="talk__text" key={at} aria-live="polite">
         <Spoken text={line.text} />
@@ -100,18 +98,26 @@ export function LanternPuzzle({ target, ask, hint, showHex = false, win, childre
   const [done, setDone] = useState(false);
   const total = runeValue(stage.bits);
 
-  // Bring the lanterns on stage, all dark, and point the camera at them.
+  const stuck = tries >= 4; // after a few tries Bram scratches his head and offers a hint
+
+  // Bring the lanterns on stage, all dark, and turn the stage to them.
   useEffect(() => {
-    set({ scene: "forge", lanterns: true, hex: showHex, bits: Array(8).fill(false), shot: "lanterns", mood: "think" });
+    set({ scene: "forge", lanterns: true, hex: showHex, bits: Array(8).fill(false), shot: "lanterns", mood: "think", solved: false });
   }, [set, showHex]);
 
-  // Win as soon as the rune shows the target, however it was lit (3D click or button).
+  // Win as soon as the rune shows the target, however it was lit (stage click or button). Only a
+  // real match opens the Rune Engine on stage: the animation follows the answer, never the reverse.
   useEffect(() => {
     if (!done && total === target) {
       setDone(true);
+      set({ solved: true });
       cheer();
     }
-  }, [total, target, done, cheer]);
+  }, [total, target, done, cheer, set]);
+
+  useEffect(() => {
+    if (stuck && !done) set({ mood: "oops" });
+  }, [stuck, done, set]);
 
   function tap(i: number) {
     if (done) return;
@@ -142,15 +148,12 @@ export function LanternPuzzle({ target, ask, hint, showHex = false, win, childre
       {!done ? (
         <div className="talk">
           <p className="talk__who">
-            <span className="talk__badge" aria-hidden="true">
-              ⚒
-            </span>{" "}
-            Bram
+            <BramFace mood={stuck ? "oops" : "think"} /> Bram
           </p>
           <p className="talk__text">
             <Spoken text={ask} />
           </p>
-          {tries >= 4 && <p className="talk__hint">💡 {hint}</p>}
+          {stuck && <p className="talk__hint">💡 {hint}</p>}
         </div>
       ) : (
         <Dialogue lines={win}>{children}</Dialogue>

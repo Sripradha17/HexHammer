@@ -475,3 +475,91 @@
   font-style: italic;
   color: var(--hh-text-muted);
 }
+
+/* ---------------------------------------------------------------- references lab */
+.refs {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 1fr;
+  gap: var(--hh-space-4);
+  margin-bottom: var(--hh-space-3);
+}
+@media (max-width: 640px) {
+  .refs {
+    grid-template-columns: 1fr;
+  }
+}
+.refs__code {
+  display: grid;
+  gap: var(--hh-space-2);
+  align-content: start;
+}
+.refs__stmt {
+  justify-content: flex-start;
+  padding: 10px 14px;
+  font-size: var(--hh-text-sm);
+}
+.refs__memory {
+  display: grid;
+  gap: var(--hh-space-3);
+  align-content: start;
+}
+.refs__names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-2);
+}
+.refs__name {
+  padding: 6px 12px;
+  font-weight: 700;
+  background: var(--hh-surface-2);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: 999px;
+}
+.refs__name.is-shared {
+  border-color: var(--hh-action);
+}
+.refs__boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hh-space-3);
+}
+.refs__box {
+  display: grid;
+  gap: 4px;
+  min-width: 170px;
+  padding: 12px 14px;
+  background: var(--hh-surface-2);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-md);
+  animation: hh-toast-in 300ms var(--hh-ease-spring) both;
+}
+.refs__box.is-shared {
+  border-color: var(--hh-action);
+  box-shadow: var(--hh-glow-amber);
+}
+.refs__boxid {
+  font-size: var(--hh-text-xs);
+  font-weight: 700;
+  color: var(--hh-text-muted);
+}
+.refs__value {
+  font-size: var(--hh-text-lg);
+  color: var(--hh-cyan);
+  animation: hh-toast-in 300ms var(--hh-ease-spring) both;
+}
+.refs__who {
+  font-size: var(--hh-text-xs);
+  color: var(--hh-text-muted);
+}
+.refs__box.is-shared .refs__who {
+  color: var(--hh-ember-text);
+}
+.refs__log {
+  margin: 0 0 var(--hh-space-2);
+  padding: var(--hh-space-3);
+  font-size: var(--hh-text-sm);
+  color: var(--hh-code-text);
+  background: var(--hh-code-bg);
+  border-radius: var(--hh-radius-md);
+  overflow-x: auto;
+}

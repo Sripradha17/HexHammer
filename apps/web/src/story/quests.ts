@@ -1,6 +1,7 @@
 // THE KINGDOM OF HEX: story names for the 16 regions, and the quests written so far.
-// A region of the curriculum is a TOWN in the kingdom. A topic with a written quest is played as a
-// story (/quest/:id); a topic without one still opens as a normal mission (/topic/:id).
+// A region of the curriculum is a TOWN in the kingdom. Every written topic is played as a story
+// quest (/quest/:id): Byteford has its own hand-written story (QUESTS); every other written topic is
+// told by the shared chapters in autoQuest.tsx. Outline topics open as a mission (/topic/:id).
 import { BYTEFORD, type Chapter } from "./byteford";
 
 export const TOWNS: Record<string, { name: string; icon: string }> = {
@@ -31,10 +32,11 @@ export interface Quest {
 export const QUESTS: Record<string, Quest> = {
   "cs-binary-encoding": {
     title: "The Broken Bridge of Byteford",
-    teaser: "The bridge fell into the river and the bakery sign reads gibberish. Learn the lantern runes and fix them both.",
+    teaser: "The bridge went dark and the bakery sign reads gibberish. Learn the lantern runes and fix them both.",
     chapters: BYTEFORD,
   },
 };
 
-// Where a topic is played: its quest if one is written, otherwise the mission page.
-export const playPath = (topicId: string) => (QUESTS[topicId] ? `/quest/${topicId}` : `/topic/${topicId}`);
+// Where a topic is played: a quest when its lesson is written, otherwise the mission page.
+// (When the stage is unknown, the quest page itself sends outline topics on to the mission page.)
+export const playPath = (topicId: string, stage: string = "complete") => (QUESTS[topicId] || stage === "complete" ? `/quest/${topicId}` : `/topic/${topicId}`);
