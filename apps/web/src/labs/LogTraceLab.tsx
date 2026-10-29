@@ -94,7 +94,7 @@ export default function LogTraceLab({ onGoal }: LabProps) {
           {blamed && (
             <p className="lab__readout" aria-live="polite">
               {correctBlame
-                ? "✓ Right: the database query inside the pricing service is the slow part; the parent spans are only slow because they wait for it."
+                ? "Right: the database query inside the pricing service is the slow part; the parent spans are only slow because they wait for it."
                 : "Not that one. A parent span includes its children's time; find the deepest span with the big number."}
             </p>
           )}

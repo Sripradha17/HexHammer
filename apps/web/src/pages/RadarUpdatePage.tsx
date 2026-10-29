@@ -68,7 +68,7 @@ export function RadarUpdatePage() {
           <div><dt>Discovered by this app</dt><dd>{formatDate(u.discoveredAt, true)}</dd></div>
           <div><dt>Seen</dt><dd>{u.seenCount}× {u.alsoSeenIn.length > 0 && `(also in ${u.alsoSeenIn.length} other source${u.alsoSeenIn.length > 1 ? "s" : ""})`}</dd></div>
         </dl>
-        <p><a href={sourceUrl} target="_blank" rel="noreferrer noopener">Read the original ↗</a> <span className="muted small">(if the link fails, the source may have moved; the facts above are what it said when discovered)</span></p>
+        <p><a href={sourceUrl} target="_blank" rel="noreferrer noopener">Read the original</a> <span className="muted small">(if the link fails, the source may have moved; the facts above are what it said when discovered)</span></p>
       </section>
 
       <section aria-labelledby="why">

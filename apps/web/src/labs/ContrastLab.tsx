@@ -51,7 +51,7 @@ export default function ContrastLab({ onGoal }: LabProps) {
       </p>
       <p className="muted">
         Goal check: {isGrey ? `this grey is ${onDark.toFixed(2)}:1 on the dark surface` : "pick a pure grey (equal red, green and blue, like #8a8a8a)"}
-        {nearThreshold && (comparedOnLight ? " ✓ compared on the light page too" : ", now switch to the light page")}.
+        {nearThreshold && (comparedOnLight ? ", compared on the light page too" : ", now switch to the light page")}.
       </p>
     </LabFrame>
   );

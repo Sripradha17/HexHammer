@@ -162,7 +162,7 @@ export default function EventLoopLab({ onGoal }: LabProps) {
             ))}
           </div>
         ) : (
-          <p>{mistakes === 0 ? "✓ Perfect run." : "Done. Reset and try for zero mistakes."}</p>
+          <p>{mistakes === 0 ? "Perfect run." : "Done. Reset and try for zero mistakes."}</p>
         )}
         <Button variant="ghost" size="small" onClick={() => pick(programIndex)}>
           Reset prediction
@@ -192,10 +192,10 @@ export default function EventLoopLab({ onGoal }: LabProps) {
       </p>
       <div className="lab__controls">
         <Button variant="secondary" size="small" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
-          ← Back
+          Back
         </Button>
         <Button size="small" onClick={() => setStep(Math.min(snaps.length - 1, step + 1))} disabled={step === snaps.length - 1}>
-          Step →
+          Next step
         </Button>
       </div>
     </LabFrame>

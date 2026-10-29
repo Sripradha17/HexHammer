@@ -13,7 +13,7 @@ export function LabFrame({ title, note, goalMet, children }: { title: string; no
     <section className="lab" aria-label={`${title} lab`}>
       <header className="lab__head">
         <h3 className="lab__title">{title}</h3>
-        {goalMet && <Badge tone="success">✓ Goal reached</Badge>}
+        {goalMet && <Badge tone="success">Goal reached</Badge>}
       </header>
       <p className="lab__note">{note}</p>
       {children}

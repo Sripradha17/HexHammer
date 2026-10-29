@@ -131,8 +131,8 @@ export default function MiddlewareLab({ onGoal }: LabProps) {
             <span className="pipeline__label">{STAGES[id].label}</span>
             <span className="pipeline__ran">{r.ran.includes(id) ? "ran" : "skipped"}</span>
             <span className="pipeline__moves">
-              <button type="button" className="icon-btn" aria-label={`Move ${STAGES[id].label} up`} disabled={i === 0} onClick={() => setOrder(move(order, i, -1))}>↑</button>
-              <button type="button" className="icon-btn" aria-label={`Move ${STAGES[id].label} down`} disabled={i === order.length - 1} onClick={() => setOrder(move(order, i, 1))}>↓</button>
+              <button type="button" className="icon-btn" aria-label={`Move ${STAGES[id].label} up`} disabled={i === 0} onClick={() => setOrder(move(order, i, -1))}>Up</button>
+              <button type="button" className="icon-btn" aria-label={`Move ${STAGES[id].label} down`} disabled={i === order.length - 1} onClick={() => setOrder(move(order, i, 1))}>Down</button>
             </span>
           </li>
         ))}
@@ -150,10 +150,10 @@ export default function MiddlewareLab({ onGoal }: LabProps) {
         <p>Log lines: {r.log.length ? r.log.map((l) => <code key={l}>{l} </code>) : <span className="muted">none</span>}</p>
       </div>
       <ul className="goal-checks">
-        <li className={anonOk ? "is-met" : ""}>{anonOk ? "✓" : "○"} No token → 401, and the validator never runs</li>
-        <li className={userLogged ? "is-met" : ""}>{userLogged ? "✓" : "○"} A logged-in request's log line includes its user id</li>
-        <li className={idEverywhere ? "is-met" : ""}>{idEverywhere ? "✓" : "○"} Every response carries an x-request-id</li>
-        <li className={errorsHandled ? "is-met" : ""}>{errorsHandled ? "✓" : "○"} A thrown error reaches the error handler (no stack trace leaked)</li>
+        <li className={anonOk ? "is-met" : ""}>{anonOk ? "Done:" : "To do:"} No token → 401, and the validator never runs</li>
+        <li className={userLogged ? "is-met" : ""}>{userLogged ? "Done:" : "To do:"} A logged-in request's log line includes its user id</li>
+        <li className={idEverywhere ? "is-met" : ""}>{idEverywhere ? "Done:" : "To do:"} Every response carries an x-request-id</li>
+        <li className={errorsHandled ? "is-met" : ""}>{errorsHandled ? "Done:" : "To do:"} A thrown error reaches the error handler (no stack trace leaked)</li>
       </ul>
       <Button variant="ghost" size="small" onClick={() => setOrder(["logger", "validate", "auth", "handler", "errors", "requestId"])}>Reset order</Button>
     </LabFrame>

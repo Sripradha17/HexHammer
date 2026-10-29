@@ -13,7 +13,6 @@ import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { ApiError, projectsApi, type CheckItem, type Project } from "../atlasApi";
 import { ErrorState, Loading } from "../components/PageState";
 import { useRewards } from "../components/Rewards";
-import { Icon } from "../components/Icon";
 import { NotFoundPage } from "./NotFoundPage";
 import { PROJECT_TYPE_LABEL, formatDate } from "../labels";
 import type { RunResult } from "../runner/execute";
@@ -37,7 +36,7 @@ function Checks({ items, onToggle }: { items: CheckItem[]; onToggle: (i: number)
           <label className={`checks__item ${t.done ? "is-done" : ""}`}>
             <input type="checkbox" checked={t.done} onChange={() => onToggle(i)} />
             <span className="checks__box" aria-hidden="true">
-              {t.done && <Icon name="check" size={13} />}
+              
             </span>
             {t.title}
           </label>
@@ -151,7 +150,7 @@ export function BuildPage() {
     <div className="build" style={{ "--hue": hue } as CSSProperties}>
       <header className="mission__head">
         <Link to="/projects" className="mission__back">
-          <Icon name="back" size={16} /> Workshop
+Workshop
         </Link>
         <p className="kicker">
           {PROJECT_TYPE_LABEL[project.type] ?? project.type} · {project.difficulty} · {done}/{total} milestones
@@ -164,7 +163,7 @@ export function BuildPage() {
               <li key={p.id} className={phaseDone[p.id] ? "is-done" : ""}>
                 <button type="button" className="path__step" aria-current={p.id === phase ? "step" : undefined} onClick={() => go(p.id)}>
                   <span className="path__dot" aria-hidden="true">
-                    {phaseDone[p.id] ? <Icon name="check" size={14} /> : i + 1}
+                    {i + 1}
                   </span>
                   {p.label}
                 </button>
@@ -187,7 +186,7 @@ export function BuildPage() {
               <p className="kicker kicker--amber">The brief</p>
               <p className="scenario__text">{project.description}</p>
               <p className="build__done-when">
-                <Icon name="trophy" size={18} />
+
                 <span>
                   <strong>Finished when:</strong> {project.acceptanceCriteria[0] ?? "you decide (edit the blueprint)."}
                 </span>
@@ -202,7 +201,7 @@ export function BuildPage() {
                 <ul className="goals">
                   {project.acceptanceCriteria.map((c) => (
                     <li key={c}>
-                      <Icon name="check" size={14} /> {c}
+{c}
                     </li>
                   ))}
                 </ul>
@@ -229,7 +228,7 @@ export function BuildPage() {
             </div>
             <div className="stage-box">
               <div className="build-poster" aria-hidden="true">
-                <span>⚒️</span>
+                
                 <span className="build-poster__bar">
                   <span style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
                 </span>
@@ -240,13 +239,13 @@ export function BuildPage() {
               <ol className="feature__ms">
                 {project.milestones.map((m) => (
                   <li key={m.id} className={m.doneAt ? "is-done" : ""}>
-                    <span aria-hidden="true">{m.doneAt ? <Icon name="check" size={13} /> : m.order}</span>
+                    <span aria-hidden="true">{m.order}</span>
                     {m.title}
                   </li>
                 ))}
               </ol>
               <button type="button" className="cta" onClick={() => go("build")}>
-                <Icon name="play" size={16} /> Start building
+Start building
               </button>
             </div>
           </div>
@@ -267,7 +266,7 @@ export function BuildPage() {
                     </p>
                   )}
                   <button type="button" className="cta cta--small" onClick={() => toggleMilestone(current.id, true)}>
-                    <Icon name="check" size={15} /> Mark milestone done
+Mark milestone done
                   </button>
                 </div>
               ) : (
@@ -275,7 +274,7 @@ export function BuildPage() {
                   <p className="kicker kicker--amber">All {total} milestones done</p>
                   <h2 className="ms-card__title">Now prove it with tests.</h2>
                   <button type="button" className="cta cta--small" onClick={() => go("test")}>
-                    Go to Test <Icon name="arrow" size={15} />
+                    Go to Test
                   </button>
                 </div>
               )}
@@ -285,7 +284,7 @@ export function BuildPage() {
                     <label className={`checks__item ${m.doneAt ? "is-done" : ""} ${m.id === current?.id ? "is-current" : ""}`}>
                       <input type="checkbox" checked={Boolean(m.doneAt)} onChange={(e) => toggleMilestone(m.id, e.target.checked)} />
                       <span className="checks__box" aria-hidden="true">
-                        {m.doneAt && <Icon name="check" size={13} />}
+                        
                       </span>
                       {m.title}
                     </label>
@@ -325,7 +324,7 @@ export function BuildPage() {
                   <h2 className="ms-card__title">{lastRun.results.length ? `All ${lastRun.results.length} tests pass.` : "No tests ran yet."}</h2>
                   {lastRun.results.length > 0 && (
                     <button type="button" className="cta cta--small" onClick={() => go("complete")}>
-                      Go to Complete <Icon name="arrow" size={15} />
+                      Go to Complete
                     </button>
                   )}
                 </div>
@@ -344,7 +343,7 @@ export function BuildPage() {
                 <ul className="goals">
                   {project.acceptanceCriteria.map((c) => (
                     <li key={c}>
-                      <Icon name="check" size={14} /> {c}
+{c}
                     </li>
                   ))}
                 </ul>
@@ -363,7 +362,7 @@ export function BuildPage() {
                 <p>{project.evidence}</p>
                 <div className="home__actions">
                   <Link to="/portfolio" className="cta cta--small">
-                    <Icon name="portfolio" size={15} /> See portfolio
+See portfolio
                   </Link>
                   <Link to="/projects" className="cta cta--ghost cta--small">
                     Next build
@@ -388,7 +387,7 @@ export function BuildPage() {
                   {fieldErrors.repoUrl && <span className="field-error">{fieldErrors.repoUrl}</span>}
                 </label>
                 <button type="submit" className="cta" disabled={!evidence.trim()}>
-                  <Icon name="trophy" size={17} /> Complete build
+Complete build
                 </button>
               </form>
             )}
@@ -402,7 +401,7 @@ export function BuildPage() {
                 ].map(([label, met]) => (
                   <li key={String(label)} className={met ? "is-met" : ""}>
                     <span className="seals__mark" aria-hidden="true">
-                      {met ? <Icon name="check" size={14} /> : null}
+                      
                     </span>
                     {label}
                   </li>
@@ -426,7 +425,7 @@ export function BuildPage() {
       {index < PHASES.length - 1 && (
         <footer className="mission__foot">
           <button type="button" className="cta cta--ghost cta--small" onClick={() => go(PHASES[index + 1].id)}>
-            Continue to {PHASES[index + 1].label} <Icon name="arrow" size={16} />
+            Continue to {PHASES[index + 1].label}
           </button>
         </footer>
       )}

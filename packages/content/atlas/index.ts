@@ -16,10 +16,13 @@ import { d13 } from "./domains/d13-machine-learning";
 import { d14 } from "./domains/d14-ai-engineering";
 import { d15 } from "./domains/d15-product-team";
 import { d16 } from "./domains/d16-advanced";
+import { beginnerCards } from "./beginner";
 
 export type * from "./types";
 export { glossary } from "./glossary";
 export { funBuilds, getFunBuild } from "./funBuilds";
+export { beginnerCards, getBeginnerCards } from "./beginner";
+export type { BeginnerCard } from "./beginner";
 export type { FunBuild, BuildKind } from "./funBuilds";
 export { auditAtlas, topicCompleteness, TOPIC_PARTS, INTERVIEW_MINIMUM, INTERVIEW_TARGET } from "./validate";
 export type { Finding } from "./validate";
@@ -28,7 +31,8 @@ const all = [d01, d02, d03, d04, d05, d06, d07, d08, d09, d10, d11, d12, d13, d1
 
 // The 16 domains in map order, and every topic in one flat list.
 export const domains: Domain[] = all.map((d) => d.domain);
-export const topics: Topic[] = all.flatMap((d) => d.topics);
+// Each topic carries its beginner cards (written separately in beginner.ts, so lessons stay short).
+export const topics: Topic[] = all.flatMap((d) => d.topics).map((t) => (beginnerCards[t.id] ? { ...t, beginner: beginnerCards[t.id] } : t));
 
 // Quick lookups by id. They return undefined for unknown ids, so callers must handle "not found".
 const topicIndex = new Map(topics.map((t) => [t.id, t]));

@@ -1,0 +1,261 @@
+
+/* ================================================================ structure pass: one flow, no clutter */
+
+/* Quiet, thin scrollbars everywhere */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 164, 92, 0.35) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 164, 92, 0.35);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The menu button says "Menu" */
+.utility__toggle {
+  width: auto;
+  height: 42px;
+  padding: 0 16px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+/* Text-only dock on phones: five pages, no icons */
+@media (max-width: 900px) {
+  .dock__link {
+    align-content: center;
+    min-height: 48px;
+  }
+}
+
+/* Map markers: numbered discs (the town's place in the learning order) */
+.rnode__icon {
+  display: grid;
+  place-items: center;
+  font: 800 calc(var(--node) * 0.42) / 1 var(--rm-sans);
+  color: var(--rm-ink);
+  background: radial-gradient(circle at 50% 35%, #2b3d63, #0e1730 75%);
+  border: 2px solid var(--rm-gold);
+  clip-path: none;
+}
+.rnode.is-locked .rnode__icon {
+  color: var(--rm-text-soft);
+  border-color: rgba(160, 170, 200, 0.4);
+}
+.rnode.is-here .rnode__icon,
+.rnode.is-active .rnode__icon {
+  color: #241300;
+  background: radial-gradient(circle at 50% 35%, #ffd98a, #f59a1b 75%);
+  border-color: #ffe2a6;
+}
+.journey__stop a {
+  display: grid;
+  place-items: center;
+  font: 800 0.95rem/1 var(--rm-sans);
+  color: var(--rm-ink);
+  text-decoration: none;
+  background: #14203a;
+  border: 1px solid var(--rm-gold-soft);
+}
+.journey__stop.is-locked a {
+  color: var(--rm-text-soft);
+  opacity: 0.6;
+}
+
+/* World: ONE scroll (the page). The map stays fixed; the town panel flows beside it. */
+.realm--world {
+  display: grid;
+  grid-template-columns: 1fr min(440px, 38vw);
+  column-gap: 24px;
+  align-items: start;
+}
+.realm--world .realm__title {
+  grid-column: 1;
+  grid-row: 1;
+}
+.realm--world .realm__panel {
+  position: relative;
+  inset: auto;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: auto;
+  max-height: none;
+  margin-bottom: 24px;
+  overflow: visible;
+}
+@media (max-width: 900px) {
+  .realm--world {
+    grid-template-columns: 1fr;
+  }
+  .realm--world .realm__panel {
+    grid-column: 1;
+    grid-row: 2;
+    /* below the map, which sits at the top of the screen */
+    margin-top: calc(100vw / 1.3382 - 20px);
+    min-height: 0;
+  }
+}
+
+/* Quest: the story card is large and centred; Bram stands beside it */
+.quest {
+  --box-w: min(880px, calc(100vw - 360px));
+  --box-l: calc((100vw - var(--box-w)) / 2 + 100px);
+}
+@media (min-width: 901px) {
+  .quest__panel {
+    top: 50%;
+    bottom: auto;
+    left: var(--box-l);
+    translate: 0 -50%;
+    max-height: calc(100vh - 150px);
+    padding: 34px 40px 36px;
+  }
+  .quest__chapter {
+    top: 12vh;
+  }
+  .stage__bram {
+    bottom: 24px;
+  }
+}
+
+/* ================================================================ About */
+.about {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+.about__hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.about__hero > div {
+  flex: 1 1 420px;
+}
+.about__hero .kicker {
+  margin: 0 0 6px;
+}
+.about__title {
+  margin: 0 0 12px;
+  font: 600 var(--hh-text-display) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__lead {
+  max-width: 62ch;
+  margin: 0;
+  font-size: var(--hh-text-lg);
+  line-height: 1.6;
+  color: var(--rm-text);
+}
+.about__section {
+  margin-bottom: 36px;
+  padding: 26px 28px;
+  background: var(--rm-panel);
+  border: 1px solid var(--rm-gold-faint);
+  border-radius: 18px;
+}
+.about__section h2 {
+  margin: 0 0 10px;
+  font: 600 var(--hh-text-2xl) / 1.2 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__text {
+  margin: 0 0 18px;
+  font-size: var(--hh-text-read);
+  color: var(--rm-text-soft);
+}
+.about__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.about__step {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(20, 30, 52, 0.85);
+  border: 1px solid var(--rm-gold-soft);
+  border-radius: 14px;
+}
+.about__step > span:last-child {
+  display: grid;
+  gap: 6px;
+  line-height: 1.55;
+}
+.about__step strong {
+  font: 600 var(--hh-text-xl) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__n {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  font: 800 1.1rem/1 var(--rm-sans);
+  color: #241300;
+  background: var(--rm-amber);
+  border-radius: 50%;
+}
+.about__pages {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.about__page {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rm-gold-faint);
+}
+.about__page:last-child {
+  border-bottom: 0;
+}
+.about__page dt {
+  font: 700 var(--hh-text-lg) / 1.2 var(--rm-sans);
+}
+.about__page dt a {
+  color: var(--rm-amber);
+}
+.about__page dd {
+  margin: 0;
+  font-size: var(--hh-text-read);
+  line-height: 1.55;
+  color: var(--rm-text);
+}
+.about__rules {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: var(--hh-text-read);
+  line-height: 1.55;
+}
+.about__start {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+@media (max-width: 600px) {
+  .about__section {
+    padding: 18px 16px;
+  }
+  .about__page {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

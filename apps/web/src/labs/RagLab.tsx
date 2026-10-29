@@ -96,7 +96,7 @@ export default function RagLab({ onGoal }: LabProps) {
         {QUESTIONS.map((q, i) => (
           <li key={q.q}>
             <button type="button" className={`rag-q ${i === qi ? "is-current" : ""}`} aria-pressed={i === qi} onClick={() => setQi(i)}>
-              <span aria-hidden="true">{hits[i] ? "✓" : "✗"}</span> {q.q}
+              <span aria-hidden="true">{hits[i] ? "Found:" : "Missed:"}</span> {q.q}
               <span className="visually-hidden">{hits[i] ? " (source found)" : " (source missed)"}</span>
             </button>
           </li>

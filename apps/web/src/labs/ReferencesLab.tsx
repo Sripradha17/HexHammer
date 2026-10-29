@@ -107,8 +107,8 @@ export default function ReferencesLab({ onGoal }: LabProps) {
         {`console.log(a); // ${show(mem.boxes[mem.a])}`}
       </pre>
       <p className="muted">
-        {seen.sharedChange ? "✓ You changed a without touching it: b and a shared one box." : "Try: let b = a; then b.push(4); and look at a."}{" "}
-        {seen.safeChange ? "✓ You changed b alone." : seen.sharedChange ? "Now start again and make b its own box first." : ""}
+        {seen.sharedChange ? "Done: you changed a without touching it: b and a shared one box." : "Try: let b = a; then b.push(4); and look at a."}{" "}
+        {seen.safeChange ? "Done: you changed b alone." : seen.sharedChange ? "Now start again and make b its own box first." : ""}
       </p>
     </LabFrame>
   );

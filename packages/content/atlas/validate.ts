@@ -258,6 +258,10 @@ export function auditAtlas(input: AuditInput): Finding[] {
     if (t.interviewQuestions.length < INTERVIEW_TARGET) {
       warn(t.id, `interview bank has ${t.interviewQuestions.length} of ${INTERVIEW_TARGET} target questions`);
     }
+    // A written lesson should also be readable by someone who has never coded (beginner.ts).
+    if (t.stage === "complete" && (t.beginner?.length ?? 0) < 3) {
+      warn(t.id, "complete topic has no beginner cards (atlas/beginner.ts)");
+    }
   }
 
   const loop = findCycle(topicById);

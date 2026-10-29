@@ -186,6 +186,8 @@ export interface Topic {
   // When no lab or picture would genuinely help (e.g. a writing skill), say why instead of
   // inventing a decorative one. The validator accepts this as the honest answer to part 5.
   visualNote?: string;
+  // The "picture book" version for complete beginners, read before the lesson (atlas/beginner.ts).
+  beginner?: import("./beginner").BeginnerCard[];
   codeExamples: CodeExample[];
   practicalApplication?: string;
   commonMistakes: Mistake[];

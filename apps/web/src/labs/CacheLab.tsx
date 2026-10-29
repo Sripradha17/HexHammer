@@ -73,7 +73,7 @@ export default function CacheLab({ onGoal }: LabProps) {
         <p><span className="stat-row__big">{r.misses}</span> misses (database reads)</p>
         <p><span className="stat-row__big">{r.evictions}</span> evictions</p>
       </div>
-      <p className="muted">Cache after the run (least → most recently used): {r.contents.map((k) => `#${k}`).join(" ")}</p>
+      <p className="muted">Cache after the run (least to most recently used): {r.contents.map((k) => `#${k}`).join(" ")}</p>
       <p className="muted">
         Try "Full scan" with capacity 59: a scan of 60 keys through a 59-slot LRU evicts each key just before it is needed again, giving a 0% hit rate. That is why
         databases protect their buffer caches from big scans.

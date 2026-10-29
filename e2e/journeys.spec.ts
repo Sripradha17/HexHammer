@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
-import { getTopic } from "../packages/content/atlas/index";
+import { getTopic, topics } from "../packages/content/atlas/index";
 
 config({ path: ".env" });
 const db = new PrismaClient({
@@ -22,6 +22,9 @@ test.describe.configure({ mode: "serial" });
 // animations play.
 if (process.env.E2E_VIDEO) test.use({ video: { mode: "on", size: { width: 1440, height: 900 } } });
 test.afterAll(() => db.$disconnect());
+test.beforeEach(async ({ page }, info) => {
+  if (!info.title.startsWith("0.")) await page.addInitScript(() => localStorage.setItem("hexhammer-seen-about", "1"));
+});
 
 async function toast(page: Page, text: RegExp | string) {
   await expect(page.locator(".toasts").getByText(text).first()).toBeVisible();
@@ -57,10 +60,25 @@ async function light(page: Page, values: number[]) {
   for (const v of values) await page.getByRole("button", { name: `Lantern worth ${v}`, exact: true }).click();
 }
 
-test("1. launch: Home is the painted kingdom with today's quest and one big button", async ({ page }) => {
+test("0. a first visit opens the About page, which explains the four steps and the pages", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/about$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Welcome to Hexhammer" })).toBeVisible();
+  const steps = page.locator(".about__step strong");
+  await expect(steps).toHaveText(["Study", "Play", "Build", "Test"]);
+  await page.screenshot({ path: `${SHOTS}/00-about.png` });
+  // Seen once: Today no longer redirects.
+  await page.getByRole("link", { name: "Start learning" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto("/");
+  await expect(page).not.toHaveURL(/\/about$/);
+});
+
+test("1. launch: Today shows the next topic, its four steps and one big button", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 2, name: FIRST.title })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Start quest/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Start: Study/ })).toBeVisible();
+  await expect(page.locator(".flow-steps li")).toHaveText(["1 Study", "2 Play", "3 Build", "4 Test"]);
   await expect(page.locator(".rmap__base")).toBeVisible(); // the painted realm map is really there
   await expect(page.getByRole("button", { name: /Bram, the guide/ })).toBeVisible(); // the owl guide
   await expect(page.getByText(/Classic Levels/i)).toHaveCount(0);
@@ -80,23 +98,26 @@ test("2 + 19. explore the world map with the keyboard only", async ({ page }) =>
   // A locked town says how to open it.
   await page.getByRole("button", { name: "Pixel Gardens" }).focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByText(/Opens when you finish a quest/)).toBeVisible();
+  await expect(page.getByText(/Opens when you pass a topic in/)).toBeVisible();
   await page.getByRole("button", { name: "Byteford" }).focus();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/map\/cs$/);
   await page.waitForTimeout(1500);
   await page.screenshot({ path: `${SHOTS}/02-region.png` });
-  await page.locator(".rpanel").getByRole("link", { name: /Start quest/ }).focus();
+  await page.locator(".rpanel").getByRole("link", { name: /Start: Study/ }).focus();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(new RegExp(`/quest/${FIRST.id}`)); // the town's first quest
-  // Byteford's own hand-written story is one row further down the town's list.
+  await expect(page).toHaveURL(new RegExp(`/topic/${FIRST.id}`)); // the town's first topic, at Study
+  await expect(page.locator(".path")).toContainText("Study");
+  // Any row opens its topic page too.
   await page.goto("/map/cs");
   await page.locator(".rpanel .mrow", { hasText: TOPIC.title }).click();
-  await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
+  await expect(page).toHaveURL(new RegExp(`/topic/${TOPIC.id}`));
 });
 
 test("3. the quest story: lanterns, hex marks, and fixing the sign (lesson read, lab goal)", async ({ page }) => {
-  await page.goto(`/topic/${TOPIC.id}`); // a topic with a quest opens as the quest
+  // The Play step links to the story game.
+  await page.goto(`/topic/${TOPIC.id}#play`);
+  await page.locator(".story-game").getByRole("link").click();
   await expect(page).toHaveURL(new RegExp(`/quest/${TOPIC.id}`));
   await talkThrough(page, /Go to the forge/);
   // Chapter 2: light 5 = 4 + 1. The Rune Engine only opens after a real solve.
@@ -151,7 +172,7 @@ test("4. a riddle (predict the output), wrong first then right", async ({ page }
   await card.getByRole("button", { name: "Try again" }).click();
   await card.getByLabel(ex.question.choices[ex.question.answerIndex], { exact: true }).check();
   await card.getByRole("button", { name: "Check my answer" }).click();
-  await expect(card.getByText("✓ Right.")).toBeVisible();
+  await expect(card.getByText("Right.", { exact: true })).toBeVisible();
   await toast(page, "+20 XP");
   await page.getByRole("button", { name: /I'm ready for the trial/ }).click();
 });
@@ -184,7 +205,7 @@ test("7. reload: progress persisted (the quest is done on the map)", async ({ pa
   await page.goto("/map/cs");
   await page.reload();
   const row = page.locator(".rpanel .mrow", { hasText: TOPIC.title });
-  await expect(row).toContainText("Done ✓");
+  await expect(row).toContainText("Done");
 });
 
 test("8-11. Workshop: start a build, run the workbench, finish a milestone, edit the blueprint, complete, portfolio", async ({ page }) => {
@@ -225,7 +246,7 @@ test("8-11. Workshop: start a build, run the workbench, finish a milestone, edit
 
   await page.goto("/portfolio");
   await expect(page.getByRole("link", { name: TOPIC.project!.title })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Repository ↗" })).toHaveAttribute("href", "https://github.com/learner/byte-inspector");
+  await expect(page.getByRole("link", { name: "Repository", exact: true })).toHaveAttribute("href", "https://github.com/learner/byte-inspector");
   await page.screenshot({ path: `${SHOTS}/10-portfolio.png` });
 });
 
@@ -236,20 +257,20 @@ test("12. open and finish a review mission", async ({ page }) => {
     data: { dueAt: new Date(Date.now() - 60_000) },
   });
   await page.goto("/reviews");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Today's review mission",
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today's reviews");
+  await expect(page.locator(".memory__orbs li.is-now")).toHaveCount(1); // today's progress orbs
   const pool = [...TOPIC.knowledgeChecks, ...TOPIC.assessment!.questions];
-  const sets = page.locator(".review-card fieldset.choice");
+  const sets = page.locator(".memory__card fieldset.memory-q");
   const count = await sets.count();
   for (let i = 0; i < count; i++) {
     const set = sets.nth(i);
-    const text = (await set.locator(".choice__prompt").innerText()).trim();
-    const q = pool.find((p) => text.startsWith(p.prompt.slice(0, 25)))!;
-    await set.getByLabel(q.choices[q.answerIndex], { exact: true }).check();
+    const text = (await set.locator(".memory-q__prompt").innerText()).replace(/^\d+\s*/, "").trim();
+    const q = pool.find((p) => text.startsWith(p.prompt.replace(/`/g, "").slice(0, 25)))!;
+    await set.locator(".memory-q__option").filter({ has: page.getByText(q.choices[q.answerIndex], { exact: true }) }).click();
   }
-  await page.getByLabel("Fairly sure").check();
-  await page.getByRole("button", { name: "Check my review" }).click();
+  await page.locator(".sure__option", { hasText: "Fairly sure" }).click();
+  await page.screenshot({ path: `${SHOTS}/12-memory-garden.png` });
+  await page.getByRole("button", { name: "Check my memory" }).click();
   await expect(page.getByText(/Next review in/)).toBeVisible();
 });
 
@@ -312,12 +333,12 @@ test("14-18. radar: discover from a fixture, deduplicate, propose, approve, vers
 
   await page.goto("/topic/fe-event-loop#unlock");
   await page.getByText("Sources, glossary and version history").click();
-  await expect(page.getByText("v1 → v2", { exact: false })).toBeVisible();
+  await expect(page.getByText("v1 to v2", { exact: false })).toBeVisible();
   await expect(page.getByText("Only the async pipeline API exists.", { exact: false })).toBeVisible();
 
   // 18: earlier progress on another topic is untouched.
   await page.goto("/map/cs");
-  await expect(page.locator(".rpanel .mrow", { hasText: TOPIC.title })).toContainText("Done ✓");
+  await expect(page.locator(".rpanel .mrow", { hasText: TOPIC.title })).toContainText("Done");
 });
 
 test("20. representative layouts on desktop and phone, and automated accessibility checks", async ({
@@ -439,7 +460,7 @@ test("22. the new Foundations topics are real missions, and the references lab r
     await expect(page.locator(".rpanel .mrow", { hasText: title })).not.toContainText("Coming soon");
   }
   // The lab: share one box, see a change through b reach a; then copy and change b alone.
-  await page.goto("/topic/cs-references-mutability#try");
+  await page.goto("/topic/cs-references-mutability#play");
   const lab = page.getByRole("region", { name: "Names and boxes lab" });
   await lab.getByRole("button", { name: "let b = a;" }).click();
   await lab.getByRole("button", { name: "b.push(4);" }).click();
@@ -447,50 +468,76 @@ test("22. the new Foundations topics are real missions, and the references lab r
   await lab.getByRole("button", { name: "Start again" }).click();
   await lab.getByRole("button", { name: "let b = [...a];" }).click();
   await lab.getByRole("button", { name: "b.push(4);" }).click();
-  await expect(lab.getByText("✓ Goal reached")).toBeVisible();
+  await expect(lab.getByText("Goal reached", { exact: true })).toBeVisible();
   await expect(lab.locator(".refs__log")).toContainText("console.log(a); // [1, 2, 3]");
   await toast(page, /Lab goal reached/);
   await page.screenshot({ path: `${SHOTS}/22-references-lab.png` });
 });
 
-test("23. any written topic plays as a story quest: learn, run the example, a riddle, the real trial", async ({ page }) => {
+test("23. a topic in order: Study (plain cards, then the lesson), Play (the story game), Test", async ({ page }) => {
   const topic = getTopic("cs-control-flow")!;
+  // 1. Study: plain-words cards first, then the full lesson; the last lesson card marks it read.
+  await page.goto(`/topic/${topic.id}`);
+  const plainCards = page.locator(".plain");
+  await expect(plainCards).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/23a-study-plain-words.png` });
+  for (let i = 0; i < 8 && (await plainCards.getByRole("button", { name: "Next card" }).count()); i++) await plainCards.getByRole("button", { name: "Next card" }).click();
+  await plainCards.getByRole("button", { name: /Got it: show me the full lesson/ }).click();
+  const briefing = page.locator(".briefing");
+  for (let i = 0; i < 12 && (await briefing.getByRole("button", { name: "Next card" }).count()); i++) await briefing.getByRole("button", { name: "Next card" }).click();
+  await toast(page, "+10 XP");
+
+  // 2. Play: the story game. Arrival, the worked example (guess, then run), a real riddle, done.
   await page.goto(`/quest/${topic.id}`);
   await expect(page.locator(".quest__name")).toContainText(topic.title);
-  // 1. Arrival, in the town's own painting
-  await talkThrough(page, /Let's learn/);
-  // 2. Learn: one card at a time, each in the study hall painting; finishing marks the lesson read
-  await expect(page.locator(".stage__art")).toHaveAttribute("src", /scene-7/);
-  for (let i = 0; i < 12 && (await page.getByRole("button", { name: /Next card/ }).count()); i++) await page.getByRole("button", { name: /Next card/ }).click();
-  await page.getByRole("button", { name: /I've got it/ }).click();
-  await toast(page, "+10 XP");
-  // 3. The worked example: guess first, then run it
+  await talkThrough(page, /Show me/);
   await page.getByRole("button", { name: /Run it/ }).click();
   await expect(page.locator(".qexample__output")).toContainText("excellent pass try again");
+  await page.screenshot({ path: `${SHOTS}/23b-story-game-centred.png` });
   await talkThrough(page, /Time to practise/);
-  // 4. Practice: the topic's real riddle, checked by the server
   const riddle = topic.exercises.find((e) => e.kind === "predict")!;
   if (riddle.kind !== "predict") throw new Error("fixture needs a predict exercise");
   const card = page.locator("fieldset.choice").first();
   await card.getByLabel(riddle.question.choices[riddle.question.answerIndex], { exact: true }).check();
   await card.getByRole("button", { name: "Check my answer" }).click();
-  await expect(card.getByText("✓ Right.")).toBeVisible();
-  await page.getByRole("button", { name: /I'm ready for the trial/ }).click();
-  // 5. The trial: the topic's real assessment
-  await talkThrough(page, /Begin the trial/);
+  await expect(card.getByText("Right.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: /Finish the game/ }).click();
+  // Victory: click through Bram's lines, then go to the test.
+  const toTest = page.locator(".quest__panel").getByRole("link", { name: /Take the test/ });
+  for (let i = 0; i < 6 && !(await toTest.count()); i++) await page.locator(".quest__panel").getByRole("button", { name: /^Next/ }).click();
+  await toTest.click();
+
+  // 3. Test: the topic's real assessment, scored by the server.
+  await expect(page).toHaveURL(new RegExp(`/topic/${topic.id}#test`));
   const questions = topic.assessment!.questions;
-  const plain = (s: string) => s.replace(/`/g, "");
+  const plain = (x: string) => x.replace(/`/g, "");
   for (let i = 0; i < questions.length; i++) {
-    const prompt = (await page.locator(".trial__q").innerText()).trim();
+    const prompt = (await page.locator(".quiz__prompt").innerText()).trim();
     const q = questions.find((x) => prompt.startsWith(plain(x.prompt).slice(0, 25)))!;
-    await page.locator(".choice-btn").filter({ has: page.getByText(plain(q.choices[q.answerIndex]), { exact: true }) }).click();
-    if (i < questions.length - 1) await expect(page.locator(".trial__q")).not.toHaveText(prompt);
+    await page.locator(".quiz__option").filter({ has: page.getByText(plain(q.choices[q.answerIndex]), { exact: true }) }).click();
+    const next = page.getByRole("button", { name: "Next question" });
+    if (i < questions.length - 1) await next.click();
   }
-  await expect(page.getByText(/You proved it/).first()).toBeVisible();
-  await page.screenshot({ path: `${SHOTS}/23-auto-quest-trial.png` });
-  await page.locator(".quest__panel").getByRole("button", { name: /Celebrate/ }).click();
-  await expect(page.getByText(/Quest complete/).first()).toBeVisible();
+  await page.getByRole("button", { name: /^Submit/ }).click();
+  await expect(page.getByText("Proven.")).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/23c-test-passed.png` });
   // Saved for real: the map shows it done after a reload
   await page.goto("/map/cs");
-  await expect(page.locator(".rpanel .mrow", { hasText: topic.title })).toContainText("Done ✓");
+  await expect(page.locator(".rpanel .mrow", { hasText: topic.title })).toContainText("Done");
+});
+
+test("24. Quick fire: answer a random riddle and the streak grows", async ({ page }) => {
+  await page.goto("/interview");
+  await expect(page.getByRole("tab", { name: /Quick fire/ })).toHaveAttribute("aria-selected", "true"); // the default mode
+  const pool = topics.filter((t) => t.stage === "complete").flatMap((t) => [...t.knowledgeChecks, ...t.exercises.flatMap((e) => ("question" in e ? [e.question] : []))]);
+  const plain = (x: string) => x.replace(/`/g, "");
+  const prompt = (await page.locator(".quickfire .choice__prompt").innerText()).trim();
+  const q = pool.find((p) => prompt.startsWith(plain(p.prompt).slice(0, 30)))!;
+  await page.locator(".quickfire").getByLabel(plain(q.choices[q.answerIndex]), { exact: true }).check();
+  await page.locator(".quickfire").getByRole("button", { name: "Check my answer" }).click();
+  await expect(page.locator(".quickfire").getByText("Right.", { exact: true })).toBeVisible();
+  await expect(page.locator(".quickfire__streak")).toHaveText("1 in a row");
+  await page.screenshot({ path: `${SHOTS}/24-quick-fire.png` });
+  await page.getByRole("button", { name: /Next challenge/ }).click();
+  await expect(page.locator(".quickfire .choice__prompt")).not.toHaveText(prompt);
 });

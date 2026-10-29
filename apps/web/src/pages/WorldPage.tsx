@@ -7,7 +7,6 @@ import { Link, useNavigate, useParams } from "react-router";
 import { atlas, type MapTopic, type Region } from "../atlasApi";
 import { useLoad } from "../useLoad";
 import { ErrorState, Loading } from "../components/PageState";
-import { Icon } from "../components/Icon";
 import { Kinetic } from "./HomePage";
 import { TOWNS, playPath } from "../story/quests";
 import { NODE_STATE_LABEL, REGION_STATE_LABEL, nextTopicIn, nodeState, regionState, useNewlyUnlocked } from "../map/regionState";
@@ -25,7 +24,7 @@ function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; numbe
   const body = (
     <>
       <span className={`mrow__dot is-${state}`} aria-hidden="true">
-        {state === "done" ? <Icon name="check" size={13} /> : state === "locked" ? <Icon name="lock" size={12} /> : number}
+        {number}
       </span>
       <span className="mrow__title">
         {topic.capstone && <span className="mrow__crown">Boss · </span>}
@@ -40,7 +39,7 @@ function MissionRow({ topic, number, blocked, isNext }: { topic: MapTopic; numbe
       {body}
     </span>
   ) : (
-    <Link to={playPath(topic.id, topic.stage)} className={`mrow ${isNext ? "is-next" : ""}`}>
+    <Link to={playPath(topic.id)} className={`mrow ${isNext ? "is-next" : ""}`}>
       {body}
     </Link>
   );
@@ -61,7 +60,6 @@ function RegionPanel({ region, regions, strict, onEnter }: { region: Region; reg
         <img src={scene(regionArt(region.id).scene, true)} alt={`${TOWNS[region.id]?.name ?? region.short}, painted`} />
       </div>
       <header className="rpanel__head">
-        <img className="rpanel__emblem" src={regionArt(region.id).icon} alt="" />
         <div>
           <p className="rpanel__state">
             {REGION_STATE_LABEL[state]} town
@@ -79,15 +77,15 @@ function RegionPanel({ region, regions, strict, onEnter }: { region: Region; reg
           <span style={{ "--to": `${pct}%` } as CSSProperties} />
         </div>
         <span>
-          {region.counts.assessed} of {region.counts.topics} quests done
+          {region.counts.assessed} of {region.counts.topics} topics done
         </span>
       </div>
 
       {!region.unlocked && (
         <p className="rpanel__locked" role="note">
-          <Icon name="lock" size={16} />
+
           <span>
-            Opens when you finish a quest in{" "}
+            Opens when you pass a topic in{" "}
             {unlockers.map((u, i) => (
               <span key={u.id}>
                 {i > 0 && " or "}
@@ -100,8 +98,8 @@ function RegionPanel({ region, regions, strict, onEnter }: { region: Region; reg
       )}
 
       {next && !blocked && (
-        <Link to={playPath(next.id, next.stage)} className="btn btn--go rpanel__cta" onClick={(e) => onEnter(e, playPath(next.id, next.stage))}>
-          <Icon name="play" size={17} /> {next.status === "new" ? "Start quest" : "Continue quest"}
+        <Link to={playPath(next.id)} className="btn btn--go rpanel__cta" onClick={(e) => onEnter(e, playPath(next.id))}>
+{next.status === "new" ? "Start: Study" : "Continue"}
         </Link>
       )}
 
@@ -122,7 +120,7 @@ function RegionPanel({ region, regions, strict, onEnter }: { region: Region; reg
 
       {opens.length > 0 && (
         <p className="rpanel__opens">
-          Finish a quest here to open{" "}
+          Pass a topic here to open{" "}
           {opens.map((o, i) => (
             <span key={o.id}>
               {i > 0 && ", "}
@@ -175,7 +173,7 @@ export function WorldPage() {
           <Kinetic text="Choose your town" />
         </h1>
         <p className="realm__bram">
-          {open} of {map.regions.length} towns open · {passed} of {total} quests done
+          {open} of {map.regions.length} towns open · {passed} of {total} topics done
         </p>
       </header>
       {/* Entering: the town's own painting fades in as the map flies towards it. */}

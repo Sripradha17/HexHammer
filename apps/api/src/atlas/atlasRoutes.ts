@@ -440,6 +440,20 @@ export function createAtlasRouter(db: PrismaClient) {
 
   // ------------------------------------------------------------------ Interview Arena
 
+  // GET /atlas/quickfire -> quick multiple-choice challenges for the Challenge page: every written
+  // topic's riddles (predict the output, spot the bug) and quick checks. Answers are stripped; the
+  // existing /atlas/questions/:id/check reveals them only after I choose. Assessment (trial)
+  // questions are NOT included, so a quest's trial stays a real test.
+  router.get("/atlas/quickfire", (_req, res) => {
+    const questions = topics
+      .filter((t) => t.stage === "complete")
+      .flatMap((t) => [
+        ...t.exercises.flatMap((e) => (e.kind === "predict" || e.kind === "debug" ? [{ q: e.question, kind: e.kind }] : [])),
+        ...t.knowledgeChecks.map((q) => ({ q, kind: "check" as const })),
+      ].map(({ q, kind }) => ({ ...publicChoice(q), kind, topicId: t.id, topicTitle: t.title, domainId: t.domainId })));
+    res.json({ questions });
+  });
+
   // GET /atlas/interview/questions -> the whole searchable bank (answers stripped) with my stats.
   router.get("/atlas/interview/questions", async (_req, res) => {
     const [attempts, items] = await Promise.all([

@@ -12,9 +12,10 @@ interface Props {
   kindLabel?: string; // "Predict the output", "Find the bug", "Quick check"
   alreadyDone?: boolean;
   onCorrect?: () => void;
+  onAnswered?: (correct: boolean) => void; // every checked answer, right or wrong (Quick fire streaks)
 }
 
-export function ChoiceQuestion({ question, kindLabel = "Quick check", alreadyDone = false, onCorrect }: Props) {
+export function ChoiceQuestion({ question, kindLabel = "Quick check", alreadyDone = false, onCorrect, onAnswered }: Props) {
   const name = useId();
   const [choice, setChoice] = useState<number | null>(null);
   const [result, setResult] = useState<{ correct: boolean; answerIndex: number; explanation: string } | null>(null);
@@ -31,6 +32,7 @@ export function ChoiceQuestion({ question, kindLabel = "Quick check", alreadyDon
       setResult(r);
       celebrate(r);
       if (r.correct) onCorrect?.();
+      onAnswered?.(r.correct);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -75,7 +77,7 @@ export function ChoiceQuestion({ question, kindLabel = "Quick check", alreadyDon
         </Button>
       ) : (
         <div className="choice__feedback" role="status">
-          <p className="choice__verdict">{result.correct ? "✓ Right." : "Not quite, and that's useful: here's why."}</p>
+          <p className="choice__verdict">{result.correct ? "Right." : "Not quite, and that's useful: here's why."}</p>
           <p>
             <InlineText text={result.explanation} />
           </p>

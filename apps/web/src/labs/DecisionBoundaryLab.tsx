@@ -160,8 +160,8 @@ export default function DecisionBoundaryLab({ onGoal }: LabProps) {
             />
           </svg>
           <ul className="goal-checks">
-            <li className={seen.converged ? "is-met" : ""}>{seen.converged ? `✓ ${seen.converged}` : "○ Find a learning rate that converges in under 300 steps"}</li>
-            <li className={seen.diverged ? "is-met" : ""}>{seen.diverged ? `✓ ${seen.diverged}` : "○ Find one that diverges"}</li>
+            <li className={seen.converged ? "is-met" : ""}>{seen.converged ? `Done: ${seen.converged}` : "To do: Find a learning rate that converges in under 300 steps"}</li>
+            <li className={seen.diverged ? "is-met" : ""}>{seen.diverged ? `Done: ${seen.diverged}` : "To do: Find one that diverges"}</li>
           </ul>
         </div>
       </div>

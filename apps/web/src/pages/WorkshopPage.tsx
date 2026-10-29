@@ -11,27 +11,21 @@ import { useRewards } from "../components/Rewards";
 import { EMPTY_PROJECT } from "../projectDraft";
 import { Kinetic } from "./HomePage";
 
-const SHELVES: { id: ProjectTemplate["kind"]; label: string; emoji: string; hue: number }[] = [
-  { id: "game", label: "Games", emoji: "🎮", hue: 262 },
-  { id: "creative", label: "Creative tools", emoji: "🎨", hue: 330 },
-  { id: "app", label: "Apps you'll use", emoji: "🏠", hue: 150 },
-  { id: "ai", label: "AI toys", emoji: "🤖", hue: 200 },
-  { id: "lesson", label: "From your quests", emoji: "📜", hue: 36 },
+const SHELVES: { id: ProjectTemplate["kind"]; label: string; hue: number }[] = [
+  { id: "game", label: "Games", hue: 262 },
+  { id: "creative", label: "Creative tools", hue: 330 },
+  { id: "app", label: "Apps you'll use", hue: 150 },
+  { id: "ai", label: "AI toys", hue: 200 },
+  { id: "lesson", label: "From your topics", hue: 36 },
 ];
-const STARS = { foundation: "★☆☆", core: "★★☆", advanced: "★★★" } as const;
 const LEVEL = { foundation: "Easy", core: "Medium", advanced: "Hard" } as const;
 
 function Poster({ t, hue, onStart, busy, highlight }: { t: ProjectTemplate; hue: number; onStart: () => void; busy: boolean; highlight: boolean }) {
   return (
     <article id={`build-${t.key}`} className={`poster ${highlight ? "is-highlight" : ""}`} style={{ "--hue": hue } as CSSProperties}>
-      <div className="poster__art" aria-hidden="true">
-        <span className="poster__emoji">{t.emoji ?? "⚒️"}</span>
-      </div>
       <div className="poster__body">
         <p className="poster__meta">
-          <span title={`Difficulty: ${LEVEL[t.difficulty]}`}>
-            {STARS[t.difficulty]} {LEVEL[t.difficulty]}
-          </span>
+          <span>{LEVEL[t.difficulty]}</span>
           <span>· {t.milestones?.length ?? 0} steps</span>
         </p>
         <h3 className="poster__title">{t.title}</h3>
@@ -43,7 +37,7 @@ function Poster({ t, hue, onStart, busy, highlight }: { t: ProjectTemplate; hue:
           ))}
         </ul>
         <button type="button" className="btn btn--go" onClick={onStart} disabled={busy}>
-          {busy ? "Opening…" : "Start build"} <span aria-hidden="true">▶</span>
+          {busy ? "Opening…" : "Start build"}
         </button>
       </div>
     </article>
@@ -116,16 +110,13 @@ export function WorkshopPage() {
           <div className="bench-row__list">
             {active.map((p) => (
               <Link key={p.id} to={`/projects/${p.id}`} className="bench-card">
-                <span className="bench-card__emoji" aria-hidden="true">
-                  {templates.find((t) => t.title === p.title)?.emoji ?? "⚒️"}
-                </span>
                 <span className="bench-card__text">
                   <strong>{p.title}</strong>
                   <span className="bench-card__bar" aria-hidden="true">
                     <span style={{ width: `${progress(p) * 100}%` }} />
                   </span>
                   <span className="bench-card__sub">
-                    {p.milestones.filter((m) => m.doneAt).length} of {p.milestones.length} steps · Resume ▶
+                    {p.milestones.filter((m) => m.doneAt).length} of {p.milestones.length} steps · Resume
                   </span>
                 </span>
               </Link>
@@ -137,7 +128,7 @@ export function WorkshopPage() {
       <div className="shelves" role="tablist" aria-label="Kinds of build">
         {SHELVES.map((s) => (
           <button key={s.id} type="button" role="tab" aria-selected={shelf === s.id} className="shelf-tab" style={{ "--hue": s.hue } as CSSProperties} onClick={() => setShelf(s.id)}>
-            <span aria-hidden="true">{s.emoji}</span> {s.label} <span className="shelf-tab__n">{counts[s.id] ?? 0}</span>
+            {s.label} <span className="shelf-tab__n">{counts[s.id] ?? 0}</span>
           </button>
         ))}
       </div>
@@ -155,16 +146,13 @@ export function WorkshopPage() {
 
       {finished.length > 0 && (
         <section className="bench-row" aria-label="Built">
-          <h2 className="shelf-title">🏆 Built</h2>
+          <h2 className="shelf-title">Built</h2>
           <div className="bench-row__list">
             {finished.map((p) => (
               <Link key={p.id} to={`/projects/${p.id}`} className="bench-card is-done">
-                <span className="bench-card__emoji" aria-hidden="true">
-                  {templates.find((t) => t.title === p.title)?.emoji ?? "🏆"}
-                </span>
                 <span className="bench-card__text">
                   <strong>{p.title}</strong>
-                  <span className="bench-card__sub">Finished · see it ▶</span>
+                  <span className="bench-card__sub">Finished · see it</span>
                 </span>
               </Link>
             ))}

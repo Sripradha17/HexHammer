@@ -1,6 +1,8 @@
 // CHALLENGE: interview practice as a focused game mode.
 //
-//   1. Pick a mode (Coding, Algorithms, SQL, Debugging, System design, Explain it, Behavioral).
+//   0. Quick fire (the default): fast multiple-choice riddles from every written topic, with a
+//      streak counter. The server checks each answer; correct riddles also count as exercises.
+//   1. Or pick a mode (Coding, Algorithms, SQL, Debugging, System design, Explain it, Behavioral).
 //      Each mode tile shows my REAL record in it: how many I've answered and how many I nailed.
 //   2. One challenge at a time fills the arena. I commit an answer in my own words first;
 //      only then the model answer, the key points and the follow-ups are revealed.
@@ -9,33 +11,115 @@
 // Search and filters are still here, tucked into "Browse all", so they never take over.
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { atlas, type BankQuestion, type Reveal } from "../atlasApi";
+import { atlas, type BankQuestion, type QuickfireQuestion, type Reveal } from "../atlasApi";
+import { ChoiceQuestion } from "../components/ChoiceQuestion";
 import { useLoad } from "../useLoad";
 import { ErrorState, Loading } from "../components/PageState";
 import { CodeBlock, InlineText } from "../components/RichText";
 import { useRewards } from "../components/Rewards";
-import { Icon, type IconName } from "../components/Icon";
 import { relativeDays } from "../labels";
 
 // The modes, and which questions belong to each (by question kind, tag or region).
 interface Mode {
   id: string;
   label: string;
-  icon: IconName;
   blurb: string;
   match: (q: BankQuestion) => boolean;
 }
 const ALGO_TAGS = ["big-o", "sorting", "search", "arrays", "data-structures", "amortised", "space"];
 const MODES: Mode[] = [
-  { id: "due", label: "Due today", icon: "reviews", blurb: "Spaced reviews waiting", match: (q) => Boolean(q.dueAt && new Date(q.dueAt) <= new Date()) },
-  { id: "coding", label: "Coding", icon: "code", blurb: "Read and write code", match: (q) => q.kind === "implementation" || q.kind === "code-reading" },
-  { id: "algorithms", label: "Algorithms", icon: "analytics", blurb: "Big-O and data structures", match: (q) => q.tags.some((t) => ALGO_TAGS.includes(t)) },
-  { id: "sql", label: "SQL", icon: "glossary", blurb: "Queries, joins, data", match: (q) => q.domainId === "db" || q.tags.some((t) => ["sql", "joins", "aggregation", "databases"].includes(t)) },
-  { id: "debugging", label: "Debugging", icon: "test", blurb: "Find what's broken", match: (q) => q.kind === "debugging" },
-  { id: "design", label: "System design", icon: "map", blurb: "Trade-offs and scale", match: (q) => q.kind === "design" || q.kind === "scenario" },
-  { id: "explain", label: "Explain it", icon: "interview", blurb: "Concepts out loud", match: (q) => q.kind === "concept" || q.kind === "misconception" },
-  { id: "behavioral", label: "Behavioral", icon: "trophy", blurb: "Stories from real work", match: (q) => q.kind === "behavioral" },
+  { id: "due", label: "Due today", blurb: "Spaced reviews waiting", match: (q) => Boolean(q.dueAt && new Date(q.dueAt) <= new Date()) },
+  { id: "coding", label: "Coding", blurb: "Read and write code", match: (q) => q.kind === "implementation" || q.kind === "code-reading" },
+  { id: "algorithms", label: "Algorithms", blurb: "Big-O and data structures", match: (q) => q.tags.some((t) => ALGO_TAGS.includes(t)) },
+  { id: "sql", label: "SQL", blurb: "Queries, joins, data", match: (q) => q.domainId === "db" || q.tags.some((t) => ["sql", "joins", "aggregation", "databases"].includes(t)) },
+  { id: "debugging", label: "Debugging", blurb: "Find what's broken", match: (q) => q.kind === "debugging" },
+  { id: "design", label: "System design", blurb: "Trade-offs and scale", match: (q) => q.kind === "design" || q.kind === "scenario" },
+  { id: "explain", label: "Explain it", blurb: "Concepts out loud", match: (q) => q.kind === "concept" || q.kind === "misconception" },
+  { id: "behavioral", label: "Behavioral", blurb: "Stories from real work", match: (q) => q.kind === "behavioral" },
 ];
+
+// ------------------------------------------------------------------ Quick fire
+
+const KIND_LABEL: Record<QuickfireQuestion["kind"], string> = { predict: "What will it print?", debug: "Spot the bug", check: "Quick check" };
+const KIND_FILTERS = [
+  { id: "all", label: "Everything" },
+  { id: "predict", label: "Predict the output" },
+  { id: "debug", label: "Spot the bug" },
+  { id: "check", label: "Quick checks" },
+] as const;
+
+// Shuffle a copy (Fisher-Yates), so every visit is a different run.
+function shuffled<T>(list: T[]) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function QuickFire() {
+  const { data, error, loading, reload } = useLoad(() => atlas.quickfire());
+  const [kind, setKind] = useState<(typeof KIND_FILTERS)[number]["id"]>("all");
+  const order = useMemo(() => shuffled(data?.questions ?? []), [data]);
+  const pool = order.filter((q) => kind === "all" || q.kind === kind);
+  const [at, setAt] = useState(0);
+  const [answered, setAnswered] = useState(false);
+  const [streak, setStreak] = useState(0);
+  const [best, setBest] = useState(0);
+  const [score, setScore] = useState({ right: 0, total: 0 });
+
+  if (loading && !data) return <Loading label="Lighting the fuse" />;
+  if (error) return <ErrorState message={error} onRetry={reload} />;
+  const q = pool[at % Math.max(pool.length, 1)];
+
+  function answered1(correct: boolean) {
+    setAnswered(true);
+    setScore((s) => ({ right: s.right + (correct ? 1 : 0), total: s.total + 1 }));
+    setStreak((n) => {
+      const next = correct ? n + 1 : 0;
+      setBest((b) => Math.max(b, next));
+      return next;
+    });
+  }
+
+  return (
+    <section className="quickfire glass" aria-labelledby="qf-title">
+      <header className="quickfire__head">
+        <h2 id="qf-title" className="quickfire__title">Quick fire</h2>
+        <p className="quickfire__stats" aria-live="polite">
+          <span className={`quickfire__streak ${streak >= 3 ? "is-hot" : ""}`}>{streak} in a row</span>
+          <span>Best {best}</span>
+          <span>
+            {score.right}/{score.total} right
+          </span>
+        </p>
+      </header>
+      <div className="quickfire__filters" role="group" aria-label="Kind of challenge">
+        {KIND_FILTERS.map((k) => (
+          <button key={k.id} type="button" className={`shelf-tab ${kind === k.id ? "is-on" : ""}`} aria-pressed={kind === k.id} onClick={() => (setKind(k.id), setAt(0), setAnswered(false))}>
+            {k.label} <span className="shelf-tab__n">{k.id === "all" ? order.length : order.filter((x) => x.kind === k.id).length}</span>
+          </button>
+        ))}
+      </div>
+      {q ? (
+        <div className="quickfire__card" key={q.id}>
+          <p className="quickfire__topic">
+            From <Link to={`/topic/${q.topicId}`}>{q.topicTitle}</Link>
+          </p>
+          <ChoiceQuestion question={q} kindLabel={KIND_LABEL[q.kind]} onAnswered={answered1} />
+          <div className="quickfire__next">
+            <button type="button" className={`cta cta--small ${answered ? "" : "cta--ghost"}`} onClick={() => (setAt(at + 1), setAnswered(false))}>
+              {answered ? "Next challenge" : "Skip"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="muted">No challenges of this kind yet.</p>
+      )}
+    </section>
+  );
+}
 
 // The next question to face: due first, then never answered, then the ones I got wrong.
 function pickNext(pool: BankQuestion[], skip: Set<string>) {
@@ -110,7 +194,7 @@ function Arena({ question, onNext, onRated }: { question: BankQuestion; onNext: 
               ))}
             </div>
             <button type="button" className="cta cta--small" onClick={commit} disabled={answer.trim().length < 20}>
-              <Icon name="check" size={15} /> Commit answer
+Commit answer
             </button>
           </div>
           {answer.trim().length < 20 && <p className="muted small">Write a sentence or two first. The reveal is earned.</p>}
@@ -126,7 +210,7 @@ function Arena({ question, onNext, onRated }: { question: BankQuestion; onNext: 
                     <label className={`checks__item ${hit.includes(e) ? "is-done" : ""}`}>
                       <input type="checkbox" checked={hit.includes(e)} onChange={() => setHit(hit.includes(e) ? hit.filter((x) => x !== e) : [...hit, e])} />
                       <span className="checks__box" aria-hidden="true">
-                        {hit.includes(e) && <Icon name="check" size={13} />}
+                        
                       </span>
                       {e}
                     </label>
@@ -155,7 +239,7 @@ function Arena({ question, onNext, onRated }: { question: BankQuestion; onNext: 
                 {rated}
               </p>
               <button type="button" className="cta cta--small" onClick={onNext}>
-                Next challenge <Icon name="arrow" size={15} />
+                Next challenge
               </button>
             </div>
           ) : (
@@ -190,7 +274,7 @@ function Arena({ question, onNext, onRated }: { question: BankQuestion; onNext: 
 export function ChallengePage() {
   const [params, setParams] = useSearchParams();
   const { data, error, loading, reload } = useLoad(() => atlas.interviewBank());
-  const [modeId, setModeId] = useState<string>(params.get("topic") ? "topic" : "explain");
+  const [modeId, setModeId] = useState<string>(params.get("topic") ? "topic" : "quickfire");
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -227,7 +311,7 @@ export function ChallengePage() {
     <div className="challenge">
       <header className="screen-head">
         <div>
-          <p className="kicker">Challenge mode · {data.questions.length} challenges</p>
+          <p className="kicker">Challenge mode · quick fire riddles + {data.questions.length} interview challenges</p>
           <h1 className="screen-title">Answer first. Then check.</h1>
         </div>
       </header>
@@ -235,17 +319,21 @@ export function ChallengePage() {
       <div className="modes" role="tablist" aria-label="Modes">
         {topicFilter && (
           <button type="button" role="tab" aria-selected={modeId === "topic"} className="mode" onClick={() => setModeId("topic")}>
-            <Icon name="mission" size={20} />
+
             <span className="mode__label">This mission</span>
             <span className="mode__count">{questions.filter((x) => x.topicId === topicFilter).length}</span>
           </button>
         )}
+        <button type="button" role="tab" aria-selected={modeId === "quickfire"} className="mode mode--quick" onClick={() => choose("quickfire")}>
+          <span className="mode__label">Quick fire</span>
+          <span className="mode__record">Fast riddles, keep the streak</span>
+        </button>
         {MODES.map((m) => {
           const list = questions.filter(m.match);
           const r = record(list);
           return (
             <button key={m.id} type="button" role="tab" aria-selected={modeId === m.id} className="mode" onClick={() => choose(m.id)} disabled={list.length === 0}>
-              <Icon name={m.icon} size={20} />
+
               <span className="mode__label">{m.label}</span>
               <span className="mode__count">{list.length}</span>
               <span className="mode__record">{r.tried ? `${r.nailed}/${r.tried} nailed` : m.blurb}</span>
@@ -254,7 +342,9 @@ export function ChallengePage() {
         })}
       </div>
 
-      {current ? (
+      {modeId === "quickfire" ? (
+        <QuickFire />
+      ) : current ? (
         <Arena key={current.id} question={current} onNext={next} onRated={reload} />
       ) : (
         <div className="arena glass">
@@ -267,7 +357,7 @@ export function ChallengePage() {
 
       <details className="more browse">
         <summary>
-          <Icon name="search" size={15} /> Browse all challenges
+Browse all challenges
         </summary>
         <label className="browse__search">
           <span className="visually-hidden">Search challenges</span>
@@ -278,7 +368,7 @@ export function ChallengePage() {
             <li key={x.id}>
               <button type="button" className="mrow" onClick={() => (setChosenId(x.id), !pool.some((p) => p.id === x.id) && setModeId(MODES.find((m) => m.match(x) && m.id !== "due")?.id ?? "explain"), window.scrollTo({ top: 0, behavior: "smooth" }))}>
                 <span className={`mrow__dot ${x.stats?.last === "nailed" ? "is-done" : x.stats ? "is-progress" : "is-available"}`} aria-hidden="true">
-                  {x.stats?.last === "nailed" ? <Icon name="check" size={13} /> : "?"}
+                  
                 </span>
                 <span className="mrow__title">
                   <InlineText text={x.prompt} />

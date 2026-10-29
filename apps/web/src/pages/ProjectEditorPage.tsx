@@ -33,7 +33,7 @@ function Checklist({ label, items, onChange }: { label: string; items: CheckItem
             <label className="check">
               <input type="checkbox" checked={item.done} onChange={() => onChange(items.map((x, j) => (j === i ? { ...x, done: !x.done } : x)))} /> {item.title}
             </label>
-            <button type="button" className="icon-btn" aria-label={`Remove ${item.title}`} onClick={() => onChange(items.filter((_, j) => j !== i))}>✕</button>
+            <button type="button" className="icon-btn" aria-label={`Remove ${item.title}`} onClick={() => onChange(items.filter((_, j) => j !== i))}>Remove</button>
           </li>
         ))}
       </ul>
@@ -267,7 +267,7 @@ export function ProjectEditorPage() {
                   {m.doneWhen && <span className="muted"> · done when: {m.doneWhen}</span>}
                 </span>
               </label>
-              {!isNew && <button type="button" className="icon-btn" aria-label={`Remove milestone ${m.title}`} onClick={() => removeMilestone(m.id)}>✕</button>}
+              {!isNew && <button type="button" className="icon-btn" aria-label={`Remove milestone ${m.title}`} onClick={() => removeMilestone(m.id)}>Remove</button>}
             </li>
           ))}
         </ol>

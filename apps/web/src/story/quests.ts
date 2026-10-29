@@ -1,26 +1,26 @@
 // THE KINGDOM OF HEX: story names for the 16 regions, and the quests written so far.
-// A region of the curriculum is a TOWN in the kingdom. Every written topic is played as a story
-// quest (/quest/:id): Byteford has its own hand-written story (QUESTS); every other written topic is
-// told by the shared chapters in autoQuest.tsx. Outline topics open as a mission (/topic/:id).
+// A region of the curriculum is a TOWN in the kingdom. Every topic is learned on its topic page
+// (/topic/:id) in four steps: Study, Play, Build, Test. The story game (/quest/:id) is part of Play:
+// Byteford has its own hand-written story (QUESTS); every other written topic uses autoQuest.tsx.
 import { BYTEFORD, type Chapter } from "./byteford";
 
-export const TOWNS: Record<string, { name: string; icon: string }> = {
-  cs: { name: "Byteford", icon: "🏘" },
-  web: { name: "Webmoor Harbor", icon: "⚓" },
-  fe: { name: "Pixel Gardens", icon: "🌷" },
-  ds: { name: "Palette Palace", icon: "🎨" },
-  be: { name: "Engine Keep", icon: "🏰" },
-  db: { name: "Vault Mines", icon: "⛏" },
-  dist: { name: "Courier Isles", icon: "🕊" },
-  arch: { name: "Architect's Spire", icon: "🗼" },
-  test: { name: "Trial Grounds", icon: "🎯" },
-  ops: { name: "Cloud Port", icon: "☁" },
-  sec: { name: "Shield Wall", icon: "🛡" },
-  obs: { name: "Lighthouse Point", icon: "🔦" },
-  ml: { name: "Oracle Grove", icon: "🔮" },
-  ai: { name: "Golem Workshop", icon: "🤖" },
-  pt: { name: "Guild Hall", icon: "🤝" },
-  adv: { name: "Dragon Peaks", icon: "🐉" },
+export const TOWNS: Record<string, { name: string }> = {
+  cs: { name: "Byteford" },
+  web: { name: "Webmoor Harbor" },
+  fe: { name: "Pixel Gardens" },
+  ds: { name: "Palette Palace" },
+  be: { name: "Engine Keep" },
+  db: { name: "Vault Mines" },
+  dist: { name: "Courier Isles" },
+  arch: { name: "Architect's Spire" },
+  test: { name: "Trial Grounds" },
+  ops: { name: "Cloud Port" },
+  sec: { name: "Shield Wall" },
+  obs: { name: "Lighthouse Point" },
+  ml: { name: "Oracle Grove" },
+  ai: { name: "Golem Workshop" },
+  pt: { name: "Guild Hall" },
+  adv: { name: "Dragon Peaks" },
 };
 
 export interface Quest {
@@ -37,6 +37,6 @@ export const QUESTS: Record<string, Quest> = {
   },
 };
 
-// Where a topic is played: a quest when its lesson is written, otherwise the mission page.
-// (When the stage is unknown, the quest page itself sends outline topics on to the mission page.)
-export const playPath = (topicId: string, stage: string = "complete") => (QUESTS[topicId] || stage === "complete" ? `/quest/${topicId}` : `/topic/${topicId}`);
+// Where a topic starts: its topic page, which always opens at the first step not yet done
+// (Study for a new topic).
+export const playPath = (topicId: string) => `/topic/${topicId}`;

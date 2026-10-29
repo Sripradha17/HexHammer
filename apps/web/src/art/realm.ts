@@ -5,7 +5,7 @@
 // What lives here:
 //   OWL_POSES / OWL_FACES   Bram the owl: his cut-out poses and his faces
 //   scene(n)                a painted scene by its picture number (big, or small for cards)
-//   REGION_ART              for each of the 16 regions: its spot on the map, emblem and scene
+//   REGION_ART              for each of the 16 regions: its spot on the map and its scene
 //   sceneForPath(path)      which painted place each page of the app stands in
 //   medalFor(achievementId) the painted medal for an achievement
 import mapSrc from "../assets/realm/map.webp";
@@ -34,21 +34,6 @@ import faceThink from "../assets/realm/face-think.webp";
 import faceOops from "../assets/realm/face-oops.webp";
 import faceProud from "../assets/realm/face-proud.webp";
 import faceWow from "../assets/realm/face-wow.webp";
-import iconProgramming from "../assets/realm/icon-programming.webp";
-import iconFrontend from "../assets/realm/icon-frontend.webp";
-import iconBackend from "../assets/realm/icon-backend.webp";
-import iconDatabases from "../assets/realm/icon-databases.webp";
-import iconAlgorithms from "../assets/realm/icon-algorithms.webp";
-import iconApis from "../assets/realm/icon-apis.webp";
-import iconTesting from "../assets/realm/icon-testing.webp";
-import iconSecurity from "../assets/realm/icon-security.webp";
-import iconNetworking from "../assets/realm/icon-networking.webp";
-import iconCloud from "../assets/realm/icon-cloud.webp";
-import iconSystemDesign from "../assets/realm/icon-system-design.webp";
-import iconAi from "../assets/realm/icon-ai.webp";
-import iconDebugging from "../assets/realm/icon-debugging.webp";
-import iconMastery from "../assets/realm/icon-mastery.webp";
-import iconAchievements from "../assets/realm/icon-achievements.webp";
 import medalFirstMission from "../assets/realm/medal-first-mission.webp";
 import medalSkillMastered from "../assets/realm/medal-skill-mastered.webp";
 import medalProjectFinished from "../assets/realm/medal-project-finished.webp";
@@ -128,30 +113,29 @@ export const STAGE_SCENES = {
 // ---------------------------------------------------------------- the 16 regions
 
 // x and y: where the town is on the world map, in % of the map picture. Every one of the 16 is a
-// painted island on the map; the medallion sits at the foot of its building.
+// painted island on the map; its numbered marker sits at the foot of its building.
 export interface RegionArt {
   x: number;
   y: number;
-  icon: string;
   scene: number;
 }
 export const REGION_ART: Record<string, RegionArt> = {
-  cs: { x: 17.5, y: 24, icon: iconProgramming, scene: 46 }, // the domed library
-  adv: { x: 47, y: 17, icon: iconMastery, scene: 31 }, // the crystal mountains
-  web: { x: 79, y: 27, icon: iconApis, scene: 45 }, // the harbor
-  be: { x: 23.5, y: 43, icon: iconBackend, scene: 42 }, // the forge fortress
-  fe: { x: 42, y: 40, icon: iconFrontend, scene: 44 }, // the crystal spires
-  ds: { x: 64.5, y: 41, icon: iconSystemDesign, scene: 43 }, // the stained-glass palace
-  db: { x: 86, y: 45, icon: iconDatabases, scene: 41 }, // the mine
-  dist: { x: 7.5, y: 47, icon: iconNetworking, scene: 40 }, // the rope-bridge islands
-  arch: { x: 21.5, y: 64, icon: iconAlgorithms, scene: 39 }, // the architect's tower
-  test: { x: 43, y: 61, icon: iconTesting, scene: 38 }, // the hedge maze
-  ops: { x: 61.5, y: 63, icon: iconCloud, scene: 37 }, // the sky port
-  sec: { x: 86, y: 67, icon: iconSecurity, scene: 36 }, // the shield castle
-  obs: { x: 11, y: 88, icon: iconDebugging, scene: 35 }, // the lighthouse
-  ml: { x: 32, y: 88, icon: iconAi, scene: 34 }, // the purple tree
-  ai: { x: 58, y: 89, icon: iconAi, scene: 33 }, // the golem workshop
-  pt: { x: 79, y: 90, icon: iconAchievements, scene: 32 }, // the guild hall
+  cs: { x: 17.5, y: 24, scene: 46 }, // the domed library
+  adv: { x: 47, y: 17, scene: 31 }, // the crystal mountains
+  web: { x: 79, y: 27, scene: 45 }, // the harbor
+  be: { x: 23.5, y: 43, scene: 42 }, // the forge fortress
+  fe: { x: 42, y: 40, scene: 44 }, // the crystal spires
+  ds: { x: 64.5, y: 41, scene: 43 }, // the stained-glass palace
+  db: { x: 86, y: 45, scene: 41 }, // the mine
+  dist: { x: 7.5, y: 47, scene: 40 }, // the rope-bridge islands
+  arch: { x: 21.5, y: 64, scene: 39 }, // the architect's tower
+  test: { x: 43, y: 61, scene: 38 }, // the hedge maze
+  ops: { x: 61.5, y: 63, scene: 37 }, // the sky port
+  sec: { x: 86, y: 67, scene: 36 }, // the shield castle
+  obs: { x: 11, y: 88, scene: 35 }, // the lighthouse
+  ml: { x: 32, y: 88, scene: 34 }, // the purple tree
+  ai: { x: 58, y: 89, scene: 33 }, // the golem workshop
+  pt: { x: 79, y: 90, scene: 32 }, // the guild hall
 };
 export const regionArt = (id: string): RegionArt => REGION_ART[id] ?? REGION_ART.cs;
 

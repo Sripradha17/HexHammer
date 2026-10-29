@@ -10,7 +10,6 @@
 import { useEffect, useState } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { TestResults } from "./TestResults";
-import { Icon } from "./Icon";
 import { createWorker } from "../runner/createWorker";
 import { runCode } from "../runner/runCode";
 import type { RunResult } from "../runner/execute";
@@ -74,12 +73,12 @@ export function Workbench({ projectId, onRun, initialTab = "code" }: { projectId
         <div className="tabs" role="tablist" aria-label="Files">
           {(["code", "tests"] as const).map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className="tabs__tab" onClick={() => setTab(t)}>
-              <Icon name={t === "code" ? "code" : "test"} size={14} /> {t}.js
+{t}.js
             </button>
           ))}
         </div>
         <button type="button" className="cta cta--small" onClick={go} disabled={running}>
-          <Icon name="play" size={14} /> {running ? "Running…" : "Run"}
+{running ? "Running…" : "Run"}
         </button>
       </div>
       <div className="bench__editor">
@@ -88,7 +87,7 @@ export function Workbench({ projectId, onRun, initialTab = "code" }: { projectId
       <div className="bench__out">
         <div className="bench__terminal">
           <p className="bench__label">
-            <Icon name="terminal" size={14} /> Terminal
+Terminal
           </p>
           <pre className="bench__lines">
             {!run
@@ -100,7 +99,7 @@ export function Workbench({ projectId, onRun, initialTab = "code" }: { projectId
         </div>
         <div className="bench__tests">
           <p className="bench__label">
-            <Icon name="test" size={14} /> Tests {run && run.results.length > 0 && `· ${passed}/${run.results.length} passing`}
+Tests {run && run.results.length > 0 && `· ${passed}/${run.results.length} passing`}
           </p>
           <TestResults run={run} />
         </div>

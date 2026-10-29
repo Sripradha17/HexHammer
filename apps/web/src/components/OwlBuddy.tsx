@@ -1,7 +1,7 @@
 // OWL BUDDY: Bram's face in the corner of every page, with a short tip for THAT page: how to build
 // without leaning on AI, how to answer like a strong interviewee, how to make memory stick.
 // He pops in a moment after the page opens, says one tip, and tucks it away after a while.
-// Tap him for the next tip. On phones he waits to be tapped, so the bubble never covers the
+// Tap him for the next tip. On phones and tablets he waits to be tapped, so the bubble never covers the
 // lesson you are reading on a small screen. (Home, World and quests have their own, bigger Bram.)
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
@@ -76,14 +76,29 @@ export function OwlBuddy() {
   useEffect(() => {
     setAt(0);
     setOpen(false);
-    const roomy = window.matchMedia("(min-width: 761px)").matches;
+    const roomy = window.matchMedia("(min-width: 1200px)").matches; // only where there is room beside the content
     const show = setTimeout(() => roomy && setOpen(true), 1400);
-    const hide = setTimeout(() => setOpen(false), 11000);
+    const hide = setTimeout(() => setOpen(false), 8000);
     return () => {
       clearTimeout(show);
       clearTimeout(hide);
     };
   }, [pathname]);
+
+  // The tip is never in the way: the first click or key press anywhere tucks it away.
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (e.target instanceof Element && e.target.closest(".buddy__face")) return; // tapping Bram = next tip
+      setOpen(false);
+    };
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", close);
+    };
+  }, [open]);
 
   const tip = tips[at % tips.length];
   return (

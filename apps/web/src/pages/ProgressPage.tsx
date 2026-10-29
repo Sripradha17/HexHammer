@@ -9,7 +9,6 @@ import { Link } from "react-router";
 import { atlas } from "../atlasApi";
 import { useLoad } from "../useLoad";
 import { ErrorState, Loading } from "../components/PageState";
-import { Icon } from "../components/Icon";
 import { WeeklyXp } from "../components/WeeklyXp";
 import { formatDate, relativeDays } from "../labels";
 import { medalFor } from "../art/realm";
@@ -66,7 +65,7 @@ export function ProgressPage() {
           </dl>
         </div>
         <div className={`pcrest__reviews ${reviewsDue ? "is-due" : ""}`}>
-          <Icon name="reviews" size={22} />
+
           {reviewsDue > 0 ? (
             <>
               <strong>{reviewsDue} review{reviewsDue > 1 ? "s" : ""} due</strong>

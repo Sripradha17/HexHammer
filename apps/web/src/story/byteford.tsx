@@ -25,14 +25,13 @@ export interface ChapterProps {
 export interface Chapter {
   id: string;
   title: string;
-  icon: string;
   stage: Partial<StageState>; // what the painted stage shows when the chapter starts
   Play: (p: ChapterProps) => ReactNode;
 }
 
 const GoOn = ({ next, label = "Continue" }: { next: () => void; label?: string }) => (
   <button type="button" className="btn btn--go" onClick={next}>
-    {label} <span aria-hidden="true">→</span>
+    {label}
   </button>
 );
 
@@ -163,7 +162,7 @@ function RiddlesPlay({ view, next, reload }: ChapterProps) {
         )}
         {strike && strike.kind === "strike" && (
           <Link to={`/strike/${strike.strikeId}?mission=${view.topic.id}`} className="btn btn--ghost">
-            ⚒ Forge it in code
+            Type it by hand
           </Link>
         )}
         <GoOn next={next} label="I'm ready for the trial" />
@@ -258,7 +257,7 @@ function TrialPlay({ view, next, celebrate, reload }: ChapterProps) {
                   <strong>
                     <InlineText text={q.prompt} />
                   </strong>
-                  <span>{x.correct ? "✓ You got it" : `✗ Answer: ${q.choices[x.answerIndex]}`}</span>
+                  <span>{x.correct ? "You got it" : `Wrong. Answer: ${q.choices[x.answerIndex]}`}</span>
                   <span>
                     <InlineText text={x.explanation} />
                   </span>
@@ -315,7 +314,7 @@ function RewardPlay({ view }: ChapterProps) {
         Back to the kingdom
       </Link>
       <Link to="/projects" className="btn btn--ghost">
-        ⚒ Build something fun
+        Build something fun
       </Link>
     </Dialogue>
   );
@@ -327,7 +326,6 @@ export const BYTEFORD: Chapter[] = [
   {
     id: "arrive",
     title: "Arrival",
-    icon: "🏘",
     stage: { scene: "village", shot: "wide", lanterns: false },
     Play: ({ next }) => (
       <Dialogue
@@ -345,7 +343,6 @@ export const BYTEFORD: Chapter[] = [
   {
     id: "lanterns",
     title: "Lanterns",
-    icon: "🏮",
     stage: { scene: "forge", shot: "lanterns" },
     Play: ({ next }) => (
       <LanternPuzzle
@@ -371,7 +368,6 @@ export const BYTEFORD: Chapter[] = [
   {
     id: "biggest",
     title: "Biggest rune",
-    icon: "✨",
     stage: { scene: "forge", shot: "lanterns" },
     Play: ({ next }) => (
       <LanternPuzzle target={255} ask="Now make the BIGGEST number one rune can hold." hint="Light every lantern!" win={[{ mood: "wow", text: "255! Counting zero too, one rune can show 256 different numbers. That's why a byte holds 256 values." }]}>
@@ -382,7 +378,6 @@ export const BYTEFORD: Chapter[] = [
   {
     id: "hex",
     title: "Hex marks",
-    icon: "🔨",
     stage: { scene: "forge", shot: "bram", lanterns: false },
     Play: function HexPlay({ next }) {
       const [ready, setReady] = useState(false);
@@ -409,8 +404,8 @@ export const BYTEFORD: Chapter[] = [
       );
     },
   },
-  { id: "sign", title: "The sign", icon: "🥐", stage: { scene: "village", shot: "sign", lanterns: false }, Play: SignPlay },
-  { id: "riddles", title: "Riddles", icon: "📜", stage: { scene: "forge", shot: "bram", lanterns: false, signFixed: true }, Play: RiddlesPlay },
-  { id: "trial", title: "Bridge Trial", icon: "⚖", stage: { scene: "village", shot: "bridge", signFixed: true }, Play: TrialPlay },
-  { id: "reward", title: "Saved!", icon: "🏆", stage: { scene: "village", shot: "bridge", signFixed: true, bridgeFixed: true }, Play: RewardPlay },
+  { id: "sign", title: "The sign", stage: { scene: "village", shot: "sign", lanterns: false }, Play: SignPlay },
+  { id: "riddles", title: "Riddles", stage: { scene: "forge", shot: "bram", lanterns: false, signFixed: true }, Play: RiddlesPlay },
+  { id: "trial", title: "Bridge Trial", stage: { scene: "village", shot: "bridge", signFixed: true }, Play: TrialPlay },
+  { id: "reward", title: "Saved!", stage: { scene: "village", shot: "bridge", signFixed: true, bridgeFixed: true }, Play: RewardPlay },
 ];

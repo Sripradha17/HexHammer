@@ -107,21 +107,6 @@
   transform: translateY(-4px);
   border-color: var(--rm-gold);
 }
-.bench-card__emoji {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
-  font-size: 2rem;
-  background: radial-gradient(circle at 50% 35%, rgba(255, 181, 71, 0.35), rgba(255, 181, 71, 0.06) 70%);
-  border: 1px solid rgba(255, 181, 71, 0.45);
-  border-radius: 50%;
-}
-.bench-card.is-done .bench-card__emoji {
-  background: radial-gradient(circle at 50% 35%, rgba(126, 226, 168, 0.35), rgba(126, 226, 168, 0.06) 70%);
-  border-color: rgba(126, 226, 168, 0.5);
-}
 .bench-card__text {
   display: grid;
   gap: 6px;
@@ -219,26 +204,6 @@
   box-shadow: 0 0 0 2px var(--rm-amber), 0 0 40px -6px rgba(255, 181, 71, 0.6);
 }
 /* the poster's glowing "lantern": the build's emoji floating in coloured light */
-.poster__art {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: 160px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 60%, hsl(var(--hue) 80% 60% / 0.55), transparent 60%),
-    linear-gradient(180deg, rgba(10, 16, 30, 0.2), rgba(10, 16, 30, 0.9)),
-    hsl(var(--hue) 45% 14%);
-  border-bottom: 1px solid var(--rm-gold-faint);
-}
-.poster__art::after {
-  /* slow light sweep across the poster */
-  content: "";
-  position: absolute;
-  inset: -40%;
-  background: linear-gradient(110deg, transparent 40%, rgba(255, 236, 190, 0.18) 50%, transparent 60%);
-  animation: sweep 5s ease-in-out infinite;
-}
 .poster__emoji {
   font-size: 4.6rem;
   filter: drop-shadow(0 0 18px hsl(var(--hue) 90% 65% / 0.8));

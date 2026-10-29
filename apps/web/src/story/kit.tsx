@@ -80,7 +80,7 @@ export function Dialogue({ lines, children }: { lines: Line[]; children?: ReactN
         )}
         {!last ? (
           <button type="button" className="btn btn--go" onClick={() => setAt(at + 1)}>
-            Next <span aria-hidden="true">→</span>
+            Next
           </button>
         ) : (
           children
@@ -153,7 +153,7 @@ export function LanternPuzzle({ target, ask, hint, showHex = false, win, childre
           <p className="talk__text">
             <Spoken text={ask} />
           </p>
-          {stuck && <p className="talk__hint">💡 {hint}</p>}
+          {stuck && <p className="talk__hint">Hint: {hint}</p>}
         </div>
       ) : (
         <Dialogue lines={win}>{children}</Dialogue>

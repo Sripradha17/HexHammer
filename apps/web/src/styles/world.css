@@ -49,16 +49,6 @@
   align-items: center;
   gap: var(--hh-space-3);
 }
-.rpanel__emblem {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 54px;
-  height: 60px;
-  color: hsl(var(--hue) 90% 82%);
-  background: hsl(var(--hue) 45% 20%);
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-}
 .rpanel__state {
   margin: 0;
   color: hsl(var(--hue) 85% 72%);

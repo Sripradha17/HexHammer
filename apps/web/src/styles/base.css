@@ -5,9 +5,24 @@
 *::after {
   box-sizing: border-box;
 }
+/* The ROOT size scales every rem in the app at once. 17px on phones, 18px on larger screens:
+   comfortable to read, and the smallest label (0.875rem) is still about 15 to 16px. */
 html {
+  font-size: 106.25%;
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: var(--hh-space-6);
+}
+@media (min-width: 1000px) {
+  html {
+    font-size: 112.5%;
+  }
+}
+/* Browsers give form controls their own small font (about 13px). Make them use the page's. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 body {
   margin: 0;
@@ -211,8 +226,10 @@ input[type="range"] {
 .icon-btn {
   display: inline-grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: var(--hh-text-sm);
+  font-weight: 700;
   color: var(--hh-text-muted);
   background: transparent;
   border: 1px solid var(--hh-line);

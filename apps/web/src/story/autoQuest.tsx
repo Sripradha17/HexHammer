@@ -1,20 +1,17 @@
-// THE SHARED QUEST: turns ANY written topic into a story quest, told by Bram, using the topic's own
-// real content. No topic needs hand-written story code; a new lesson in the Atlas is a new quest.
+// THE STORY GAME: turns ANY written topic into a short adventure with Bram, using the topic's own
+// real content. It is the fun part of the topic's PLAY step; Study and Test live on the topic page.
 //
-//   1. Arrival   in the town's own painting: the topic's story (why it matters) and today's goals
-//   2. Learn     the mental model, then each lesson card, one at a time   -> marks the lesson read
-//   3. Example   read the worked example, PREDICT the output, then run it and walk the steps
-//   4. Practice  the topic's riddles (predict, spot the bug, quick checks), its lab, its strikes
-//   5. Trial     the topic's real assessment, scored by the server
-//   6. Reward    mastery seals, and where to go next (build it, interview practice, the map)
+//   1. Arrival   in the town's own painting: why this topic matters
+//   2. See it    read the worked example, PREDICT the output, then run it and walk the steps
+//   3. Riddles   the topic's riddles (predict, spot the bug, quick checks) and its lab
+//   4. Victory   where to go next: build it, then take the test
 //
-// Every reward comes from the server: reading, exercises, labs and the trial each save real
-// progress. Animations follow results; they never cause them.
+// Every reward comes from the server: exercises and labs save real progress. Animations follow
+// results; they never cause them.
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { atlas } from "../atlasApi";
 import { ChoiceQuestion } from "../components/ChoiceQuestion";
-import { CodeBlock, InlineText, RichText } from "../components/RichText";
+import { CodeBlock } from "../components/RichText";
 import { LabHost } from "../labs/LabHost";
 import { BramFace, type Mood } from "../art/Bram";
 import { regionArt } from "../art/realm";
@@ -24,7 +21,7 @@ import type { Chapter, ChapterProps } from "./byteford";
 
 const GoOn = ({ next, label = "Continue" }: { next: () => void; label?: string }) => (
   <button type="button" className="btn btn--go" onClick={next}>
-    {label} <span aria-hidden="true">→</span>
+    {label}
   </button>
 );
 
@@ -65,70 +62,12 @@ function ArrivePlay({ view, next }: ChapterProps) {
         },
       ]}
     >
-      <GoOn next={next} label="Let's learn" />
+      <GoOn next={next} label="Show me" />
     </Dialogue>
   );
 }
 
-// ------------------------------------------------------------------ 2. Learn
-
-const CARD_MOODS: Mood[] = ["think", "happy", "wow", "proud"];
-
-function LearnPlay({ view, next, markRead }: ChapterProps) {
-  const { set } = useStage();
-  const { topic } = view;
-  const model = topic.mentalModel; // every written topic has one (the curriculum audit checks it)
-  const cards = [...(model ? [{ heading: "The big idea", body: "" }] : []), ...topic.lessonSections];
-  const [at, setAt] = useState(0);
-  const mood = CARD_MOODS[at % CARD_MOODS.length];
-  useEffect(() => {
-    set({ mood, talking: true });
-    const t = setTimeout(() => set({ talking: false }), 1600);
-    return () => clearTimeout(t);
-  }, [at, mood, set]);
-  const last = at === cards.length - 1;
-  const card = cards[at];
-
-  return (
-    <div className="lesson-card" key={at}>
-      <Speaker mood={mood} />
-      <p className="lesson-card__count">
-        Card {at + 1} of {cards.length}
-      </p>
-      <h2 className="lesson-card__title">{card.heading}</h2>
-      {model && at === 0 ? (
-        <div className="lesson-card__body">
-          <p>
-            <InlineText text={model.plain} />
-          </p>
-          <p className="lesson-card__aside">
-            <strong>Think of it like this:</strong> <InlineText text={model.analogy} />
-          </p>
-          <p className="lesson-card__aside lesson-card__aside--limit">
-            <strong>Where the picture breaks:</strong> <InlineText text={model.analogyLimit} />
-          </p>
-        </div>
-      ) : (
-        <RichText text={card.body} className="lesson-card__body" />
-      )}
-      <div className="talk__actions">
-        {at > 0 && (
-          <button type="button" className="btn btn--ghost" onClick={() => setAt(at - 1)}>
-            Back
-          </button>
-        )}
-        {!last ? (
-          <GoOn next={() => setAt(at + 1)} label="Next card" />
-        ) : (
-          // The whole lesson has been read: that is real progress, saved on the server.
-          <GoOn next={() => (markRead(), next())} label="I've got it" />
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ------------------------------------------------------------------ 3. Example
+// ------------------------------------------------------------------ 2. See it run
 
 function ExamplePlay({ view, next }: ChapterProps) {
   const { set, cheer } = useStage();
@@ -159,7 +98,7 @@ function ExamplePlay({ view, next }: ChapterProps) {
       {!ran ? (
         <div className="talk__actions">
           <button type="button" className="btn btn--go" onClick={run}>
-            I've guessed. Run it ▶
+            I've guessed. Run it
           </button>
         </div>
       ) : (
@@ -179,7 +118,7 @@ function ExamplePlay({ view, next }: ChapterProps) {
   );
 }
 
-// ------------------------------------------------------------------ 4. Practice
+// ------------------------------------------------------------------ 3. Riddles
 
 function PracticePlay({ view, next, reload, completeLab }: ChapterProps) {
   const { topic, strikes, progress } = view;
@@ -207,7 +146,7 @@ function PracticePlay({ view, next, reload, completeLab }: ChapterProps) {
       {lab && lab.kind === "lab" && (
         <div className="practice-lab">
           <button type="button" className="btn btn--ghost" aria-expanded={showLab} onClick={() => setShowLab(!showLab)}>
-            🔬 {showLab ? "Close the lab" : "Open the lab"}
+            {showLab ? "Close the lab" : "Open the lab"}
           </button>
           {showLab && (
             <>
@@ -221,7 +160,7 @@ function PracticePlay({ view, next, reload, completeLab }: ChapterProps) {
       )}
       {strikes.length > 0 && (
         <p className="practice-strikes">
-          ⚒ Type it by hand:{" "}
+          Type it by hand:{" "}
           {strikes.slice(0, 3).map((s, i) => (
             <span key={s.id}>
               {i > 0 && " · "}
@@ -236,137 +175,13 @@ function PracticePlay({ view, next, reload, completeLab }: ChapterProps) {
             Next riddle
           </button>
         )}
-        <GoOn next={next} label="I'm ready for the trial" />
+        <GoOn next={next} label="Finish the game" />
       </div>
     </div>
   );
 }
 
-// ------------------------------------------------------------------ 5. The trial (the real assessment)
-
-type Result = Awaited<ReturnType<typeof atlas.submitAssessment>>;
-
-function TrialPlay({ view, next, celebrate, reload }: ChapterProps) {
-  const { set, cheer } = useStage();
-  const questions = view.topic.assessment?.questions ?? [];
-  const passing = view.topic.assessment?.passingScore ?? 0.8;
-  const need = Math.ceil(passing * questions.length);
-  const [started, setStarted] = useState(false);
-  const [at, setAt] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [result, setResult] = useState<Result | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const best = view.progress.bestAssessmentScore;
-
-  async function submit(final: Record<string, number>) {
-    setBusy(true);
-    setError("");
-    try {
-      const r = await atlas.submitAssessment(view.topic.id, final);
-      setResult(r);
-      celebrate(r);
-      set({ mood: r.passed ? "proud" : "happy" });
-      if (r.passed) cheer();
-      reload();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function choose(i: number) {
-    if (busy) return;
-    const q = questions[at];
-    const final = { ...answers, [q.id]: i };
-    setAnswers(final);
-    // A short pause so I see my pick, then the next question. The last answer submits.
-    setTimeout(() => (at < questions.length - 1 ? setAt(at + 1) : submit(final)), 380);
-  }
-
-  if (!started)
-    return (
-      <Dialogue
-        lines={[
-          { mood: "think", text: `The trial! ${questions.length} questions. Get ${need} right and you've proved it.` },
-          ...(best !== null ? [{ mood: "happy" as const, text: `Your best so far is ${Math.round(best * 100)}%. Every try counts.` }] : []),
-        ]}
-      >
-        <GoOn next={() => setStarted(true)} label="Begin the trial" />
-      </Dialogue>
-    );
-
-  if (result) {
-    const byId = new Map(result.results.map((x) => [x.questionId, x]));
-    return (
-      <div className="puzzle">
-        <Dialogue
-          lines={[
-            result.passed
-              ? { mood: "proud", text: `${result.correct} out of ${result.total}! You proved it, apprentice.` }
-              : { mood: "happy", text: `${result.correct} out of ${result.total}. So close! You need ${need}. Read the tricky ones below and try again.` },
-          ]}
-        >
-          {result.passed ? (
-            <GoOn next={next} label="Celebrate" />
-          ) : (
-            <button type="button" className="btn btn--go" onClick={() => (setResult(null), setAnswers({}), setAt(0))}>
-              Try again
-            </button>
-          )}
-        </Dialogue>
-        <details className="review">
-          <summary>See every answer explained</summary>
-          <ol>
-            {questions.map((q) => {
-              const x = byId.get(q.id)!;
-              return (
-                <li key={q.id} className={x.correct ? "is-right" : "is-wrong"}>
-                  <strong>
-                    <InlineText text={q.prompt} />
-                  </strong>
-                  <span>{x.correct ? "✓ You got it" : `✗ Answer: ${q.choices[x.answerIndex]}`}</span>
-                  <span>
-                    <InlineText text={x.explanation} />
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-        </details>
-      </div>
-    );
-  }
-
-  const q = questions[at];
-  return (
-    <div className="trial">
-      <div className="trial__progress" aria-label={`Question ${at + 1} of ${questions.length}`}>
-        {questions.map((x, i) => (
-          <span key={x.id} className={i < at ? "is-done" : i === at ? "is-now" : ""} />
-        ))}
-      </div>
-      <p className="trial__q" key={q.id}>
-        <InlineText text={q.prompt} />
-      </p>
-      {q.code && <pre className="trial__code">{q.code}</pre>}
-      <div className="trial__choices">
-        {q.choices.map((c, i) => (
-          <button key={`${q.id}-${i}`} type="button" className={`choice-btn ${answers[q.id] === i ? "is-picked" : ""}`} onClick={() => choose(i)} disabled={busy}>
-            <span className="choice-btn__letter">{"ABCDE"[i]}</span>
-            <span>
-              <InlineText text={c} />
-            </span>
-          </button>
-        ))}
-      </div>
-      {error && <p className="nudge">{error}</p>}
-    </div>
-  );
-}
-
-// ------------------------------------------------------------------ 6. Reward
+// ------------------------------------------------------------------ 4. Victory
 
 function RewardPlay({ view }: ChapterProps) {
   const { cheer } = useStage();
@@ -376,17 +191,14 @@ function RewardPlay({ view }: ChapterProps) {
     <Dialogue
       lines={[
         { mood: "proud", text: `Quest complete: ${view.topic.title}!` },
-        { mood: "happy", text: `You hold ${met} of ${view.mastery.length} mastery seals. Build something with it, then explain it out loud: that's how it becomes yours for interviews.` },
+        { mood: "happy", text: `You hold ${met} of ${view.mastery.length} mastery seals. Next: build something with it, then take the test.` },
       ]}
     >
-      <Link to={`/map/${view.domain.id}`} className="btn btn--go">
-        Next quest on the map
+      <Link to={`/topic/${view.topic.id}#build`} className="btn btn--go">
+        Next: Build it
       </Link>
-      <Link to={`/projects?start=${view.topic.id}`} className="btn btn--ghost">
-        ⚒ Build it
-      </Link>
-      <Link to="/interview" className="btn btn--ghost">
-        🎤 Interview practice
+      <Link to={`/topic/${view.topic.id}#test`} className="btn btn--ghost">
+        Take the test
       </Link>
     </Dialogue>
   );
@@ -396,10 +208,8 @@ function RewardPlay({ view }: ChapterProps) {
 
 // Each chapter stands in its own painted place (picture numbers from assets/webdesign).
 export const AUTO_CHAPTERS: Chapter[] = [
-  { id: "arrive", title: "Arrival", icon: "🗺", stage: { painting: 21, shot: "bram", mood: "happy" }, Play: ArrivePlay },
-  { id: "learn", title: "Learn", icon: "📖", stage: { painting: 7, shot: "wide", mood: "think" }, Play: LearnPlay },
-  { id: "example", title: "See it run", icon: "⚙", stage: { painting: 24, shot: "wide", mood: "think" }, Play: ExamplePlay },
-  { id: "practice", title: "Practice", icon: "🎯", stage: { painting: 3, shot: "wide", mood: "happy" }, Play: PracticePlay },
-  { id: "trial", title: "Trial", icon: "⚖", stage: { painting: 17, shot: "wide", mood: "think" }, Play: TrialPlay },
-  { id: "reward", title: "Victory", icon: "🏆", stage: { painting: 19, shot: "wide", mood: "proud" }, Play: RewardPlay },
+  { id: "arrive", title: "Arrival", stage: { painting: 21, shot: "bram", mood: "happy" }, Play: ArrivePlay },
+  { id: "example", title: "See it run", stage: { painting: 24, shot: "wide", mood: "think" }, Play: ExamplePlay },
+  { id: "practice", title: "Riddles", stage: { painting: 3, shot: "wide", mood: "happy" }, Play: PracticePlay },
+  { id: "reward", title: "Victory", stage: { painting: 19, shot: "wide", mood: "proud" }, Play: RewardPlay },
 ];

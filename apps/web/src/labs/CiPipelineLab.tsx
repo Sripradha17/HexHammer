@@ -63,9 +63,9 @@ export default function CiPipelineLab({ onGoal }: LabProps) {
                   <span className="pipeline__label">{s.label}</span>
                   <span className="pipeline__ran">{s.minutes} min</span>
                   <span className="pipeline__moves">
-                    <button type="button" className="icon-btn" aria-label={`Move ${s.label} up`} disabled={i === 0} onClick={() => setOrder(move(order, i, -1))}>↑</button>
-                    <button type="button" className="icon-btn" aria-label={`Move ${s.label} down`} disabled={i === order.length - 1} onClick={() => setOrder(move(order, i, 1))}>↓</button>
-                    <button type="button" className="icon-btn" aria-label={`Remove ${s.label}`} onClick={() => setOrder(order.filter((x) => x !== id))}>✕</button>
+                    <button type="button" className="icon-btn" aria-label={`Move ${s.label} up`} disabled={i === 0} onClick={() => setOrder(move(order, i, -1))}>Up</button>
+                    <button type="button" className="icon-btn" aria-label={`Move ${s.label} down`} disabled={i === order.length - 1} onClick={() => setOrder(move(order, i, 1))}>Down</button>
+                    <button type="button" className="icon-btn" aria-label={`Remove ${s.label}`} onClick={() => setOrder(order.filter((x) => x !== id))}>Remove</button>
                   </span>
                 </li>
               );

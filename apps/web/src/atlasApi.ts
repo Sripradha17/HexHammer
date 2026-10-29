@@ -161,6 +161,14 @@ export interface ReviewMission {
   question?: PublicInterview;
 }
 
+// A quick multiple-choice challenge (a topic's riddle or quick check). Answer hidden until checked.
+export interface QuickfireQuestion extends PublicChoice {
+  kind: "predict" | "debug" | "check";
+  topicId: string;
+  topicTitle: string;
+  domainId: string;
+}
+
 export interface BankQuestion extends PublicInterview {
   topicId: string;
   topicTitle: string;
@@ -273,7 +281,6 @@ export interface Project {
 export type ProjectTemplate = ProjectDraft & {
   key: string; // what to start it by: a fun build id ("build-...") or a topic id
   kind: "game" | "creative" | "app" | "ai" | "lesson";
-  emoji: string | null;
   quest: string | null; // one sentence of story (fun builds only)
   topicTitle: string;
   region: { id: string; short: string; hue: number };
@@ -430,6 +437,7 @@ export const atlas = {
   reviewsDue: () => call<{ missions: ReviewMission[] }>("/atlas/reviews/due"),
   submitReview: (id: number, body: { answers?: Record<string, number>; selfRating?: string; confidence: number }) =>
     post<Rewards & { result: string; nextDueAt: string; days: number; feedback: { id: string; correct: boolean; answerIndex: number; explanation: string }[] }>(`/atlas/reviews/${id}`, body),
+  quickfire: () => call<{ questions: QuickfireQuestion[] }>("/atlas/quickfire"),
   interviewBank: () => call<{ questions: BankQuestion[]; target: number; topicsWithQuestions: number }>("/atlas/interview/questions"),
   answerInterview: (id: string, answerText: string, confidence: number) => post<Reveal>(`/atlas/interview/questions/${encodeURIComponent(id)}/answer`, { answerText, confidence }),
   rateAttempt: (attemptId: number, selfRating: string, elementsHit: string[]) =>

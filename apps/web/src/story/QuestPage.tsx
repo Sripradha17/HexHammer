@@ -80,16 +80,16 @@ function Player({ topicId, title, chapters }: { topicId: string; title?: string;
       <StageArt />
 
       <header className="quest__bar">
-        <Link to="/" className="quest__exit" aria-label="Leave the quest">
-          ✕
+        <Link to={`/topic/${topicId}`} className="quest__exit">
+          Exit
         </Link>
         <div className="quest__name">
           <span className="quest__kicker">Quest</span>
           {title ?? view?.topic.title}
         </div>
-        {/* The same lesson as a page of notes, labs and the project: handy for revising. */}
-        <Link to={`/topic/${topicId}#see`} className="quest__notes">
-          Study notes
+        {/* The topic page: Study, Play, Build, Test. */}
+        <Link to={`/topic/${topicId}`} className="quest__notes">
+          Back to the topic
         </Link>
         <ol className="quest__path" aria-label="Chapters">
           {chapters.map((c, i) => (
@@ -104,7 +104,7 @@ function Player({ topicId, title, chapters }: { topicId: string; title?: string;
                 disabled={i > at}
                 onClick={() => setAt(i)}
               >
-                <span aria-hidden="true">{c.icon}</span>
+                <span aria-hidden="true">{i + 1}</span>
               </button>
             </li>
           ))}

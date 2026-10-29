@@ -73,7 +73,7 @@ export function ProposalPage() {
       <h1 className="page-title">{p.title}</h1>
       <p><Badge tone={p.status === "approved" ? "success" : p.status === "rejected" ? "danger" : "review"}>{p.status}</Badge> {p.version && <Badge tone="success">Published as version {p.version.version}</Badge>}</p>
       <p className="callout"><strong>Reason:</strong> {p.changeReason}</p>
-      {p.update && <p>From: <a href={p.update.canonicalUrl.replace(/#hexhammer-change-.*/, "")} target="_blank" rel="noreferrer noopener">{p.update.title} ↗</a></p>}
+      {p.update && <p>From: <a href={p.update.canonicalUrl.replace(/#hexhammer-change-.*/, "")} target="_blank" rel="noreferrer noopener">{p.update.title}</a></p>}
 
       {editable && p.problems && p.problems.length > 0 && (
         <div className="callout callout--locked" role="note">

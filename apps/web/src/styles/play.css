@@ -397,7 +397,7 @@
 }
 .chart__tick {
   fill: var(--hh-text-faint);
-  font: 500 14px/1 var(--hh-font-mono);
+  font: 500 0.875rem/1 var(--hh-font-mono);
 }
 .chart__tooltip {
   position: absolute;

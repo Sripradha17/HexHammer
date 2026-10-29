@@ -8,7 +8,6 @@ import { api, type StrikeData } from "../api";
 import { CodeEditor } from "../components/CodeEditor";
 import { TestResults } from "../components/TestResults";
 import { HintLadder } from "../components/HintLadder";
-import { Icon } from "../components/Icon";
 import { Loading } from "../components/Loading";
 import { createWorker } from "../runner/createWorker";
 import { runCode } from "../runner/runCode";
@@ -151,7 +150,7 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
     <div className="bay-page">
       <header className="mission__head">
         <Link to={backTo} className="mission__back">
-          <Icon name="back" size={16} /> {backLabel}
+{backLabel}
         </Link>
         <p className="kicker">
           Code bay · {strike.trackTitle ?? "hand-typed strike"}
@@ -200,10 +199,10 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
           <div className="stage-box stage-box--bench">
             <div className="bench__bar">
               <span className="bench__label">
-                <Icon name="code" size={14} /> Your code {saveState === "saving" ? "· saving…" : saveState === "saved" ? "· saved" : ""}
+Your code {saveState === "saving" ? "· saving…" : saveState === "saved" ? "· saved" : ""}
               </span>
               <button type="button" className="cta cta--small" onClick={handleRunTests} disabled={running}>
-                <Icon name="play" size={14} /> {running ? "Running…" : "Run tests"}
+{running ? "Running…" : "Run tests"}
               </button>
             </div>
             <div className="bench__editor">
@@ -228,7 +227,7 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
               <h2 className="ms-card__title">All tests pass. Strike complete!</h2>
               <p className="muted">Now write your one sentence in the Say beat.</p>
               <Link to={strike.nextStrikeId && !missionId ? `/strike/${strike.nextStrikeId}` : backTo} className="cta cta--small">
-                {strike.nextStrikeId && !missionId ? "Next strike" : backLabel} <Icon name="arrow" size={15} />
+                {strike.nextStrikeId && !missionId ? "Next strike" : backLabel}
               </Link>
             </div>
           )}
@@ -236,13 +235,13 @@ function StrikeView({ id, onProgress }: { id: string; onProgress: () => void }) 
           <div className="bench__out">
             <div className="bench__tests">
               <p className="bench__label">
-                <Icon name="test" size={14} /> Tests
+Tests
               </p>
               <TestResults run={run} />
             </div>
             <div className="bench__terminal">
               <p className="bench__label">
-                <Icon name="terminal" size={14} /> Console
+Console
               </p>
               <pre className="bench__lines">{run ? (run.consoleLines.length ? run.consoleLines.join("\n") : "(nothing printed)") : "Run the tests to see output."}</pre>
             </div>

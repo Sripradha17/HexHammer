@@ -98,8 +98,8 @@ export function PortfolioPage() {
                     <p className="muted"><strong>Skills demonstrated:</strong> {p.objectives.slice(0, 3).join(" · ")}</p>
                   )}
                   <p className="showcase__links">
-                    {p.repoUrl && <a href={p.repoUrl} target="_blank" rel="noreferrer noopener">Repository ↗</a>}
-                    {p.demoUrl && <a href={p.demoUrl} target="_blank" rel="noreferrer noopener">Demo ↗</a>}
+                    {p.repoUrl && <a href={p.repoUrl} target="_blank" rel="noreferrer noopener">Repository</a>}
+                    {p.demoUrl && <a href={p.demoUrl} target="_blank" rel="noreferrer noopener">Demo</a>}
                   </p>
                   {p.reflection && <blockquote className="showcase__reflection">{p.reflection}</blockquote>}
                 </li>

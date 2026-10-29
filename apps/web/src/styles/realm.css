@@ -409,8 +409,7 @@
 .rnode.is-locked.is-selected .rnode__icon {
   filter: grayscale(1) brightness(0.65) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
-.rnode__lock,
-.rnode__done {
+.rnode__lock {
   position: absolute;
   top: calc(var(--node) - 18px);
   right: -4px;
@@ -418,7 +417,7 @@
   place-items: center;
   width: 22px;
   height: 22px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 800;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
@@ -433,14 +432,10 @@
   stroke: currentColor;
   stroke-width: 2.4;
 }
-.rnode__done {
-  color: #241300;
-  background: var(--rm-gold);
-}
 .rnode__name {
   margin-top: 6px;
   padding: 3px 9px;
-  font: 600 14px/1.2 var(--rm-serif);
+  font: 600 0.875rem/1.2 var(--rm-serif);
   white-space: nowrap;
   color: var(--rm-ink);
   background: rgba(6, 10, 20, 0.84);
@@ -458,7 +453,7 @@
   position: absolute;
   bottom: calc(100% + 8px);
   padding: 3px 9px;
-  font: 800 14px/1.2 var(--rm-sans);
+  font: 800 0.875rem/1.2 var(--rm-sans);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -703,10 +698,11 @@
   animation: rm-floor 3.2s ease-in-out infinite;
 }
 /* his speech bubble, beside his head; each new tip pops in */
+/* his speech bubble floats above his head, so it never runs under the quest card beside him */
 .owl-hero__line {
   position: absolute;
-  left: 78%;
-  top: 2%;
+  left: 12%;
+  bottom: calc(100% + 6px);
   z-index: 1;
   width: max-content;
   max-width: 270px;
@@ -719,6 +715,7 @@
   border-radius: 16px 16px 16px 4px;
   box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.9);
   transform-origin: 0 100%;
+  max-width: 300px;
   animation: rm-bubble 420ms var(--m-spring) both;
 }
 .owl-hero__who {
@@ -841,7 +838,9 @@
   outline: 3px solid var(--rm-teal);
   outline-offset: 3px;
 }
+/* The bubble lets clicks pass straight through to whatever is under it. */
 .buddy__bubble {
+  pointer-events: none !important;
   max-width: min(300px, calc(100vw - 110px));
   margin: 0 0 18px;
   padding: 12px 16px;
@@ -900,19 +899,6 @@
   align-items: center;
   margin-top: -34px;
   position: relative;
-}
-.realm--world .rpanel__emblem {
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-  padding: 0;
-  border-radius: 50%;
-  clip-path: circle(48%);
-  background: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-}
-.rpanel.is-locked .rpanel__emblem {
-  filter: grayscale(1) brightness(0.6);
 }
 .realm--world .rpanel__title {
   font: 600 1.9rem/1.05 var(--rm-serif);
@@ -1120,7 +1106,7 @@
   left: 50vw;
   z-index: 4;
   margin: 0;
-  font: 600 clamp(1.8rem, 1.2rem + 2.2vw, 3.2rem) / 1 var(--rm-serif);
+  font: 600 clamp(1.8rem, 1.3rem + 1.6vw, 2.6rem) / 1 var(--rm-serif);
   color: var(--rm-ink);
   text-align: center;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
@@ -1804,10 +1790,13 @@
 }
 
 /* ================================================================ phones and narrow screens */
-@media (max-width: 1000px) {
+/* Below 1200px there is no room for "Your town" beside today's quest (World shows the same). */
+@media (max-width: 1200px) {
   .realm__here {
     display: none;
   }
+}
+@media (max-width: 1000px) {
   .journey {
     left: 50%;
     right: auto;
@@ -1836,12 +1825,11 @@
   .rmap--world .rnode:not(.is-selected):not(.is-here) .rnode__name {
     display: none;
   }
-  .rmap--world .rnode__lock,
-  .rmap--world .rnode__done {
+  .rmap--world .rnode__lock {
     top: calc(var(--node) - 14px);
     width: 16px;
     height: 16px;
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   .rmap--world .rnode__lock svg {
     width: 10px;
@@ -1869,7 +1857,9 @@
     margin-top: 0;
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
+  /* Phones and tablets (the same width where the top bar becomes the bottom dock): Home and quests
+     switch to their stacked layouts. */
   .realm {
     min-height: calc(100vh - 140px);
   }
@@ -2338,4 +2328,833 @@
 }
 .practice-strikes a {
   color: var(--rm-amber);
+}
+
+/* ================================================================ quest polish: bigger, friendlier */
+/* the dialogue box: a little wider, roomier, with readable text */
+.quest {
+  --box-w: min(960px, calc(100vw - 300px));
+}
+.quest__panel {
+  padding: 26px 32px 28px;
+  border-radius: 22px;
+  border-color: rgba(201, 164, 92, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 60px -20px rgba(95, 216, 245, 0.35), 0 40px 80px -30px rgba(0, 0, 0, 0.95);
+}
+.quest .talk__text {
+  font-size: clamp(1.15rem, 1.05rem + 0.35vw, 1.35rem);
+  line-height: 1.6;
+}
+.quest .btn {
+  padding: 14px 24px;
+  font-size: 1.05rem;
+}
+.quest .talk__actions {
+  margin-top: 6px;
+  gap: 12px;
+}
+.quest__dot {
+  width: 42px;
+  height: 42px;
+  font-size: 1.15rem;
+}
+
+/* lesson cards */
+.lesson-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+}
+.lesson-card__top .talk__who {
+  margin: 0;
+}
+.lesson-card__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  letter-spacing: 0.1em;
+}
+.lesson-card__title {
+  font-size: clamp(1.4rem, 1.2rem + 0.6vw, 1.75rem);
+}
+.lesson-card__body {
+  font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  line-height: 1.7;
+}
+
+/* the picture card for beginners: a big floating emoji, then a few plain words */
+.simple-card__emoji {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  font-size: 3.2rem;
+  line-height: 1;
+  background: radial-gradient(circle at 50% 40%, rgba(95, 216, 245, 0.3), rgba(95, 216, 245, 0.05) 70%);
+  border: 1px solid rgba(95, 216, 245, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 30px -6px rgba(95, 216, 245, 0.6);
+  animation: rm-emoji-pop 600ms var(--m-spring) both, rm-emoji-float 3.6s ease-in-out 600ms infinite;
+}
+@keyframes rm-emoji-pop {
+  from { transform: scale(0.3) rotate(-20deg); opacity: 0; }
+}
+@keyframes rm-emoji-float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+.simple-card__title {
+  margin: 4px 0 8px;
+  font: 600 clamp(1.45rem, 1.25rem + 0.7vw, 1.85rem) / 1.15 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.simple-card__say {
+  margin: 0 0 14px;
+  font: 600 clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem) / 1.55 var(--rm-sans);
+  color: var(--rm-text);
+}
+.simple-card__example {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: #e9dcff;
+  background: rgba(167, 139, 250, 0.1);
+  border-left: 3px solid #a78bfa;
+  border-radius: 0 12px 12px 0;
+}
+.simple-card__code {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  font: 600 1rem/1.6 var(--hh-font-mono);
+  color: var(--hh-code-text);
+  background: var(--hh-code-bg);
+  border: 1px solid rgba(95, 216, 245, 0.25);
+  border-radius: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+.simple-card__word {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 1rem;
+  color: var(--rm-text);
+  background: rgba(95, 216, 245, 0.1);
+  border: 1px solid rgba(95, 216, 245, 0.35);
+  border-radius: 999px;
+}
+.simple-card__word span {
+  color: var(--rm-text-soft);
+}
+.simple-card__word strong {
+  color: var(--rm-teal);
+}
+
+@media (max-width: 900px) {
+  .quest__panel {
+    padding: 18px 20px 20px;
+    border-radius: 18px;
+  }
+  .simple-card__emoji {
+    width: 4.2rem;
+    height: 4.2rem;
+    font-size: 2.4rem;
+  }
+  .quest__dot {
+    width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .simple-card__emoji {
+    animation: none;
+  }
+}
+:root[data-motion="reduce"] .simple-card__emoji {
+  animation: none;
+}
+
+/* ================================================================ the memory garden (Reviews) */
+.memory {
+  max-width: 920px;
+  margin: 0 auto;
+  font-family: var(--rm-sans);
+  color: var(--rm-text);
+}
+.memory__head {
+  margin-bottom: 22px;
+}
+.memory__title {
+  margin: 0 0 8px;
+  font: 600 var(--hh-text-display) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.memory__lead {
+  max-width: 60ch;
+  margin: 0 0 16px;
+  font-size: var(--hh-text-read);
+  line-height: 1.6;
+  color: var(--rm-text-soft);
+}
+/* one glowing orb per review today */
+.memory__orbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.memory__orbs li {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.memory__orbs li.is-done {
+  background: radial-gradient(circle at 40% 35%, #c9f6ff, var(--rm-teal));
+  box-shadow: 0 0 12px rgba(95, 216, 245, 0.7);
+}
+.memory__orbs li.is-now {
+  background: radial-gradient(circle at 40% 35%, #fff1cf, var(--rm-amber));
+  box-shadow: 0 0 16px rgba(255, 181, 71, 0.9);
+  animation: rm-rune-pulse var(--m-rune) ease-in-out infinite;
+}
+.memory__card {
+  padding: 26px 30px 30px;
+}
+.memory__who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.memory__who p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.memory__kicker {
+  font: 800 var(--hh-text-xs) / 1.3 var(--rm-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rm-teal);
+}
+.memory__topic {
+  font: 600 var(--hh-text-lg) / 1.4 var(--rm-sans);
+}
+.memory__topic a {
+  color: var(--rm-amber);
+}
+.memory__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+/* a question, with big answer tiles */
+.memory-q {
+  margin: 0 0 22px;
+  padding: 0;
+  border: 0;
+}
+.memory-q__prompt {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  margin-bottom: 12px;
+  padding: 0;
+  font: 600 clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem) / 1.45 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.memory-q__prompt--big {
+  display: block;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+}
+.memory-q__n {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  font: 800 0.95rem/1 var(--rm-sans);
+  color: #241300;
+  background: var(--rm-amber);
+  border-radius: 50%;
+}
+.memory-q__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.memory-q__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  font-size: var(--hh-text-md);
+  line-height: 1.4;
+  background: rgba(20, 30, 52, 0.95);
+  border: 1px solid var(--rm-gold-faint);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 150ms ease, transform 150ms var(--m-spring), box-shadow 150ms ease;
+}
+.memory-q__option:hover {
+  border-color: var(--rm-gold-soft);
+  transform: translateY(-2px);
+}
+.memory-q__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.memory-q__option:has(input:focus-visible) {
+  outline: 3px solid var(--rm-teal);
+  outline-offset: 2px;
+}
+.memory-q__option.is-picked {
+  border-color: var(--rm-amber);
+  box-shadow: 0 0 18px -4px rgba(255, 181, 71, 0.6);
+}
+.memory-q__letter {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--rm-gold-soft);
+  border-radius: 9px;
+}
+.memory-q__option.is-picked .memory-q__letter {
+  color: #241300;
+  background: var(--rm-amber);
+  border-color: transparent;
+}
+/* how sure am I: five faces */
+.sure {
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+}
+.sure legend {
+  margin-bottom: 10px;
+  padding: 0;
+  font-weight: 700;
+  color: var(--rm-text-soft);
+}
+.sure__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sure__option {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 92px;
+  padding: 10px 12px;
+  font-size: var(--hh-text-sm);
+  font-weight: 700;
+  background: rgba(20, 30, 52, 0.9);
+  border: 1px solid var(--rm-gold-faint);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 150ms var(--m-spring), border-color 150ms ease;
+}
+.sure__option:hover {
+  transform: translateY(-2px);
+}
+.sure__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.sure__option:has(input:focus-visible) {
+  outline: 3px solid var(--rm-teal);
+}
+.sure__option.is-on {
+  border-color: var(--rm-teal);
+  box-shadow: 0 0 16px -4px rgba(95, 216, 245, 0.7);
+}
+/* writing an answer */
+.memory-answer {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-weight: 700;
+  color: var(--rm-text-soft);
+}
+.memory-answer__box {
+  width: 100%;
+  padding: 14px 16px;
+  font: 500 var(--hh-text-md) / 1.6 var(--rm-sans);
+  color: var(--rm-text);
+  background: var(--hh-surface-2);
+  border: 1px solid var(--rm-gold-soft);
+  border-radius: 14px;
+  resize: vertical;
+}
+.memory-answer__box:focus-visible {
+  outline: 3px solid var(--rm-teal);
+}
+.memory-reveal h3 {
+  margin: 18px 0 8px;
+  font: 600 var(--hh-text-lg) / 1.2 var(--rm-serif);
+  color: var(--rm-teal);
+}
+.memory-reveal p,
+.memory-reveal li {
+  font-size: var(--hh-text-read);
+  line-height: 1.65;
+}
+.memory-rate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+/* the result */
+.memory-result__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 181, 71, 0.08);
+  border: 1px solid rgba(255, 181, 71, 0.3);
+}
+.memory-result__head.is-good {
+  background: rgba(126, 226, 168, 0.08);
+  border-color: rgba(126, 226, 168, 0.4);
+}
+.memory-result__head strong {
+  display: block;
+  font-size: var(--hh-text-lg);
+}
+.memory-result__next {
+  color: var(--rm-text-soft);
+}
+.memory-answers {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.memory-answers li {
+  padding: 14px 16px;
+  background: rgba(20, 30, 52, 0.7);
+  border-left: 4px solid var(--hh-danger);
+  border-radius: 0 12px 12px 0;
+}
+.memory-answers li.is-right {
+  border-left-color: var(--hh-success);
+}
+.memory-answers p {
+  margin: 0 0 6px;
+}
+.memory-answers__q {
+  font-weight: 700;
+}
+.memory-answers__verdict {
+  font-weight: 800;
+}
+.memory-answers__why {
+  color: var(--rm-text-soft);
+}
+.memory__empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.memory__empty h2 {
+  margin: 8px 0 0;
+  font: 600 var(--hh-text-2xl) / 1.15 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.memory__empty p {
+  max-width: 52ch;
+  margin: 0;
+  font-size: var(--hh-text-read);
+  color: var(--rm-text-soft);
+}
+@media (max-width: 600px) {
+  .memory__card {
+    padding: 18px 16px 20px;
+  }
+  .sure__option {
+    min-width: 0;
+    flex: 1 1 30%;
+  }
+}
+
+/* ================================================================ Challenge: Quick fire */
+.mode--quick {
+  border-color: rgba(255, 181, 71, 0.5);
+}
+.quickfire {
+  padding: 22px 26px 26px;
+}
+.quickfire__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-bottom: 14px;
+}
+.quickfire__title {
+  margin: 0;
+  font: 600 var(--hh-text-2xl) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.quickfire__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  font-weight: 800;
+}
+.quickfire__stats span {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.quickfire__streak.is-hot {
+  color: #241300;
+  background: linear-gradient(180deg, #ffc566, #f59a1b);
+  border-color: transparent;
+  box-shadow: 0 0 20px rgba(245, 154, 27, 0.7);
+  animation: rm-pop 300ms var(--m-spring);
+}
+.quickfire__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.quickfire__filters .shelf-tab.is-on {
+  color: #241300;
+  background: linear-gradient(180deg, #ffc566, #f59a1b);
+  border-color: transparent;
+}
+.quickfire__card {
+  animation: rm-panel-in 350ms var(--m-ease) both;
+}
+.quickfire__topic {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--rm-text-soft);
+}
+.quickfire__topic a {
+  color: var(--rm-amber);
+}
+.quickfire__next {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+@media (max-width: 600px) {
+  .quickfire {
+    padding: 16px 14px 18px;
+  }
+}
+
+/* the four steps, shown on Today's topic card */
+.flow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -6px 0 18px;
+  padding: 0;
+  list-style: none;
+}
+.flow-steps li {
+  padding: 5px 12px;
+  font-size: var(--hh-text-sm);
+  font-weight: 700;
+  color: var(--rm-text-soft);
+  border: 1px solid var(--rm-gold-faint);
+  border-radius: 999px;
+}
+.flow-steps li.is-now {
+  color: #241300;
+  background: var(--rm-amber);
+  border-color: transparent;
+}
+
+/* ================================================================ structure pass: one flow, no clutter */
+
+/* Quiet, thin scrollbars everywhere */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 164, 92, 0.35) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 164, 92, 0.35);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* The menu button says "Menu" */
+.utility__toggle {
+  width: auto;
+  height: 42px;
+  padding: 0 16px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+/* Text-only dock on phones: five pages, no icons */
+@media (max-width: 900px) {
+  .dock__link {
+    align-content: center;
+    min-height: 48px;
+  }
+}
+
+/* Map markers: numbered discs (the town's place in the learning order) */
+.rnode__icon {
+  display: grid;
+  place-items: center;
+  font: 800 calc(var(--node) * 0.42) / 1 var(--rm-sans);
+  color: var(--rm-ink);
+  background: radial-gradient(circle at 50% 35%, #2b3d63, #0e1730 75%);
+  border: 2px solid var(--rm-gold);
+  clip-path: none;
+}
+.rnode.is-locked .rnode__icon {
+  color: var(--rm-text-soft);
+  border-color: rgba(160, 170, 200, 0.4);
+}
+.rnode.is-here .rnode__icon,
+.rnode.is-active .rnode__icon {
+  color: #241300;
+  background: radial-gradient(circle at 50% 35%, #ffd98a, #f59a1b 75%);
+  border-color: #ffe2a6;
+}
+.journey__stop a {
+  display: grid;
+  place-items: center;
+  font: 800 0.95rem/1 var(--rm-sans);
+  color: var(--rm-ink);
+  text-decoration: none;
+  background: #14203a;
+  border: 1px solid var(--rm-gold-soft);
+}
+.journey__stop.is-locked a {
+  color: var(--rm-text-soft);
+  opacity: 0.6;
+}
+
+/* World: ONE scroll (the page). The map stays fixed; the town panel flows beside it. */
+.realm--world {
+  display: grid;
+  grid-template-columns: 1fr min(440px, 38vw);
+  column-gap: 24px;
+  align-items: start;
+}
+.realm--world .realm__title {
+  grid-column: 1;
+  grid-row: 1;
+}
+.realm--world .realm__panel {
+  position: relative;
+  inset: auto;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: auto;
+  max-height: none;
+  margin-bottom: 24px;
+  overflow: visible;
+}
+@media (max-width: 900px) {
+  .realm--world {
+    grid-template-columns: 1fr;
+  }
+  .realm--world .realm__panel {
+    grid-column: 1;
+    grid-row: 2;
+    /* below the map, which sits at the top of the screen */
+    margin-top: calc(100vw / 1.3382 - 20px);
+    min-height: 0;
+  }
+}
+
+/* Quest: the story card is large and centred; Bram stands beside it */
+.quest {
+  --box-w: min(880px, calc(100vw - 360px));
+  --box-l: calc((100vw - var(--box-w)) / 2 + 100px);
+}
+@media (min-width: 901px) {
+  .quest__panel {
+    top: 50%;
+    bottom: auto;
+    left: var(--box-l);
+    translate: 0 -50%;
+    max-height: calc(100vh - 150px);
+    padding: 34px 40px 36px;
+  }
+  .quest__chapter {
+    top: 12vh;
+  }
+  .stage__bram {
+    bottom: 24px;
+  }
+}
+
+/* ================================================================ About */
+.about {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+.about__hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.about__hero > div {
+  flex: 1 1 420px;
+}
+.about__hero .kicker {
+  margin: 0 0 6px;
+}
+.about__title {
+  margin: 0 0 12px;
+  font: 600 var(--hh-text-display) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__lead {
+  max-width: 62ch;
+  margin: 0;
+  font-size: var(--hh-text-lg);
+  line-height: 1.6;
+  color: var(--rm-text);
+}
+.about__section {
+  margin-bottom: 36px;
+  padding: 26px 28px;
+  background: var(--rm-panel);
+  border: 1px solid var(--rm-gold-faint);
+  border-radius: 18px;
+}
+.about__section h2 {
+  margin: 0 0 10px;
+  font: 600 var(--hh-text-2xl) / 1.2 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__text {
+  margin: 0 0 18px;
+  font-size: var(--hh-text-read);
+  color: var(--rm-text-soft);
+}
+.about__steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.about__step {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(20, 30, 52, 0.85);
+  border: 1px solid var(--rm-gold-soft);
+  border-radius: 14px;
+}
+.about__step > span:last-child {
+  display: grid;
+  gap: 6px;
+  line-height: 1.55;
+}
+.about__step strong {
+  font: 600 var(--hh-text-xl) / 1.1 var(--rm-serif);
+  color: var(--rm-ink);
+}
+.about__n {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  font: 800 1.1rem/1 var(--rm-sans);
+  color: #241300;
+  background: var(--rm-amber);
+  border-radius: 50%;
+}
+.about__pages {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.about__page {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rm-gold-faint);
+}
+.about__page:last-child {
+  border-bottom: 0;
+}
+.about__page dt {
+  font: 700 var(--hh-text-lg) / 1.2 var(--rm-sans);
+}
+.about__page dt a {
+  color: var(--rm-amber);
+}
+.about__page dd {
+  margin: 0;
+  font-size: var(--hh-text-read);
+  line-height: 1.55;
+  color: var(--rm-text);
+}
+.about__rules {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: var(--hh-text-read);
+  line-height: 1.55;
+}
+.about__start {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+@media (max-width: 600px) {
+  .about__section {
+    padding: 18px 16px;
+  }
+  .about__page {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 }

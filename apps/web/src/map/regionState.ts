@@ -39,7 +39,7 @@ export const NODE_STATE_LABEL: Record<NodeState, string> = {
   locked: "Locked",
   available: "Ready",
   progress: "In progress",
-  done: "Done ✓",
+  done: "Done",
   unwritten: "Coming soon",
 };
 

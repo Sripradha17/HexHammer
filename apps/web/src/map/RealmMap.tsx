@@ -6,7 +6,7 @@
 //      sweeps through it, so light seems to travel along the painted roads.
 //   4. links: for the selected town, a line to the towns that open it and the towns it opens.
 //      Small packets of light travel along the open ones.
-//   5. the town medallions: real buttons, one per region, showing its true state
+//   5. the town markers: real buttons, one per region, numbered in learning order, showing its true state
 //      (locked / open / in progress / complete), and "you are here".
 //   6. in front: five painted clouds and a band of mist, each drifting at its own speed, and each
 //      moving more than the map when the pointer moves (parallax: nearer things move more).
@@ -124,18 +124,15 @@ export function RealmMap({ regions, selectedId, hereId, onSelect, fresh, mode }:
                 onClick={() => onSelect(r.id)}
               >
                 <span className="rnode__ring" aria-hidden="true" />
-                <img className="rnode__icon" src={art.icon} alt="" draggable={false} />
+                <span className="rnode__icon" aria-hidden="true">
+                  {r.number}
+                </span>
                 {/* A fresh unlock still shows its lock for a moment, so the lock can visibly break. */}
                 {(state === "locked" || fresh?.has(r.id)) && (
                   <span className={`rnode__lock ${state === "locked" ? "" : "is-breaking"}`} aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="14" height="14">
                       <path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z" />
                     </svg>
-                  </span>
-                )}
-                {state === "complete" && (
-                  <span className="rnode__done" aria-hidden="true">
-                    ✓
                   </span>
                 )}
                 <span className="rnode__name">{town}</span>

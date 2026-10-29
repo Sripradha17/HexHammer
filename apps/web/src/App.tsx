@@ -1,15 +1,16 @@
-// THE APP SHELL: the world backdrop, the top HUD (brand, the five places, my level, the utility
-// menu), a dock at the bottom on phones, and every page's route.
+// THE APP SHELL: the world backdrop, the top bar (brand, the pages in learning order, my level,
+// the menu), a dock at the bottom on phones, and every page's route.
 //
-// The five places, and nothing else at the top level:
-//   Home      enter the next mission
-//   World     explore the engineering regions
-//   Workshop  build practical projects
-//   Challenge interview and coding practice
-//   Progress  mastery, achievements, reviews
-// Secondary tools (reviews, portfolio, glossary, tech radar, settings) live in the utility menu.
+// The pages, in the order you use them:
+//   About     what Hexhammer is and how to use it (new visitors start here)
+//   Today     your next topic, reviews due, and your current build
+//   Learn     the map of 16 towns (subjects); each topic: Study, Play, Build, Test
+//   Practice  interview practice: quick riddles and questions in your own words
+//   Build     the workshop: projects to make
+//   Progress  level, mastery and achievements
+// The Menu holds the rest: reviews, portfolio, glossary, tech radar, settings.
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router";
+import { Navigate, NavLink, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 import { atlas, type Me } from "./atlasApi";
 import { api } from "./api";
 import { RewardsProvider, useRewards } from "./components/Rewards";
@@ -31,8 +32,8 @@ import { ProposalPage } from "./pages/ProposalPage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ABOUT_SEEN_KEY, AboutPage } from "./pages/AboutPage";
 import { Loading } from "./components/PageState";
-import { Icon, type IconName } from "./components/Icon";
 import { setSoundOn, soundOn } from "./sound";
 import { QuestPage } from "./story/QuestPage";
 import { QUESTS } from "./story/quests";
@@ -43,22 +44,23 @@ const StrikePage = lazy(() => import("./pages/StrikePage").then((m) => ({ defaul
 interface NavItem {
   to: string;
   label: string;
-  icon: IconName;
   end?: boolean;
 }
 const PRIMARY: NavItem[] = [
-  { to: "/", label: "Home", icon: "mission", end: true },
-  { to: "/map", label: "World", icon: "map" },
-  { to: "/projects", label: "Workshop", icon: "workshop" },
-  { to: "/interview", label: "Challenge", icon: "interview" },
-  { to: "/progress", label: "Progress", icon: "analytics" },
+  { to: "/about", label: "About" },
+  { to: "/", label: "Today", end: true },
+  { to: "/map", label: "Learn" },
+  { to: "/interview", label: "Practice" },
+  { to: "/projects", label: "Build" },
+  { to: "/progress", label: "Progress" },
 ];
 const TOOLS: NavItem[] = [
-  { to: "/reviews", label: "Reviews", icon: "reviews" },
-  { to: "/portfolio", label: "Portfolio", icon: "portfolio" },
-  { to: "/glossary", label: "Glossary", icon: "glossary" },
-  { to: "/radar", label: "Tech Radar", icon: "radar" },
-  { to: "/settings", label: "Settings", icon: "settings" },
+  { to: "/about", label: "About Hexhammer" },
+  { to: "/reviews", label: "Reviews" },
+  { to: "/portfolio", label: "Portfolio" },
+  { to: "/glossary", label: "Glossary" },
+  { to: "/radar", label: "Tech Radar" },
+  { to: "/settings", label: "Settings" },
 ];
 
 // My level, XP bar and streak. Refreshes whenever a reward is celebrated anywhere in the app.
@@ -83,7 +85,7 @@ function PlayerChip() {
       </span>
       {me.streak.current > 0 && (
         <span className="player__streak" title={`${me.streak.current}-day streak`}>
-          <Icon name="flame" size={14} /> {me.streak.current}
+{me.streak.current}
         </span>
       )}
       <span className="visually-hidden">
@@ -117,8 +119,8 @@ function UtilityMenu() {
   return (
     <div className="utility" ref={box}>
       <button type="button" className="utility__toggle" aria-expanded={open} aria-controls="utility-menu" onClick={() => setOpen(!open)}>
-        <Icon name="more" size={20} />
-        <span className="visually-hidden">Tools</span>
+
+        Menu
       </button>
       {open && (
         <div id="utility-menu" className="utility__menu">
@@ -126,7 +128,7 @@ function UtilityMenu() {
             {TOOLS.map((t) => (
               <li key={t.to}>
                 <NavLink to={t.to} className="utility__link">
-                  <Icon name={t.icon} size={17} /> {t.label}
+{t.label}
                 </NavLink>
               </li>
             ))}
@@ -140,7 +142,7 @@ function UtilityMenu() {
               setSound(!sound);
             }}
           >
-            <Icon name={sound ? "volume" : "mute"} size={17} /> Sound {sound ? "on" : "off"}
+Sound {sound ? "on" : "off"}
           </button>
         </div>
       )}
@@ -148,11 +150,9 @@ function UtilityMenu() {
   );
 }
 
-// Byteford's hand-written story opens even from its old mission address. Every other topic's
-// /topic/ page is the mission (lesson notes, labs, project); its story lives at /quest/.
+// Every topic's page: Study, Play, Build, Test.
 function TopicRoute() {
-  const { id = "" } = useParams();
-  return QUESTS[id] ? <Navigate to={`/quest/${id}`} replace /> : <MissionPage />;
+  return <MissionPage />;
 }
 function QuestRoute() {
   const { id = "" } = useParams();
@@ -162,6 +162,17 @@ function QuestRoute() {
 
 function Shell() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // A first-time visitor arriving at Today is shown the About page once.
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    try {
+      if (!localStorage.getItem(ABOUT_SEEN_KEY)) navigate("/about", { replace: true });
+    } catch {
+      // storage blocked: just show Today
+    }
+  }, [location.pathname, navigate]);
   const mainRef = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
 
@@ -209,7 +220,7 @@ function Shell() {
         <nav className="hud__nav" aria-label="Main">
           {PRIMARY.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className="hud__link">
-              <Icon name={item.icon} size={17} />
+
               {item.label}
             </NavLink>
           ))}
@@ -221,9 +232,10 @@ function Shell() {
       </header>
 
       <nav className="dock" aria-label="Quick">
-        {PRIMARY.map((item) => (
+        {/* About lives in the Menu on phones, so the dock has room for the five working pages. */}
+        {PRIMARY.filter((item) => item.to !== "/about").map((item) => (
           <NavLink key={item.to} to={item.to} end={item.end} className="dock__link">
-            <Icon name={item.icon} size={20} />
+
             <span className="dock__label">{item.label}</span>
           </NavLink>
         ))}
@@ -234,6 +246,7 @@ function Shell() {
           <Suspense fallback={<Loading />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/map" element={<WorldPage />} />
               <Route path="/map/:regionId" element={<WorldPage />} />
               <Route path="/topic/:id" element={<TopicRoute />} />

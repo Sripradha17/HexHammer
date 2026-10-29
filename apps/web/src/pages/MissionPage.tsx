@@ -19,28 +19,31 @@ import { ErrorState, Loading } from "../components/PageState";
 import { ChoiceQuestion } from "../components/ChoiceQuestion";
 import { CodeBlock, InlineText, RichText } from "../components/RichText";
 import { useRewards } from "../components/Rewards";
-import { Icon } from "../components/Icon";
 import { LabHost } from "../labs/LabHost";
 import { hasPipeline, MissionScene } from "../components/MissionScene";
 import { NotFoundPage } from "./NotFoundPage";
+import { PlainWords } from "../components/PlainWords";
 import { missionNumber } from "../map/regionState";
 import { formatDate, relativeDays } from "../labels";
 
-type StepId = "discover" | "see" | "try" | "solve" | "prove" | "unlock";
-const STEPS: { id: StepId; label: string }[] = [
-  { id: "discover", label: "Discover" },
-  { id: "see", label: "See" },
-  { id: "try", label: "Try" },
-  { id: "solve", label: "Solve" },
-  { id: "prove", label: "Prove" },
-  { id: "unlock", label: "Unlock" },
+// Every topic is learned in the same four steps, in this order:
+//   1. Study  read it: plain words first, then the full lesson and a worked example
+//   2. Play   practise it: the story game, the lab, riddles and hand-typed strikes
+//   3. Build  make something real with it: the project
+//   4. Test   prove it: the scored test, then the mastery summary
+type StepId = "study" | "play" | "build" | "test";
+const STEPS: { id: StepId; label: string; hint: string }[] = [
+  { id: "study", label: "Study", hint: "Read and understand" },
+  { id: "play", label: "Play", hint: "Practise until it clicks" },
+  { id: "build", label: "Build", hint: "Make something real" },
+  { id: "test", label: "Test", hint: "Prove you know it" },
 ];
 
-// Old links (#lesson, #assessment...) still land on the right step.
+// Old links (#discover, #lesson, #assessment...) still land on the right step.
 const OLD_ANCHORS: Record<string, StepId> = {
-  understand: "discover", story: "discover", model: "discover", lesson: "discover",
-  examples: "see", lab: "try", experiment: "try", exercises: "solve", practise: "solve", mistakes: "solve",
-  assessment: "prove", project: "unlock", interview: "unlock", mastery: "unlock", references: "unlock", changes: "unlock", apply: "unlock",
+  discover: "study", see: "study", understand: "study", story: "study", model: "study", lesson: "study", examples: "study",
+  try: "play", solve: "play", lab: "play", experiment: "play", exercises: "play", practise: "play", mistakes: "play",
+  project: "build", prove: "test", unlock: "test", assessment: "test", interview: "test", mastery: "test", references: "test", changes: "test", apply: "test",
 };
 function stepFromHash(hash: string): StepId | null {
   const id = hash.replace("#", "");
@@ -54,20 +57,17 @@ function doneSteps(view: TopicView): Set<StepId> {
   const lab = view.topic.exercises.find((e) => e.kind === "lab");
   const practice = view.progress.exerciseKeys.filter((k) => !k.startsWith("lab:"));
   const passing = view.topic.assessment?.passingScore ?? 0.8;
-  if (view.progress.lessonRead) done.add("discover");
-  if (lab && lab.kind === "lab" && ex.has(`lab:${lab.lab}`)) done.add("try");
-  if (practice.length > 0 && practice.every((k) => ex.has(k))) done.add("solve");
-  if (view.progress.bestAssessmentScore !== null && view.progress.bestAssessmentScore >= passing) done.add("prove");
-  if (view.status === "mastered") done.add("unlock");
+  const labDone = !lab || lab.kind !== "lab" || ex.has(`lab:${lab.lab}`);
+  if (view.progress.lessonRead) done.add("study");
+  if (labDone && practice.length > 0 && practice.every((k) => ex.has(k))) done.add("play");
+  if (view.progress.projectComplete) done.add("build");
+  if (view.progress.bestAssessmentScore !== null && view.progress.bestAssessmentScore >= passing) done.add("test");
   return done;
 }
 
-// Where to open when the URL names no step: the first thing not yet done.
-function firstOpenStep(view: TopicView, done: Set<StepId>): StepId {
-  if (!done.has("discover")) return "discover";
-  if (!done.has("solve") && view.progress.exerciseKeys.length > 0) return "solve";
-  if (!done.has("prove")) return "prove";
-  return "unlock";
+// Where to open when the URL names no step: the first step not yet done, in order.
+function firstOpenStep(done: Set<StepId>): StepId {
+  return STEPS.find((s) => !done.has(s.id))?.id ?? "test";
 }
 
 // ================================================================== DISCOVER
@@ -105,15 +105,15 @@ function Briefing({ view, onRead }: { view: TopicView; onRead: () => void }) {
       </article>
       <div className="briefing__nav">
         <button type="button" className="cta cta--ghost cta--small" disabled={at === 0} onClick={() => go(at - 1)}>
-          <Icon name="back" size={16} /> Back
+Back
         </button>
         {at < sections.length - 1 ? (
           <button type="button" className="cta cta--small" onClick={() => go(at + 1)}>
-            Next card <Icon name="arrow" size={16} />
+            Next card
           </button>
         ) : (
           <span className="pill pill--green">
-            <Icon name="check" size={14} /> Briefing complete
+Briefing complete
           </span>
         )}
       </div>
@@ -144,7 +144,7 @@ function Discover({ view, onRead }: { view: TopicView; onRead: () => void }) {
           <ul className="goals">
             {topic.learningObjectives.map((o) => (
               <li key={o}>
-                <Icon name="check" size={14} /> {o}
+{o}
               </li>
             ))}
           </ul>
@@ -156,7 +156,7 @@ function Discover({ view, onRead }: { view: TopicView; onRead: () => void }) {
               <span key={p.id}>
                 {i > 0 && ", "}
                 <Link to={`/topic/${p.id}`}>{p.title}</Link>
-                {p.met ? " ✓" : ""}
+                {p.met ? " (done)" : ""}
               </span>
             ))}
             . You can still go ahead.
@@ -189,7 +189,7 @@ function WorkedExample({ example }: { example: TopicView["topic"]["codeExamples"
         </ol>
         <div className="example__nav">
           <button type="button" className="cta cta--small" onClick={() => setStep((s) => Math.min(s + 1, last))} disabled={step >= last}>
-            <Icon name="play" size={14} /> {step < 0 ? "Run it step by step" : step >= last ? "Finished" : "Next step"}
+{step < 0 ? "Run it step by step" : step >= last ? "Finished" : "Next step"}
           </button>
           {step >= 0 && (
             <button type="button" className="cta cta--ghost cta--small" onClick={() => setStep(-1)}>
@@ -258,7 +258,7 @@ function Try({ view, onGoal }: { view: TopicView; onGoal: (detail: string) => vo
       {lab && lab.kind === "lab" && (
         <div className={`goal ${reached ? "is-reached" : ""}`}>
           <span className="goal__icon" aria-hidden="true">
-            <Icon name={reached ? "check" : "spark"} size={20} />
+
           </span>
           <div>
             <p className="goal__task">{lab.task}</p>
@@ -307,14 +307,14 @@ function Solve({ view, onChanged, goTry }: { view: TopicView; onChanged: () => v
     body = (
       <div className="bay-card">
         <span className="bay-card__icon" aria-hidden="true">
-          <Icon name="code" size={26} />
+
         </span>
         <div>
           <p className="kicker">Hand-typed code · tests · 3 hints</p>
           <h3 className="bay-card__title">{strike?.title ?? ex.strikeId}</h3>
           <p className="muted">{ex.why}</p>
           <Link to={`/strike/${ex.strikeId}?mission=${topic.id}`} className="cta cta--small">
-            <Icon name="terminal" size={16} /> {isDone(at) ? "Open again" : "Open the code bay"}
+{isDone(at) ? "Open again" : "Open the code bay"}
           </Link>
         </div>
       </div>
@@ -323,7 +323,7 @@ function Solve({ view, onChanged, goTry }: { view: TopicView; onChanged: () => v
     body = (
       <div className="bay-card">
         <span className="bay-card__icon" aria-hidden="true">
-          <Icon name="spark" size={26} />
+
         </span>
         <div>
           <p className="kicker">Lab challenge</p>
@@ -344,7 +344,7 @@ function Solve({ view, onChanged, goTry }: { view: TopicView; onChanged: () => v
         {items.map((_, i) => (
           <li key={i}>
             <button type="button" className={`solve__dot ${i === at ? "is-current" : ""} ${isDone(i) ? "is-done" : ""}`} aria-current={i === at ? "step" : undefined} onClick={() => setAt(i)}>
-              {isDone(i) ? <Icon name="check" size={13} /> : i + 1}
+              {i + 1}
               <span className="visually-hidden">Challenge {i + 1}</span>
             </button>
           </li>
@@ -355,10 +355,10 @@ function Solve({ view, onChanged, goTry }: { view: TopicView; onChanged: () => v
       </div>
       <div className="briefing__nav">
         <button type="button" className="cta cta--ghost cta--small" disabled={at === 0} onClick={() => setAt(at - 1)}>
-          <Icon name="back" size={16} /> Previous
+Previous
         </button>
         <button type="button" className="cta cta--ghost cta--small" disabled={at >= items.length - 1} onClick={() => setAt(at + 1)}>
-          Next challenge <Icon name="arrow" size={16} />
+          Next challenge
         </button>
       </div>
       {topic.commonMistakes.length > 0 && (
@@ -390,6 +390,94 @@ function Solve({ view, onChanged, goTry }: { view: TopicView; onChanged: () => v
 // ================================================================== PROVE
 
 type AssessmentResult = Awaited<ReturnType<typeof atlas.submitAssessment>>;
+
+// ================================================================== STUDY
+
+// Plain words first (big cards, one at a time), then the full lesson and the worked example.
+// Someone who has already read the lesson goes straight to the full version.
+function Study({ view, region, onRead }: { view: TopicView; region: Region | null; onRead: () => void }) {
+  const cards = view.topic.beginner ?? [];
+  const [full, setFull] = useState(view.progress.lessonRead || cards.length === 0);
+  if (!full) return <PlainWords cards={cards} onFinished={() => setFull(true)} />;
+  return (
+    <>
+      {cards.length > 0 && (
+        <p className="mission__back-to-plain">
+          <button type="button" className="linkish" onClick={() => setFull(false)}>
+            See the plain-words cards again
+          </button>
+        </p>
+      )}
+      <Discover view={view} onRead={onRead} />
+      <h2 className="mission__sub">See it run</h2>
+      <See view={view} region={region} />
+    </>
+  );
+}
+
+// ================================================================== PLAY: the story game
+
+// The story game is a fun way to practise the same topic with Bram (story/autoQuest.tsx).
+function StoryGame({ view }: { view: TopicView }) {
+  return (
+    <div className="story-game">
+      <div>
+        <p className="kicker kicker--amber">The story game</p>
+        <p className="story-game__text">Practise this topic as a short adventure with Bram: watch the example run, solve his riddles and earn your victory.</p>
+      </div>
+      <Link to={`/quest/${view.topic.id}`} className="cta">
+        Play the story game
+      </Link>
+    </div>
+  );
+}
+
+// ================================================================== BUILD
+
+function Build({ view }: { view: TopicView }) {
+  const project = view.topic.project;
+  if (!project) return <p className="muted">This topic has no project yet. Pick a build in the Workshop instead.</p>;
+  const mine = view.projects[0];
+  return (
+    <div className="build-step">
+      <p className="kicker kicker--amber">Project</p>
+      <h2 className="build-step__title">{project.title}</h2>
+      <p className="build-step__summary">{project.summary}</p>
+      <div className="build-step__grid">
+        <section>
+          <h3>Steps</h3>
+          <ol className="build-step__list">
+            {project.milestones.map((m) => (
+              <li key={m.title}>
+                <strong>{m.title}.</strong> <span className="muted">Done when: {m.done_when}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section>
+          <h3>It works when</h3>
+          <ul className="build-step__list">
+            {project.acceptanceCriteria.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+          <p className="muted small">Tools: {project.technologies.join(", ")}</p>
+        </section>
+      </div>
+      <div className="home__actions">
+        {mine ? (
+          <Link to={`/projects/${mine.id}`} className="cta">
+            Continue your build
+          </Link>
+        ) : (
+          <Link to={`/projects?start=${view.topic.id}`} className="cta">
+            Start this build in the Workshop
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Prove({ view, onDone }: { view: TopicView; onDone: () => void }) {
   const questions = view.topic.assessment?.questions ?? [];
@@ -461,7 +549,7 @@ function Prove({ view, onDone }: { view: TopicView; onDone: () => void }) {
                     <InlineText text={q.prompt} />
                   </p>
                   <p className="muted">
-                    {r.correct ? "✓ Right" : `✗ You chose ${r.chosen === null ? "nothing" : `"${q.choices[r.chosen]}"`}; the answer is "${q.choices[r.answerIndex]}"`}
+                    {r.correct ? "Right" : `Wrong: you chose ${r.chosen === null ? "nothing" : `"${q.choices[r.chosen]}"`}; the answer is "${q.choices[r.answerIndex]}"`}
                   </p>
                   <p>
                     <InlineText text={r.explanation} />
@@ -508,13 +596,13 @@ function Prove({ view, onDone }: { view: TopicView; onDone: () => void }) {
       </fieldset>
       <div className="briefing__nav">
         <button type="button" className="cta cta--ghost cta--small" disabled={at === 0} onClick={() => setAt(at - 1)}>
-          <Icon name="back" size={16} /> Back
+Back
         </button>
         {at < questions.length - 1 ? (
           // Different keys on purpose: without them React would turn THIS button into the submit
           // button during the click, and the browser would then submit the form early.
           <button key="next" type="button" className="cta cta--small" disabled={answers[q.id] === undefined} onClick={() => setAt(at + 1)}>
-            Next question <Icon name="arrow" size={16} />
+            Next question
           </button>
         ) : (
           <button key="submit" type="submit" className="cta" disabled={busy || answered === 0}>
@@ -555,7 +643,7 @@ function Unlock({ view, nextMission }: { view: TopicView; nextMission: { id: str
           {view.mastery.map((m) => (
             <li key={m.label} className={m.met ? "is-met" : ""}>
               <span className="seals__mark" aria-hidden="true">
-                {m.met ? <Icon name="check" size={14} /> : null}
+                
               </span>
               <span>
                 <strong>{m.label}</strong> <span className="muted">{m.detail}</span>
@@ -572,26 +660,26 @@ function Unlock({ view, nextMission }: { view: TopicView; nextMission: { id: str
         <div className="home__actions">
           {nextMission && (
             <Link to={`/topic/${nextMission.id}`} className="cta">
-              Next mission <Icon name="arrow" size={17} />
+              Next mission
             </Link>
           )}
           {!nextMission && (
             <Link to="/map" className="cta">
-              <Icon name="map" size={17} /> Return to world
+Return to world
             </Link>
           )}
           {view.projects.length > 0 ? (
             <Link to={`/projects/${view.projects[0].id}`} className="cta cta--ghost cta--small">
-              <Icon name="workshop" size={16} /> Resume build
+Resume build
             </Link>
           ) : topic.project ? (
             <Link to={`/projects?start=${topic.id}`} className="cta cta--ghost cta--small">
-              <Icon name="workshop" size={16} /> Build: {topic.project.title}
+Build: {topic.project.title}
             </Link>
           ) : null}
           {topic.interviewQuestions.length > 0 && (
             <Link to={`/interview?topic=${topic.id}`} className="cta cta--ghost cta--small">
-              <Icon name="interview" size={16} /> Challenge mode
+Challenge mode
             </Link>
           )}
         </div>
@@ -625,7 +713,7 @@ function Unlock({ view, nextMission }: { view: TopicView; nextMission: { id: str
           {view.versions.map((v) => (
             <p key={v.version} className="small">
               <strong>
-                v{v.previousVersion} → v{v.version} ({formatDate(v.approvedAt)}):
+                v{v.previousVersion} to v{v.version} ({formatDate(v.approvedAt)}):
               </strong>{" "}
               {String(v.addendum.whatChanged ?? v.changeReason)}
               {v.addendum.now && <> Now: {String(v.addendum.now)}</>}
@@ -648,7 +736,7 @@ function OutlineMission({ view }: { view: TopicView }) {
         <ul className="goals">
           {view.topic.learningObjectives.map((o) => (
             <li key={o}>
-              <Icon name="check" size={14} /> {o}
+{o}
             </li>
           ))}
         </ul>
@@ -663,7 +751,7 @@ function OutlineMission({ view }: { view: TopicView }) {
               <li key={s.id}>
                 <Link to={`/strike/${s.id}?mission=${view.topic.id}`} className="mrow">
                   <span className={`mrow__dot ${s.status === "complete" ? "is-done" : "is-available"}`} aria-hidden="true">
-                    <Icon name={s.status === "complete" ? "check" : "code"} size={13} />
+
                   </span>
                   <span className="mrow__title">{s.title}</span>
                   <span className="mrow__state">{s.status.replace("_", " ")}</span>
@@ -694,7 +782,7 @@ export function MissionPage() {
   const region = map.regions.find((r) => r.id === domain.id) ?? null;
   const number = region ? missionNumber(region, topic.id) : null;
   const done = doneSteps(view);
-  const step = stepFromHash(location.hash) ?? firstOpenStep(view, done);
+  const step = stepFromHash(location.hash) ?? firstOpenStep(done);
   const index = STEPS.findIndex((s) => s.id === step);
 
   // The next mission after this one: another written, open, not-yet-passed mission in this region.
@@ -731,7 +819,7 @@ export function MissionPage() {
     <div className="mission" style={{ "--hue": domain.hue } as CSSProperties}>
       <header className="mission__head">
         <Link to={`/map/${domain.id}`} className="mission__back">
-          <Icon name="back" size={16} /> {domain.short}
+{domain.short}
         </Link>
         <p className="kicker">
           Mission {number} · {topic.difficulty}
@@ -746,9 +834,12 @@ export function MissionPage() {
                 <li key={s.id} className={done.has(s.id) ? "is-done" : ""}>
                   <button type="button" className="path__step" aria-current={s.id === step ? "step" : undefined} onClick={() => goTo(s.id)}>
                     <span className="path__dot" aria-hidden="true">
-                      {done.has(s.id) ? <Icon name="check" size={14} /> : i + 1}
+                      {i + 1}
                     </span>
-                    {s.label}
+                    <span className="path__label">
+                      {s.label}
+                      <span className="path__hint">{done.has(s.id) ? "Done" : s.hint}</span>
+                    </span>
                     {done.has(s.id) && <span className="visually-hidden"> (done)</span>}
                   </button>
                 </li>
@@ -763,12 +854,27 @@ export function MissionPage() {
           <OutlineMission view={view} />
         ) : (
           <>
-            {step === "discover" && <Discover view={view} onRead={markRead} />}
-            {step === "see" && <See view={view} region={region} />}
-            {step === "try" && <Try view={view} onGoal={labGoal} />}
-            {step === "solve" && <Solve view={view} onChanged={reload} goTry={() => goTo("try")} />}
-            {step === "prove" && <Prove view={view} onDone={reload} />}
-            {step === "unlock" && <Unlock view={view} nextMission={nextMission} />}
+            {step === "study" && <Study view={view} region={region} onRead={markRead} />}
+            {step === "play" && (
+              <>
+                <StoryGame view={view} />
+                {topic.visualizationType !== "none" && (
+                  <>
+                    <h2 className="mission__sub">The lab</h2>
+                    <Try view={view} onGoal={labGoal} />
+                  </>
+                )}
+                <h2 className="mission__sub">Riddles and exercises</h2>
+                <Solve view={view} onChanged={reload} goTry={() => goTo("play")} />
+              </>
+            )}
+            {step === "build" && <Build view={view} />}
+            {step === "test" && (
+              <>
+                <Prove view={view} onDone={reload} />
+                <Unlock view={view} nextMission={nextMission} />
+              </>
+            )}
           </>
         )}
       </section>
@@ -776,7 +882,7 @@ export function MissionPage() {
       {!isOutline && index < STEPS.length - 1 && (
         <footer className="mission__foot">
           <button type="button" className="cta cta--ghost cta--small" onClick={() => goTo(STEPS[index + 1].id)}>
-            Continue to {STEPS[index + 1].label} <Icon name="arrow" size={16} />
+            Continue to {STEPS[index + 1].label}
           </button>
         </footer>
       )}

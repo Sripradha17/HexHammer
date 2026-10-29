@@ -10,7 +10,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import type { Region } from "../atlasApi";
 import type { VisualizationType } from "@hexhammer/content";
-import { Glyph, REGION_GLYPHS } from "./Icon";
 
 // ================================================================== 1. Encoding flow
 
@@ -96,7 +95,7 @@ export function EncodingFlow({ compact = false }: { compact?: boolean }) {
           <li className="flow__station flow__station--end" style={{ "--n": 4 } as CSSProperties}>
             <span className="flow__label">Decoded</span>
             <span className="flow__glyph">{decoded}</span>
-            <span className={`flow__sub ${decoded === char ? "is-ok" : ""}`}>{decoded === char ? "✓ round trip" : "mismatch"}</span>
+            <span className={`flow__sub ${decoded === char ? "is-ok" : ""}`}>{decoded === char ? "round trip OK" : "mismatch"}</span>
           </li>
         </ol>
       )}
@@ -314,12 +313,9 @@ export function RegionBeacon({ region }: { region: Region }) {
           })}
         </g>
         <polygon points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31" className="beacon__core" />
-        <g transform="translate(-26 -26) scale(2.2)" className="beacon__glyph">
-          <path d={REGION_GLYPHS[region.id] ?? REGION_GLYPHS.adv} />
-        </g>
       </svg>
       <figcaption className="beacon__caption">
-        <Glyph d={REGION_GLYPHS[region.id] ?? REGION_GLYPHS.adv} size={16} /> {region.short} · {modules.length} modules · {region.counts.assessed}/{region.counts.topics} passed
+{region.short} · {modules.length} modules · {region.counts.assessed}/{region.counts.topics} passed
       </figcaption>
     </figure>
   );

@@ -38,7 +38,7 @@ export default function BinaryLab({ onGoal }: LabProps) {
       </div>
       <p className="lab__readout" aria-live="polite">
         binary <code>{bits.join("")}</code> = decimal <strong>{value}</strong> = hex <code>0x{value.toString(16).padStart(2, "0")}</code>
-        {seen.byte && " ✓ 0xA5 found"}
+        {seen.byte && ", 0xA5 found"}
       </p>
 
       <label className="lab__field">
